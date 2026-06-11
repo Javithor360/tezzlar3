@@ -18,8 +18,8 @@ repositories {
 }
 
 dependencies {
-    // Paper API for version 26.1.2
-    compileOnly("io.papermc.paper:paper-api:26.1.2-R0.1-SNAPSHOT")
+    // Paper API for version 26.1.2 (Using the new 2026 build format)
+    compileOnly("io.papermc.paper:paper-api:26.1.2.build.69-stable")
     
     // Adventure API for component-based text
     compileOnly("net.kyori:adventure-api:4.20.0")
