@@ -1,0 +1,39 @@
+# Gradle
+.gradle/
+build/
+
+# Integrated Development Environments (IDE)
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.vscode/
+
+# Local testing environments and server data
+run/
+logs/
+plugins/
+world/
+world_nether/
+world_the_end/
+server.properties
+eula.txt
+banned-ips.json
+banned-players.json
+ops.json
+whitelist.json
+usercache.json
+version_history.json
+*.log
+*.log.gz
+
+# Compiled binaries
+*.class
+*.jar
+*.war
+*.ear
+
+# Operating System files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,7 @@
+name: tezzlar3
+version: '${version}'
+main: com.panita.tezzlar3.Main
+api-version: '26.1.2'
+authors:
+  - panita
+description: A private Minecraft Plugin made in PaperMC

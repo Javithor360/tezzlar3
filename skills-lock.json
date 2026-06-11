@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "minecraft-bukkit-pro": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/minecraft-bukkit-pro/SKILL.md",
+      "computedHash": "fe426b2bef0519afab9e18011c41ff97283eb5df48ba9203277e525a28e94c61"
+    },
+    "solid": {
+      "source": "ramziddin/solid-skills",
+      "sourceType": "github",
+      "skillPath": "skills/solid/SKILL.md",
+      "computedHash": "fd066a27d0d3e2dff7e987b49a4a3b936049abb40b292d1e96df4c3990209f77"
+    }
+  }
+}
