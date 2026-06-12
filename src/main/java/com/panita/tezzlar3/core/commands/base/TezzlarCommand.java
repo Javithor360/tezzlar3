@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 
 @CommandSpec(
         name = "tezzlar",
-        description = "tezzlar's main command",
+        description = "Tezzlar's main command",
         syntax = "/tezzlar <subcommand>",
         aliases = {"tz"},
         permission = "tezzlar.command.tezzlar"

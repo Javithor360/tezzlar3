@@ -23,7 +23,7 @@ public class Tezzlar extends JavaPlugin {
         Config.load(this);
         configManager = new ConfigManager(this, getConfig());
 
-        new CommandRegistry(this).registerAll("com.panita.panita275.core.commands.base"); // load base commands first
+        new CommandRegistry(this).registerAll("com.panita.tezzlar3.core.commands.base"); // load base commands first
         moduleManager = new ModuleManager(this);
     }
 
