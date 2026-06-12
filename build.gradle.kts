@@ -12,6 +12,10 @@ repositories {
         url = uri("https://repo.papermc.io/repository/maven-public/")
     }
     maven {
+        name = "placeholderapi"
+        url = uri("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+    }
+    maven {
         name = "sonatype"
         url = uri("https://oss.sonatype.org/content/groups/public/")
     }
@@ -20,6 +24,9 @@ repositories {
 dependencies {
     // Paper API for version 26.1.2 (Using the new 2026 build format)
     compileOnly("io.papermc.paper:paper-api:26.1.2.build.69-stable")
+    
+    // PlaceholderAPI
+    compileOnly("me.clip:placeholderapi:2.11.6")
     
     // Adventure API for component-based text
     compileOnly("net.kyori:adventure-api:4.20.0")

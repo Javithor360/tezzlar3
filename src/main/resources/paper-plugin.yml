@@ -3,5 +3,5 @@ version: '${version}'
 main: com.panita.tezzlar3.Main
 api-version: '26.1.2'
 authors:
-  - panita
+  - Javithor360
 description: A private Minecraft Plugin made in PaperMC
