@@ -1,4 +1,4 @@
-﻿package com.panita.tezzlar3.core.chat;
+package com.panita.tezzlar3.core.chat;
 
 import com.panita.tezzlar3.core.util.Global;
 import me.clip.placeholderapi.PlaceholderAPI;

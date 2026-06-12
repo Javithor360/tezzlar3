@@ -1,4 +1,4 @@
-﻿package com.panita.tezzlar3.core.commands.base;
+package com.panita.tezzlar3.core.commands.base;
 
 import com.panita.tezzlar3.core.commands.dynamic.AdvancedCommand;
 import com.panita.tezzlar3.core.commands.identifiers.CommandSpec;
@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
         name = "tezzlar",
         description = "tezzlar's main command",
         syntax = "/tezzlar <subcommand>",
-        aliases = {"pc", "panita"},
+        aliases = {"tz"},
         permission = "tezzlar.command.tezzlar"
 )
 public class TezzlarCommand implements AdvancedCommand {

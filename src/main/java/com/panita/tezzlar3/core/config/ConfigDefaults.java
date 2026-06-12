@@ -1,4 +1,4 @@
-﻿package com.panita.tezzlar3.core.config;
+package com.panita.tezzlar3.core.config;
 
 public class ConfigDefaults {
     // --- General ---

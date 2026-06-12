@@ -1,5 +1,6 @@
 package com.panita.tezzlar3;
 
+import com.panita.tezzlar3.core.commands.CommandRegistry;
 import com.panita.tezzlar3.core.config.Config;
 import com.panita.tezzlar3.core.config.ConfigManager;
 import com.panita.tezzlar3.core.modules.ModuleManager;
@@ -18,11 +19,11 @@ public class Tezzlar extends JavaPlugin {
 
         instance = this;
 
-        // Load Configuration
+        // Config setup
         Config.load(this);
         configManager = new ConfigManager(this, getConfig());
 
-        // Load Modules
+        new CommandRegistry(this).registerAll("com.panita.panita275.core.commands.base"); // load base commands first
         moduleManager = new ModuleManager(this);
     }
 

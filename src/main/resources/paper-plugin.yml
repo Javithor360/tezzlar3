@@ -1,6 +1,6 @@
 name: tezzlar3
 version: '${version}'
-main: com.panita.tezzlar3.Main
+main: com.panita.tezzlar3.Tezzlar
 api-version: '26.1.2'
 authors:
   - Javithor360

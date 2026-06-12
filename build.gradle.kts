@@ -53,3 +53,9 @@ tasks.processResources {
         expand(props)
     }
 }
+
+// Bundle all runtime dependencies into the final JAR natively to bypass Shadow/ASM limitations with Java 25
+tasks.jar {
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
