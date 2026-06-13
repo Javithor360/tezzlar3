@@ -130,6 +130,9 @@ public class ModuleManager {
         // Unregister listeners
         listenerRegistry.unregisterAll(module.listenerPackage());
 
+        // Unregister commands
+        cmdRegistry.unregisterAll(module.commandPackage());
+
         module.onDisable(plugin);
         module.setEnabled(false);
         active.remove(module);

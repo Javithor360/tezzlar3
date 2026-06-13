@@ -8,8 +8,11 @@ import com.panita.tezzlar3.core.commands.identifiers.CommandSpec;
 import com.panita.tezzlar3.core.commands.identifiers.SubCommandSpec;
 import com.panita.tezzlar3.core.util.Global;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.reflections.Reflections;
@@ -27,6 +30,8 @@ public class CommandRegistry {
     private final JavaPlugin plugin;
     // Map to hold subcommands for each command
     private static final Map<String, CommandMeta> rootCommands = new HashMap<>();
+    // Map to hold module-registered commands
+    private static final Map<String, List<String>> moduleRegisteredCommands = new HashMap<>();
 
     /**
      * Constructor for CommandRegistry.
@@ -82,6 +87,8 @@ public class CommandRegistry {
                 Global.ROOT_COMMANDS.put(spec.name().toLowerCase(), meta);
                 // Register the command with its aliases
                 registerBukkitCommand(spec.name(), meta, Arrays.asList(spec.aliases()));
+
+                moduleRegisteredCommands.computeIfAbsent(basePackage, k -> new ArrayList<>()).add(spec.name().toLowerCase());
             } catch (Exception e) {
                 plugin.getLogger().warning("[ERROR] Error while registering root command: " + e.getMessage());
             }
@@ -172,6 +179,55 @@ public class CommandRegistry {
         Constructor<PluginCommand> constructor = PluginCommand.class.getDeclaredConstructor(String.class, Plugin.class);
         constructor.setAccessible(true);
         return constructor.newInstance(name, plugin); // Create a new instance of PluginCommand
+    }
+
+    /**
+     * Unregisters all commands associated with the specified base package using reflection.
+     *
+     * @param basePackage The base package of the module whose commands should be unregistered.
+     */
+    public void unregisterAll(String basePackage) {
+        List<String> registered = moduleRegisteredCommands.get(basePackage);
+        if (registered == null || registered.isEmpty()) return;
+
+        try {
+            Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            commandMapField.setAccessible(true);
+            CommandMap commandMap = (CommandMap) commandMapField.get(Bukkit.getServer());
+
+            Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            knownCommandsField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            Map<String, Command> knownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
+
+            for (String cmdName : registered) {
+                knownCommands.remove(cmdName);
+                knownCommands.remove(plugin.getName().toLowerCase() + ":" + cmdName);
+
+                CommandMeta meta = rootCommands.get(cmdName);
+                if (meta != null && meta.getCommand() != null) {
+                    CommandSpec spec = meta.getCommand().getClass().getAnnotation(CommandSpec.class);
+                    if (spec != null) {
+                        for (String alias : spec.aliases()) {
+                            knownCommands.remove(alias.toLowerCase());
+                            knownCommands.remove(plugin.getName().toLowerCase() + ":" + alias.toLowerCase());
+                        }
+                    }
+                }
+
+                rootCommands.remove(cmdName);
+                Global.ROOT_COMMANDS.remove(cmdName);
+                plugin.getLogger().info("[INFO] Unregistered command /" + cmdName);
+            }
+
+            moduleRegisteredCommands.remove(basePackage);
+
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.updateCommands();
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("[ERROR] Failed to unregister commands for " + basePackage + ": " + e.getMessage());
+        }
     }
 }
 

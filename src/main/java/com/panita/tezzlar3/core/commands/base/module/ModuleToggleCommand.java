@@ -37,8 +37,10 @@ public class ModuleToggleCommand implements AdvancedCommand, TabSuggestingComman
 
         if (module.isEnabled()) {
             moduleManager.disableModule(module);
+            Tezzlar.getConfigManager().updateBoolean(moduleId + ".enabled", false, null);
             Messenger.prefixedSend(sender, "&cMódulo '" + moduleId + "' desactivado.");
         } else {
+            Tezzlar.getConfigManager().updateBoolean(moduleId + ".enabled", true, null);
             moduleManager.reloadModule(module);
             Messenger.prefixedSend(sender, "&aMódulo '" + moduleId + "' activado.");
         }

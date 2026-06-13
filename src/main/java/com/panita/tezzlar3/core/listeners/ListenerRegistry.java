@@ -68,10 +68,10 @@ public class ListenerRegistry {
 
         for (Listener listener : registered) {
             HandlerList.unregisterAll(listener);
-
-            moduleListeners.remove(basePackage);
-            plugin.getLogger().info("[INFO] Unregistered all listeners for package: " + basePackage);
         }
+
+        moduleListeners.remove(basePackage);
+        plugin.getLogger().info("[INFO] Unregistered all listeners for package: " + basePackage);
     }
 
     /**

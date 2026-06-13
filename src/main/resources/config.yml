@@ -2,14 +2,14 @@
 #    Tezzlar III    #
 #####################
 
-prefix: "<b><gradient:#B87333:#D55555:#B87333>TEZZLAR</gradient></b> <#393341>»</#393341><reset> "
+prefix: "<b><gradient:#5FE2C5:#C6DEF1:#5FE2C5><shadow:#0D1E40:1>TEZZLAR</shadow></gradient></b> <color:#F54848><shadow:#0D1E40:1>»</shadow></color><reset> "
 
 # Quality of Life Module
-quality-of-life:
+qol:
   enabled: true
   totems:
     alert: true
-    message: "&b%player_name% &7ha consumido un tótem en &bX: &7%player_x% &bY: &7%player_y% &bZ: &7%player_z% (&b%player_world_type%&7)"
+    message: "&b%player_name% &7ha activado un tótem en &bX: &7%player_x% &bY: &7%player_y% &bZ: &7%player_z% (&b%player_world_type%&7)"
     playSound: true
     soundName: "minecraft:entity.vindicator.hurt"
   sharecoordinates:

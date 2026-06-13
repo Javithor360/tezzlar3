@@ -3,7 +3,7 @@ package com.panita.tezzlar3.qol.util;
 public class QolConfigDefaults {
     public static final boolean QOL_ENABLED = true;
     public static final boolean QOL_TOTEMS_ALERT = true;
-    public static final String QOL_TOTEMS_MESSAGE = "&b%player_name% &7ha consumido un tótem en &bX: &7%player_x% &bY: &7%player_y% &bZ: &7%player_z% (&b%player_world_type%&7)";
+    public static final String QOL_TOTEMS_MESSAGE = "&b%player_name% &7ha activado un tótem en &bX: &7%player_x% &bY: &7%player_y% &bZ: &7%player_z% (&b%player_world_type%&7)";
     public static final boolean QOL_TOTEMS_PLAYSOUND = true;
     public static final String QOL_TOTEMS_SOUNDNAME = "minecraft:entity.vindicator.hurt";
     public static final boolean QOL_SHARECOORDINATES_ENABLED = true;
