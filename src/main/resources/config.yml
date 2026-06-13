@@ -3,3 +3,21 @@
 #####################
 
 prefix: "<b><gradient:#B87333:#D55555:#B87333>TEZZLAR</gradient></b> <#393341>»</#393341><reset> "
+
+# Quality of Life Module
+quality-of-life:
+  enabled: true
+  totems:
+    alert: true
+    message: "&b%player_name% &7ha consumido un tótem en &bX: &7%player_x% &bY: &7%player_y% &bZ: &7%player_z% (&b%player_world_type%&7)"
+    playSound: true
+    soundName: "minecraft:entity.vindicator.hurt"
+  sharecoordinates:
+    enabled: true
+    publicMessage: "&b%player_name% &7se encuentra en &bX: &7%player_x% &bY: &7%player_y% &bZ: &7%player_z% (&b%player_world_type%&7)"
+    privateMessage: "&b%player_name% &7te ha compartido su ubicación, &bX: &7%player_x% &bY: &7%player_y% &bZ: &7%player_z% (&b%player_world_type%&7)"
+    selfMessage: "&7Tu ubicación es &bX: &7%player_x% &bY: &7%player_y% &bZ: &7%player_z% (&b%player_world_type%&7)"
+    sentPrivateConfirmation: "&7Has compartido tu ubicación con &b%player_name%&7."
+    playSound: true
+    soundPublic: "minecraft:entity.player.levelup"
+    soundPrivate: "minecraft:entity.player.levelup"
