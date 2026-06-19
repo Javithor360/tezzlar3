@@ -16,6 +16,12 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.time.Instant;
 import java.util.List;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Skull;
+import org.bukkit.block.data.Rotatable;
+import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import com.panita.tezzlar3.hardcore.util.HardcoreMessageFormatter;
 
 public class PlayerDeathListener implements Listener {
@@ -50,8 +56,36 @@ public class PlayerDeathListener implements Listener {
             // Fallback for older versions if EXPLOSION_EMITTER doesn't exist
             player.getLocation().getWorld().spawnParticle(Particle.valueOf("EXPLOSION_HUGE"), player.getLocation(), 1);
         }
+        
+        // 3. Place death structure
+        boolean placeSkull = Tezzlar.getConfigManager().getBoolean("hardcore.placeSkullOnDeath", HardcoreConfigDefaults.HARDCORE_PLACESKULLONDEATH);
+        if (placeSkull) {
+            Location deathLoc = player.getLocation().getBlock().getLocation();
+            
+            Block bedrockBlock = deathLoc.clone().add(0, -1, 0).getBlock();
+            bedrockBlock.setType(Material.BEDROCK);
+            
+            Block wallBlock = deathLoc.getBlock();
+            wallBlock.setType(Material.NETHER_BRICK_FENCE);
+            
+            Block headBlock = deathLoc.clone().add(0, 1, 0).getBlock();
+            headBlock.setType(Material.PLAYER_HEAD);
+            
+            if (headBlock.getState() instanceof Skull) {
+                Skull skullState = (Skull) headBlock.getState();
+                skullState.setProfile(ResolvableProfile.resolvableProfile(player.getPlayerProfile()));
+                skullState.update();
+            }
+            
+            if (headBlock.getBlockData() instanceof Rotatable) {
+                Rotatable rotatable = (Rotatable) headBlock.getBlockData();
+                // Face the skull towards the player's last looking direction (opposite face)
+                rotatable.setRotation(player.getFacing().getOppositeFace());
+                headBlock.setBlockData(rotatable);
+            }
+        }
 
-        // 3. Process penalty
+        // 4. Process penalty
         if (deaths <= 3) {
             // Kick without ban for the first 3 deaths
             String rawWarnMsg = Tezzlar.getConfigManager().getString(
