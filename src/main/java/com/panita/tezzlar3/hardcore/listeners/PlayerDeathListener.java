@@ -1,11 +1,12 @@
 package com.panita.tezzlar3.hardcore.listeners;
 
+import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.chat.Messenger;
+import com.panita.tezzlar3.core.util.Global;
 import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.hardcore.HardcoreModule;
+import com.panita.tezzlar3.hardcore.util.HardcoreConfigDefaults;
 import com.panita.tezzlar3.hardcore.util.HardcoreDataManager;
-import org.bukkit.BanList;
-import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,10 +14,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
-import java.time.Duration;
 import java.time.Instant;
-import io.papermc.paper.ban.BanListType;
-import com.destroystokyo.paper.profile.PlayerProfile;
+import java.util.List;
+import com.panita.tezzlar3.hardcore.util.HardcoreMessageFormatter;
 
 public class PlayerDeathListener implements Listener {
 
@@ -29,8 +29,20 @@ public class PlayerDeathListener implements Listener {
         int deaths = HardcoreDataManager.getDeaths(player.getUniqueId());
 
         // 2. Play dramatic global effects
-        SoundUtils.playGlobal("entity.wither.spawn", 1.0f, 0.5f);
-        SoundUtils.playGlobal("entity.lightning_bolt.thunder", 1.0f, 1.0f);
+        List<String> sounds = Tezzlar.getConfigManager().getStringList("hardcore.deathSounds");
+        if (sounds == null || sounds.isEmpty()) {
+            sounds = HardcoreConfigDefaults.HARDCORE_DEATHSOUNDS;
+        }
+        
+        for (String soundStr : sounds) {
+            String[] parts = soundStr.split(";");
+            if (parts.length > 0) {
+                String soundName = parts[0];
+                float volume = parts.length > 1 ? Float.parseFloat(parts[1]) : 1.0f;
+                float pitch = parts.length > 2 ? Float.parseFloat(parts[2]) : 1.0f;
+                SoundUtils.playGlobal(soundName, volume, pitch);
+            }
+        }
         
         try {
             player.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, player.getLocation(), 1);
@@ -42,7 +54,11 @@ public class PlayerDeathListener implements Listener {
         // 3. Process penalty
         if (deaths <= 3) {
             // Kick without ban for the first 3 deaths
-            String kickMsg = "<red>¡Has muerto!</red>\n<gray>Esta fue tu muerte #<yellow>" + deaths + "</yellow> de 3 permitidas libres.</gray>\n<yellow>Tómate un respiro antes de volver a entrar.</yellow>";
+            String rawWarnMsg = Tezzlar.getConfigManager().getString(
+                    "hardcore.messages.warnKickMessage", 
+                    HardcoreConfigDefaults.HARDCORE_WARNKICKMESSAGE
+            );
+            String kickMsg = HardcoreMessageFormatter.processPlaceholders(rawWarnMsg, player.getName(), deaths, null);
             HardcoreModule.getPendingKicks().put(player.getUniqueId(), kickMsg);
         } else {
             // Ban for 4th death and beyond
@@ -51,20 +67,33 @@ public class PlayerDeathListener implements Listener {
                 hoursToBan = (deaths - 4) * 12;
             }
             
-            Duration duration = Duration.ofHours(hoursToBan);
-            Instant expirationInstant = Instant.now().plus(duration);
+            long durationMillis = hoursToBan * 3600000L;
+            Instant expirationInstant = Instant.now().plusMillis(durationMillis);
             
-            String banReason = "<dark_red><bold>¡Has perdido una vida Hardcore!</bold></dark_red>\n<red>Muertes totales: <yellow>" + deaths + "</yellow></red>";
-            String kickReason = banReason + "\n<gray>Estarás exiliado por <red>" + hoursToBan + " horas</red>.</gray>";
+            // Format duration
+            String formattedTime = Global.formatDuration(durationMillis);
+            
+            // Fetch message from config
+            String rawKickReason = Tezzlar.getConfigManager().getString(
+                    "hardcore.messages.kickMessage", 
+                    HardcoreConfigDefaults.HARDCORE_KICKMESSAGE
+            );
+            
+            String kickReason = HardcoreMessageFormatter.processPlaceholders(rawKickReason, player.getName(), deaths, formattedTime);
 
             // Store the ban in our custom data manager using UUID to completely bypass the Vanilla ban UI
             HardcoreDataManager.setBanExpiration(player.getUniqueId(), player.getName(), expirationInstant.toEpochMilli());
             
             // Queue for kick on immediate respawn with the full static text
             HardcoreModule.getPendingKicks().put(player.getUniqueId(), kickReason);
-            
-            // Broadcast the fall
-            Messenger.broadcast("<dark_red><bold>[HARDCORE]</bold></dark_red> <red>El jugador <yellow>" + player.getName() + "</yellow> ha caído y ha sido exiliado por " + hoursToBan + " horas.</red>");
         }
+        
+        // Broadcast the fall for all deaths
+        String rawBroadcast = Tezzlar.getConfigManager().getString(
+                "hardcore.messages.broadcastDeathMessage",
+                HardcoreConfigDefaults.HARDCORE_BROADCASTDEATHMESSAGE
+        );
+        String broadcastMsg = HardcoreMessageFormatter.processPlaceholders(rawBroadcast, player.getName(), deaths, null);
+        Messenger.broadcast(broadcastMsg);
     }
 }

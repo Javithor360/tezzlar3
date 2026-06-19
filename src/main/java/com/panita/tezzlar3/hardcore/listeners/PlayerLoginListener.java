@@ -1,47 +1,39 @@
 package com.panita.tezzlar3.hardcore.listeners;
 
+import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.chat.Messenger;
-import org.bukkit.Bukkit;
+import com.panita.tezzlar3.core.util.Global;
+import com.panita.tezzlar3.hardcore.util.HardcoreConfigDefaults;
+import com.panita.tezzlar3.hardcore.util.HardcoreDataManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.BanEntry;
-import org.bukkit.BanList;
-import com.destroystokyo.paper.profile.PlayerProfile;
-import com.panita.tezzlar3.hardcore.util.HardcoreDataManager;
 
-import java.util.Date;
+import java.util.UUID;
+import com.panita.tezzlar3.hardcore.util.HardcoreMessageFormatter;
 
 public class PlayerLoginListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
-        java.util.UUID playerUUID = event.getUniqueId();
+        UUID playerUUID = event.getUniqueId();
         long banExpiration = HardcoreDataManager.getBanExpiration(playerUUID);
         
         // Check if the player has an active custom ban
         if (banExpiration > System.currentTimeMillis()) {
             int deaths = HardcoreDataManager.getDeaths(playerUUID);
-            String reason = "<dark_red><bold>¡Has perdido una vida Hardcore!</bold></dark_red>\n<red>Muertes totales: <yellow>" + deaths + "</yellow></red>";
-            
             long diffMillis = banExpiration - System.currentTimeMillis();
-            long diffHours = diffMillis / (60 * 60 * 1000);
-            long days = diffHours / 24;
-            long hours = diffHours % 24;
-            long diffMinutes = (diffMillis / (60 * 1000)) % 60;
             
-            String timeRemaining;
-            if (days > 0) {
-                timeRemaining = "en " + days + " días y " + hours + " horas";
-            } else if (hours > 0) {
-                timeRemaining = "en " + hours + " horas y " + diffMinutes + " minutos";
-            } else {
-                timeRemaining = "en " + diffMinutes + " minutos";
-            }
-
-            // Construct the dynamic message
-            String customMessage = reason + "\n<gray>Tu exilio terminará <red>" + timeRemaining + "</red>.</gray>";
+            String formattedTime = Global.formatDuration(diffMillis);
+            
+            // Fetch message from config
+            String rawBanReason = Tezzlar.getConfigManager().getString(
+                    "hardcore.messages.banMessage", 
+                    HardcoreConfigDefaults.HARDCORE_BANMESSAGE
+            );
+            
+            String customMessage = HardcoreMessageFormatter.processPlaceholders(rawBanReason, event.getName(), deaths, formattedTime);
             
             // Disallow the connection manually with KICK_OTHER to bypass vanilla formatting
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, Messenger.mini(customMessage));

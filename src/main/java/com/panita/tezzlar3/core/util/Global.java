@@ -57,5 +57,27 @@ public class Global {
     public static double minutesToTicks(double minutes) {
         return minutes * 1200; // 1 minute = 1200 ticks
     }
+
+    /**
+     * Converts a duration in milliseconds into a human-readable string (days, hours, minutes).
+     * @param diffMillis The duration in milliseconds.
+     * @return A formatted string such as "2 días y 4 horas".
+     */
+    public static String formatDuration(long diffMillis) {
+        if (diffMillis <= 0) return "unos instantes";
+        
+        long diffHours = diffMillis / (60 * 60 * 1000);
+        long days = diffHours / 24;
+        long hours = diffHours % 24;
+        long diffMinutes = (diffMillis / (60 * 1000)) % 60;
+        
+        if (days > 0) {
+            return days + " días y " + hours + " horas";
+        } else if (hours > 0) {
+            return hours + " horas y " + diffMinutes + " minutos";
+        } else {
+            return diffMinutes + " minutos";
+        }
+    }
 }
 

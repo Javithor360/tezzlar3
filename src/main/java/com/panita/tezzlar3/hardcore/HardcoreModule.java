@@ -49,7 +49,7 @@ public class HardcoreModule implements PluginModule {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
         Scoreboard mainScoreboard = manager.getMainScoreboard();
         if (mainScoreboard.getObjective("tezzlar_deaths") == null) {
-            mainScoreboard.registerNewObjective("tezzlar_deaths", Criteria.DEATH_COUNT, Messenger.mini("<gray>\uD83D\uDC80</gray><red>Muertes</red>"));
+            mainScoreboard.registerNewObjective("tezzlar_deaths", Criteria.DEATH_COUNT, Messenger.mini("<gray>\uD83D\uDC80</gray> <red>Muertes</red>"));
             plugin.getLogger().info("[Hardcore] Registered new native scoreboard objective: tezzlar_deaths");
         }
     }
