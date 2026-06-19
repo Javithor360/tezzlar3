@@ -1,7 +1,7 @@
 name: tezzlar3
 version: '${version}'
 main: com.panita.tezzlar3.Tezzlar
-api-version: '26.1.2'
+api-version: '26.2'
 authors:
   - Javithor360
 description: A private Minecraft Plugin made in PaperMC

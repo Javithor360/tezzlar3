@@ -22,8 +22,8 @@ repositories {
 }
 
 dependencies {
-    // Paper API for version 26.1.2 (Using the new 2026 build format)
-    compileOnly("io.papermc.paper:paper-api:26.1.2.build.69-stable")
+    // Paper API for version 26.2 (Experimental)
+    compileOnly("io.papermc.paper:paper-api:26.2.build.24-alpha")
     
     // PlaceholderAPI
     compileOnly("me.clip:placeholderapi:2.11.6")
