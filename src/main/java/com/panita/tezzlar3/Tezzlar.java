@@ -4,6 +4,7 @@ import com.panita.tezzlar3.core.commands.CommandRegistry;
 import com.panita.tezzlar3.core.config.Config;
 import com.panita.tezzlar3.core.config.ConfigManager;
 import com.panita.tezzlar3.core.modules.ModuleManager;
+import com.panita.tezzlar3.hardcore.HardcoreModule;
 import com.panita.tezzlar3.qol.QualityOfLifeModule;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -28,6 +29,7 @@ public class Tezzlar extends JavaPlugin {
         // Load Modules
         moduleManager = new ModuleManager(this);
         moduleManager.register(new QualityOfLifeModule());
+        moduleManager.register(new HardcoreModule());
     }
 
     @Override

@@ -17,3 +17,4 @@ The following rules must be strictly adhered to during the development of this p
    - **Single Responsibility Principle (SRP)**: Maintain strict separation of concerns. Utility classes (e.g., `SoundUtils`, `Messenger`) must focus exclusively on their domain without crossing into business logic.
    - **Open/Closed Principle (OCP)**: Design systems to be easily extensible. New commands or modules must not alter the logic of existing registries.
    - **Modern Java Conventions**: Utilize the Streams API for collection processing and adopt Pattern Matching (e.g., `instanceof Player player`) for safe and implicit casting.
+7. **Explicit Imports**: When modifying or creating Java classes, NEVER leave fully qualified paths in the code body (e.g., `org.bukkit.ban.ProfileBanList`). You must add the corresponding imports at the top of the file to keep the code clean.
