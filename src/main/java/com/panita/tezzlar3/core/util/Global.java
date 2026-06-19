@@ -3,6 +3,7 @@ package com.panita.tezzlar3.core.util;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.commands.identifiers.CommandMeta;
 import com.panita.tezzlar3.core.config.Config;
+import com.panita.tezzlar3.core.config.ConfigDefaults;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 
@@ -12,11 +13,13 @@ import java.util.Map;
 public class Global {
     public static String RAW_PREFIX = "";
     public static Component PREFIX;
+    public static String WORLD_NAME;
     public static final Map<String, CommandMeta> ROOT_COMMANDS = new HashMap<>();
 
     public static void load() {
         RAW_PREFIX = Config.raw().getString("prefix", "");
         PREFIX = Messenger.mini(RAW_PREFIX);
+        WORLD_NAME = Config.raw().getString("worldName", ConfigDefaults.WORLD_NAME);
     }
 
     public static boolean hasPermission(Player player, String permission) {
