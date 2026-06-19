@@ -34,3 +34,19 @@ hardcore:
   deathSounds:
     - "entity.wither.spawn;1.0;0.5"
     - "entity.lightning_bolt.thunder;1.0;1.0"
+
+# Inventory Module
+inventory:
+  enabled: true
+  revenantZombie: true
+  revenant:
+    minions:
+      - ZOMBIE
+      - SKELETON
+      - CAVE_SPIDER
+      - SLIME
+      - HUSK
+      - BOGGED
+      - PARCHED
+      - DROWNED
+    minionCount: 3
