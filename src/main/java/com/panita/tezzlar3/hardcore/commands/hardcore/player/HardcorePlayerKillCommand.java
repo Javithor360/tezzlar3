@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import java.time.Instant;
 
 @SubCommandSpec(
-        parent = "hardcore player",
+        parent = "tezzlar hardcore player",
         name = "kill",
         description = "Aplica un baneo preventivo a un jugador sin sumarle muertes.",
         syntax = "/hardcore player kill <jugador> [horas]",

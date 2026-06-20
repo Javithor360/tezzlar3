@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @SubCommandSpec(
-        parent = "hardcore",
+        parent = "tezzlar hardcore",
         name = "topDeaths",
         description = "Muestra el top 10 de jugadores con más muertes.",
         syntax = "/hardcore topDeaths",

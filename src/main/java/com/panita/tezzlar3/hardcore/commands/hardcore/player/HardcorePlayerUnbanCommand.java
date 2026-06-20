@@ -11,7 +11,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
 @SubCommandSpec(
-        parent = "hardcore player",
+        parent = "tezzlar hardcore player",
         name = "unban",
         description = "Desbanea a un jugador que murió en modo hardcore.",
         syntax = "/hardcore player unban <jugador>",

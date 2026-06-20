@@ -11,7 +11,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
 @SubCommandSpec(
-        parent = "hardcore player deaths",
+        parent = "tezzlar hardcore player deaths",
         name = "set",
         description = "Establece el número de muertes de un jugador.",
         syntax = "/hardcore player deaths set <jugador> <cantidad>",

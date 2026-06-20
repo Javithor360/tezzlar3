@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.stream.Collectors;
 
 @SubCommandSpec(
-        parent = "Tezzlar item",
+        parent = "tezzlar item",
         name = "get",
         description = "Get a custom saved item by name.",
         syntax = "/Tezzlar item get <item_name>",
