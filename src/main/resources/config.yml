@@ -28,19 +28,17 @@ hardcore:
   enabled: true
   placeSkullOnDeath: true
   messages:
-    kickMessage: "<dark_red><bold>¡Has perdido una vida Hardcore!</bold></dark_red><newline><red>Muertes totales: <yellow>%deaths%</yellow></red><newline><gray>Estarás exiliado por <red>%ban_duration%</red>.</gray>"
-    banMessage: "<dark_red><bold>¡Has perdido una vida Hardcore!</bold></dark_red><newline><red>Muertes totales: <yellow>%deaths%</yellow></red><newline><gray>Tu exilio terminará en <red>%ban_duration%</red>.</gray>"
-    warnKickMessage: "<red>¡Has muerto!</red><newline><gray>Esta fue tu muerte #<yellow>%deaths%</yellow> de 3 permitidas libres.</gray><newline><yellow>Tómate un respiro antes de volver a entrar.</yellow>"
-    deathTitle: "<dark_red><bold>Tezzlar</bold></dark_red>"
-    deathSubtitle: "<gray>El alma de <yellow>%player_name%</yellow> pertenece ahora al vacío...</gray>"
-    genericDeathMessage: "<dark_red>Las fuerzas del mal en este mundo han sumido en las tinieblas a <yellow>%player_name%</yellow> y su suplicio han iniciado una tormenta maligna</dark_red>"
+    kickMessage: "<b><gradient:#5FE2C5:#C6DEF1:#5FE2C5><shadow:#0D1E40:1>TEZZLAR</shadow></gradient></b><newline><newline><dark_red>¡Acabas de morir y perder tu <yellow>%deaths%°</yellow> vida en modo Hardcore!<newline>Por lo tanto se te ordena que tomes un descanso.</dark_red><newline><newline><gray>Podrás volver a jugar dentro de <red>%ban_duration%</red>.</gray>"
+    banMessage: "<b><gradient:#5FE2C5:#C6DEF1:#5FE2C5><shadow:#0D1E40:1>TEZZLAR</shadow></gradient></b><newline><newline><dark_red>¡Has perdido tu <yellow>%deaths%°</yellow> vida en modo Hardcore!<newline>Por lo tanto has sido exhortado a tomar un descanso.</dark_red><newline><newline><gray>Podrás volver a jugar dentro de <red>%ban_duration%</red>.</gray>"
+    warnKickMessage: "<b><gradient:#5FE2C5:#C6DEF1:#5FE2C5><shadow:#0D1E40:1>TEZZLAR</shadow></gradient></b><newline><newline><red>¡Acabas de morir y perder <yellow>una</yellow> vida en modo Hardcore!<newline>Pero no te preocupes que no has sido baneado aún.</red><newline><yellow>Se te recomienda tomar un breve respiro antes de volver a entrar.</yellow><newline><newline><gray>Vidas utilizadas: <aqua>%deaths%</aqua>/3</gray>"
+    deathTitle: "<b><gradient:#5FE2C5:#C6DEF1:#5FE2C5><shadow:#0D1E40:1>TEZZLAR</shadow></gradient></b>"
+    deathSubtitle: "<white>%player_name% ha muerto</white>"
+    genericDeathMessage: "<red>Las fuerzas del mal en este mundo han sumido en las tinieblas a <yellow>%player_name%</yellow> llevándose su alma y castigándonos con sus represalias.</red>"
     deathMessages:
-      default: "<gray>El alma de <yellow>%player_name%</yellow> se ha perdido en el vacío.</gray>"
-      MrUnused: "<dark_purple>El gran <yellow>MrUnused</yellow> ha caído ante la oscuridad.</dark_purple>"
-      Fiendrox: "<gold>La leyenda de <yellow>Fiendrox</yellow> ha llegado a su fin.</gold>"
+      default: "<gray>%player_name% ha muerto y ha perdido una de sus vidas.</gray>"
   deathSounds:
-    - "entity.wither.spawn;1.0;0.5"
-    - "entity.lightning_bolt.thunder;1.0;1.0"
+    - "entity.wither.death;1.0;0.0"
+    - "entity.lightning_bolt.thunder;1.0;2.0"
 
 # Inventory Module
 inventory:
