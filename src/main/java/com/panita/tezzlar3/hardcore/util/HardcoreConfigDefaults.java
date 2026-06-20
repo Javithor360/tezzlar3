@@ -19,6 +19,9 @@ public class HardcoreConfigDefaults {
 
     public static final String HARDCORE_GENERICDEATHMESSAGE = "<dark_red>Las fuerzas del mal en este mundo han sumido en las tinieblas a <yellow>%player_name%</yellow> y su suplicio han iniciado una tormenta maligna</dark_red>";
     
+    public static final String HARDCORE_DEATHTITLE = "<dark_red><bold>¡HAS MUERTO!</bold></dark_red>";
+    public static final String HARDCORE_DEATHSUBTITLE = "<gray>El alma de <yellow>%player_name%</yellow> pertenece ahora al vacío...</gray>";
+    
     public static final Map<String, String> HARDCORE_DEATHMESSAGES = new HashMap<String, String>() {{
         put("default", "<gray>El alma de <yellow>%player_name%</yellow> se ha perdido en el vacío.</gray>");
     }};

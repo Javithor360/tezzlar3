@@ -7,6 +7,8 @@ import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.hardcore.HardcoreModule;
 import com.panita.tezzlar3.hardcore.util.HardcoreConfigDefaults;
 import com.panita.tezzlar3.hardcore.util.HardcoreDataManager;
+import com.panita.tezzlar3.hardcore.util.HardcoreMessageFormatter;
+import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,6 +16,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import org.bukkit.Location;
@@ -22,7 +25,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Skull;
 import org.bukkit.block.data.Rotatable;
 import io.papermc.paper.datacomponent.item.ResolvableProfile;
-import com.panita.tezzlar3.hardcore.util.HardcoreMessageFormatter;
 
 public class PlayerDeathListener implements Listener {
 
@@ -34,22 +36,6 @@ public class PlayerDeathListener implements Listener {
         HardcoreDataManager.incrementDeaths(player.getUniqueId(), player.getName());
         int deaths = HardcoreDataManager.getDeaths(player.getUniqueId());
 
-        // 2. Play dramatic global effects
-        List<String> sounds = Tezzlar.getConfigManager().getStringList("hardcore.deathSounds");
-        if (sounds == null || sounds.isEmpty()) {
-            sounds = HardcoreConfigDefaults.HARDCORE_DEATHSOUNDS;
-        }
-        
-        for (String soundStr : sounds) {
-            String[] parts = soundStr.split(";");
-            if (parts.length > 0) {
-                String soundName = parts[0];
-                float volume = parts.length > 1 ? Float.parseFloat(parts[1]) : 1.0f;
-                float pitch = parts.length > 2 ? Float.parseFloat(parts[2]) : 1.0f;
-                SoundUtils.playGlobal(soundName, volume, pitch);
-            }
-        }
-        
         try {
             player.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, player.getLocation(), 1);
         } catch (Exception e) {
@@ -147,5 +133,49 @@ public class PlayerDeathListener implements Listener {
         );
         String customMsg = HardcoreMessageFormatter.processPlaceholders(rawCustom, player.getName(), deaths, null);
         Messenger.broadcast(customMsg);
+        // 4. Show title and play dramatic sounds synchronously
+        String rawTitle = Tezzlar.getConfigManager().getString(
+                "hardcore.messages.deathTitle",
+                HardcoreConfigDefaults.HARDCORE_DEATHTITLE
+        );
+        String rawSubtitle = Tezzlar.getConfigManager().getString(
+                "hardcore.messages.deathSubtitle",
+                HardcoreConfigDefaults.HARDCORE_DEATHSUBTITLE
+        );
+        
+        String parsedTitle = HardcoreMessageFormatter.processPlaceholders(rawTitle, player.getName(), deaths, null);
+        String parsedSub = HardcoreMessageFormatter.processPlaceholders(rawSubtitle, player.getName(), deaths, null);
+        
+        List<String> sounds = Tezzlar.getConfigManager().getStringList("hardcore.deathSounds");
+        if (sounds == null || sounds.isEmpty()) {
+            sounds = HardcoreConfigDefaults.HARDCORE_DEATHSOUNDS;
+        }
+        
+        boolean showTitle = rawTitle != null && !rawTitle.trim().isEmpty() || rawSubtitle != null && !rawSubtitle.trim().isEmpty();
+        
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (showTitle) {
+                // Flash the title instantly (0 fade-in) for dramatic jumpscare sync
+                Messenger.showTitle(
+                        p, 
+                        parsedTitle, 
+                        parsedSub, 
+                        Duration.ZERO, 
+                        Duration.ofSeconds(5), 
+                        Duration.ofMillis(1000)
+                );
+            }
+        }
+        
+        // Play sounds globally using SoundUtils
+        for (String soundStr : sounds) {
+            String[] parts = soundStr.split(";");
+            if (parts.length > 0) {
+                String soundName = parts[0];
+                float volume = parts.length > 1 ? Float.parseFloat(parts[1]) : 1.0f;
+                float pitch = parts.length > 2 ? Float.parseFloat(parts[2]) : 1.0f;
+                SoundUtils.playGlobal(soundName, volume, pitch);
+            }
+        }
     }
 }
