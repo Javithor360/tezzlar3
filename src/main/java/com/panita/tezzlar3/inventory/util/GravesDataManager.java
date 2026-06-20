@@ -7,7 +7,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -84,5 +87,39 @@ public class GravesDataManager {
             }
         }
         return null;
+    }
+
+    /**
+     * Retrieves all archived graves (backups) for a specific player, sorted from newest to oldest.
+     */
+    public static List<Map.Entry<String, ConfigurationSection>> getBackupsForPlayer(UUID playerUUID) {
+        List<Map.Entry<String, ConfigurationSection>> list = new ArrayList<>();
+        ConfigurationSection section = gravesBackupConfig.getConfig().getConfigurationSection("archived_graves");
+        
+        if (section != null) {
+            for (String key : section.getKeys(false)) {
+                ConfigurationSection grave = section.getConfigurationSection(key);
+                if (grave != null && playerUUID.toString().equals(grave.getString("playerUUID"))) {
+                    list.add(new AbstractMap.SimpleEntry<>(key, grave));
+                }
+            }
+        }
+        
+        // Sort from newest to oldest based on diedAt
+        list.sort((e1, e2) -> {
+            String date1 = e1.getValue().getString("diedAt", "");
+            String date2 = e2.getValue().getString("diedAt", "");
+            return date2.compareTo(date1);
+        });
+        
+        return list;
+    }
+
+    /**
+     * Deletes a specific backup from the history.
+     */
+    public static void deleteBackup(String id) {
+        gravesBackupConfig.getConfig().set("archived_graves." + id, null);
+        gravesBackupConfig.save();
     }
 }

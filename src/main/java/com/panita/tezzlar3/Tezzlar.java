@@ -7,6 +7,7 @@ import com.panita.tezzlar3.core.modules.ModuleManager;
 import com.panita.tezzlar3.hardcore.HardcoreModule;
 import com.panita.tezzlar3.inventory.InventoryModule;
 import com.panita.tezzlar3.qol.QualityOfLifeModule;
+import com.panita.tezzlar3.core.listeners.MenuListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Tezzlar extends JavaPlugin {
@@ -27,6 +28,10 @@ public class Tezzlar extends JavaPlugin {
         configManager = new ConfigManager(this, getConfig());
 
         new CommandRegistry(this).registerAll("com.panita.tezzlar3.core.commands.base"); // load base commands first
+        
+        // Register core listeners
+        getServer().getPluginManager().registerEvents(new MenuListener(), this);
+        
         // Register Modules
         moduleManager = new ModuleManager(this);
         moduleManager.register(new QualityOfLifeModule());
