@@ -76,12 +76,16 @@ public class Global {
         long hours = diffHours % 24;
         long diffMinutes = (diffMillis / (60 * 1000)) % 60;
         
+        String dStr = days == 1 ? " día" : " días";
+        String hStr = hours == 1 ? " hora" : " horas";
+        String mStr = diffMinutes == 1 ? " minuto" : " minutos";
+        
         if (days > 0) {
-            return days + " días y " + hours + " horas";
+            return days + dStr + " y " + hours + hStr;
         } else if (hours > 0) {
-            return hours + " horas y " + diffMinutes + " minutos";
+            return hours + hStr + " y " + diffMinutes + mStr;
         } else {
-            return diffMinutes + " minutos";
+            return diffMinutes + mStr;
         }
     }
 

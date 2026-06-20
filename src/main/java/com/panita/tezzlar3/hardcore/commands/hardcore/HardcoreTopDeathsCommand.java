@@ -37,7 +37,8 @@ public class HardcoreTopDeathsCommand implements AdvancedCommand {
             else if (rank == 2) color = "<white><bold>";
             else if (rank == 3) color = "<color:#cd7f32><bold>"; // Bronze
             
-            Messenger.send(sender, "  " + color + "#" + rank + "</bold> <gray>- <white>" + entry.getKey() + " <dark_gray>» <red>" + entry.getValue() + " muertes</red>");
+            String muertesStr = entry.getValue() == 1 ? " muerte" : " muertes";
+            Messenger.send(sender, "  " + color + "#" + rank + "</bold> <gray>- <white>" + entry.getKey() + " <dark_gray>» <red>" + entry.getValue() + muertesStr + "</red>");
             rank++;
         }
     }

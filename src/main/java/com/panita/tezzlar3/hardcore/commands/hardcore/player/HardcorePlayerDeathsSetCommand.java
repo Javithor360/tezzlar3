@@ -45,6 +45,7 @@ public class HardcorePlayerDeathsSetCommand implements AdvancedCommand {
         }
 
         HardcoreDataManager.setDeaths(target.getUniqueId(), target.getName(), amount);
-        Messenger.prefixedSend(sender, "&aSe han establecido las muertes de &e" + target.getName() + "&a a &e" + amount + "&a.");
+        String muertesStr = amount == 1 ? " muerte" : " muertes";
+        Messenger.prefixedSend(sender, "&aSe han establecido las muertes de &e" + target.getName() + "&a a &e" + amount + muertesStr + "&a.");
     }
 }

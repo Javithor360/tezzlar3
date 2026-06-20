@@ -56,10 +56,12 @@ public class HardcorePlayerKillCommand implements AdvancedCommand {
         if (target.isOnline()) {
             Player onlinePlayer = target.getPlayer();
             if (onlinePlayer != null) {
-                onlinePlayer.kick(Messenger.mini("<red>Has sido ejecutado preventivamente por un administrador durante " + hours + " horas.</red>"));
+                String hStr = hours == 1 ? " hora" : " horas";
+                onlinePlayer.kick(Messenger.mini("<red>Has sido ejecutado preventivamente por un administrador durante " + hours + hStr + ".</red>"));
             }
         }
 
-        Messenger.prefixedSend(sender, "&aSe ha aplicado un ban de muerte a &e" + target.getName() + "&a durante &e" + hours + " horas&a sin quitarle vidas.");
+        String hStr = hours == 1 ? " hora" : " horas";
+        Messenger.prefixedSend(sender, "&aSe ha aplicado un ban de muerte a &e" + target.getName() + "&a durante &e" + hours + hStr + "&a sin quitarle vidas.");
     }
 }
