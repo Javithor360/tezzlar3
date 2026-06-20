@@ -5,7 +5,9 @@ import com.panita.tezzlar3.core.commands.identifiers.CommandMeta;
 import com.panita.tezzlar3.core.config.Config;
 import com.panita.tezzlar3.core.config.ConfigDefaults;
 import net.kyori.adventure.text.Component;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.OfflinePlayer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,6 +83,23 @@ public class Global {
         } else {
             return diffMinutes + " minutos";
         }
+    }
+
+    /**
+     * Validates if an offline player is valid (whether they are online or have played before).
+     * If they are not valid, it automatically sends an error message to the sender.
+     *
+     * @param sender The CommandSender executing the action.
+     * @param target The OfflinePlayer to evaluate.
+     * @param targetName The name used in the command to display in the message.
+     * @return true if valid and has played before, false otherwise.
+     */
+    public static boolean isValidPlayer(CommandSender sender, OfflinePlayer target, String targetName) {
+        if (!target.hasPlayedBefore() && !target.isOnline()) {
+            Messenger.prefixedSend(sender, "&cEl jugador " + targetName + " nunca ha entrado al servidor.");
+            return false;
+        }
+        return true;
     }
 }
 
