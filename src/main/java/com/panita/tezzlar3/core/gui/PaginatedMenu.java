@@ -26,9 +26,9 @@ public abstract class PaginatedMenu extends Menu {
 
     public void addMenuBorder() {
         // Bottom row buttons
-        inventory.setItem(48, new ItemBuilder(Material.DARK_OAK_BUTTON).name("<green>◀ Página Anterior").build());
+        inventory.setItem(48, new ItemBuilder(Material.ARROW).name("<green>◀ Página Anterior").build());
         inventory.setItem(49, new ItemBuilder(Material.BARRIER).name("<red>Cerrar Menú").build());
-        inventory.setItem(50, new ItemBuilder(Material.DARK_OAK_BUTTON).name("<green>Página Siguiente ▶").build());
+        inventory.setItem(50, new ItemBuilder(Material.ARROW).name("<green>Página Siguiente ▶").build());
 
         // Top and Bottom borders
         for (int i = 0; i < 10; i++) {

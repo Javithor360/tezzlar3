@@ -6,7 +6,9 @@ import com.panita.tezzlar3.core.gui.Menu;
 import com.panita.tezzlar3.inventory.util.GravesDataManager;
 import com.panita.tezzlar3.inventory.util.InventorySerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Container;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -14,6 +16,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,9 +68,10 @@ public class DeathInventoryMenu extends Menu {
         }
 
         // Borders
-        for (int i = 41; i <= 45; i++) {
+        for (int i = 41; i <= 44; i++) {
             inventory.setItem(i, FILLER_GLASS);
         }
+        inventory.setItem(45, new ItemBuilder(Material.ENDER_PEARL).name("<aqua>Teletransportarse a la Tumba").lore("<gray>Viaja a las coordenadas", "<gray>donde el jugador murió.").build());
         inventory.setItem(47, FILLER_GLASS);
         inventory.setItem(49, FILLER_GLASS);
         inventory.setItem(51, FILLER_GLASS);
@@ -86,6 +90,21 @@ public class DeathInventoryMenu extends Menu {
 
         if (slot == 52) { // Back
             previousMenu.open();
+            return;
+        }
+
+        if (slot == 45) { // Teleport
+            String worldName = backupData.getString("world");
+            int x = backupData.getInt("x");
+            int y = backupData.getInt("y");
+            int z = backupData.getInt("z");
+            World world = Bukkit.getWorld(worldName);
+            if (world != null) {
+                player.teleport(new Location(world, x, y, z));
+                Messenger.prefixedSend(player, "&aTeletransportado a la tumba de &e" + targetName + "&a.");
+            } else {
+                Messenger.prefixedSend(player, "&cEl mundo " + worldName + " no está cargado o no existe.");
+            }
             return;
         }
 
@@ -116,6 +135,22 @@ public class DeathInventoryMenu extends Menu {
 
         if (slot == 46) { // Get as Chests
             List<ItemStack> chests = createChestsFromItems(getValidItems());
+            
+            // Rename if multiple
+            if (chests.size() > 1) {
+                for (int i = 0; i < chests.size(); i++) {
+                    ItemStack chest = chests.get(i);
+                    ItemMeta meta = chest.getItemMeta();
+                    meta.displayName(Messenger.mini("<gold>Inventario de " + targetName + " #" + (i + 1)));
+                    chest.setItemMeta(meta);
+                }
+            } else if (chests.size() == 1) {
+                ItemStack chest = chests.get(0);
+                ItemMeta meta = chest.getItemMeta();
+                meta.displayName(Messenger.mini("<gold>Inventario de " + targetName));
+                chest.setItemMeta(meta);
+            }
+
             HashMap<Integer, ItemStack> overflow = player.getInventory().addItem(chests.toArray(new ItemStack[0]));
             
             for (ItemStack overflowItem : overflow.values()) {

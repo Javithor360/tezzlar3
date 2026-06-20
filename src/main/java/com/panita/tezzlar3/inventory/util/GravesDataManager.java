@@ -23,7 +23,7 @@ public class GravesDataManager {
         gravesBackupConfig = new CustomConfig(plugin, "", "death_inventory_backup.yml");
     }
 
-    public static void addGrave(Location location, UUID playerUUID, String playerName, String inventoryBase64) {
+    public static void addGrave(Location location, UUID playerUUID, String playerName, String inventoryBase64, String deathCause) {
         String id = UUID.randomUUID().toString();
         String path = "graves." + id;
         
@@ -34,6 +34,7 @@ public class GravesDataManager {
         gravesConfig.getConfig().set(path + ".playerUUID", playerUUID.toString());
         gravesConfig.getConfig().set(path + ".playerName", playerName);
         gravesConfig.getConfig().set(path + ".itemsBase64", inventoryBase64);
+        gravesConfig.getConfig().set(path + ".deathCause", deathCause);
         
         gravesConfig.save();
 
@@ -46,6 +47,7 @@ public class GravesDataManager {
         gravesBackupConfig.getConfig().set(historyPath + ".playerUUID", playerUUID.toString());
         gravesBackupConfig.getConfig().set(historyPath + ".playerName", playerName);
         gravesBackupConfig.getConfig().set(historyPath + ".itemsBase64", inventoryBase64);
+        gravesBackupConfig.getConfig().set(historyPath + ".deathCause", deathCause);
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         gravesBackupConfig.getConfig().set(historyPath + ".diedAt", timestamp);
         

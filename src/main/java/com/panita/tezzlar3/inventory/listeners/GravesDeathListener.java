@@ -30,7 +30,9 @@ public class GravesDeathListener implements Listener {
             
             Location deathLoc = player.getLocation().getBlock().getLocation();
             
-            GravesDataManager.addGrave(deathLoc, player.getUniqueId(), player.getName(), base64);
+            String deathCause = event.deathMessage() != null ? event.deathMessage().toString() : "Causa desconocida";
+            
+            GravesDataManager.addGrave(deathLoc, player.getUniqueId(), player.getName(), base64, deathCause);
         }
     }
 }

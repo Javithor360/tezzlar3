@@ -28,7 +28,7 @@ public class PlayerDeathsMenu extends PaginatedMenu {
 
     @Override
     public String getMenuName() {
-        return "<dark_red>Muertes de " + targetName;
+        return "<dark_red>Restauración <gray>></gray> " + targetName;
     }
 
     @Override
@@ -54,17 +54,19 @@ public class PlayerDeathsMenu extends PaginatedMenu {
             int x = data.getInt("x", 0);
             int y = data.getInt("y", 0);
             int z = data.getInt("z", 0);
+            String deathCause = data.getString("deathCause", "Causa desconocida");
 
-            ItemBuilder skull = new ItemBuilder(Material.SKELETON_SKULL)
+            ItemBuilder barrel = new ItemBuilder(Material.BARREL)
                     .name("<gold><bold>Muerte:</bold> " + date)
                     .lore(
                             "<gray>Mundo: <white>" + world,
                             "<gray>Ubicación: <red>X: " + x + " Y: " + y + " Z: " + z + "</red>",
+                            "<gray>Causa: <white>" + deathCause,
                             "",
                             "<yellow>► Clic para ver inventario"
                     );
 
-            inventory.setItem(innerSlots[i], skull.build());
+            inventory.setItem(innerSlots[i], barrel.build());
         }
     }
 
