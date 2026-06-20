@@ -90,6 +90,37 @@ public class Global {
     }
 
     /**
+     * Parses a string duration (e.g. 1w2d3h4m5s) into total milliseconds.
+     * Supported units: w (weeks), d (days), h (hours), m (minutes), s (seconds).
+     * If the string is purely numeric, it is treated as hours for backwards compatibility.
+     * @param input The duration string.
+     * @return Total milliseconds, or 0 if invalid.
+     */
+    public static long parseDurationToMillis(String input) {
+        if (input == null || input.isEmpty()) return 0;
+        
+        // Backwards compatibility for plain numbers (hours)
+        if (input.matches("\\d+")) {
+            return Long.parseLong(input) * 60L * 60L * 1000L;
+        }
+        
+        long totalMillis = 0;
+        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(\\d+)(w|d|h|m|s)").matcher(input.toLowerCase());
+        while (matcher.find()) {
+            long value = Long.parseLong(matcher.group(1));
+            String unit = matcher.group(2);
+            switch (unit) {
+                case "w": totalMillis += value * 7L * 24L * 60L * 60L * 1000L; break;
+                case "d": totalMillis += value * 24L * 60L * 60L * 1000L; break;
+                case "h": totalMillis += value * 60L * 60L * 1000L; break;
+                case "m": totalMillis += value * 60L * 1000L; break;
+                case "s": totalMillis += value * 1000L; break;
+            }
+        }
+        return totalMillis;
+    }
+
+    /**
      * Validates if an offline player is valid (whether they are online or have played before).
      * If they are not valid, it automatically sends an error message to the sender.
      *

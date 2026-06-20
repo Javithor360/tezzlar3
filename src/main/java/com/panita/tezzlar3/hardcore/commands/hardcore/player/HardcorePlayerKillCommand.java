@@ -2,6 +2,8 @@ package com.panita.tezzlar3.hardcore.commands.hardcore.player;
 
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.commands.dynamic.AdvancedCommand;
+import com.panita.tezzlar3.core.commands.dynamic.TabSuggestingCommand;
+import com.panita.tezzlar3.core.commands.identifiers.CommandMeta;
 import com.panita.tezzlar3.core.commands.identifiers.SubCommandSpec;
 import com.panita.tezzlar3.core.util.CommandUtils;
 import com.panita.tezzlar3.core.util.Global;
@@ -12,34 +14,33 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.time.Instant;
+import java.util.stream.Collectors;
 
 @SubCommandSpec(
         parent = "tezzlar hardcore player",
         name = "kill",
         description = "Aplica un baneo preventivo a un jugador sin sumarle muertes.",
-        syntax = "/hardcore player kill <jugador> [horas]",
+        syntax = "/hardcore player kill <jugador> [tiempo]",
         permission = "tezzlar.command.hardcore.player.kill"
 )
-public class HardcorePlayerKillCommand implements AdvancedCommand {
+public class HardcorePlayerKillCommand implements AdvancedCommand, TabSuggestingCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (!CommandUtils.checkArgsOrUsage(sender, args, 1, this.getClass())) return;
 
         String targetName = args[0];
-        int hours = 24; // Default to 24 hours if not specified
+        long durationMillis = 24 * 3600000L; // Default 24 hours
+        String formattedDuration = "24 horas";
 
         if (args.length >= 2) {
-            try {
-                hours = Integer.parseInt(args[1]);
-            } catch (NumberFormatException e) {
-                Messenger.prefixedSend(sender, "&cLas horas deben ser un número válido.");
+            long parsed = Global.parseDurationToMillis(args[1]);
+            if (parsed <= 0) {
+                Messenger.prefixedSend(sender, "&cEl tiempo ingresado no es válido. Usa formatos como 1w2d3h o un número de horas.");
                 return;
             }
-            if (hours <= 0) {
-                Messenger.prefixedSend(sender, "&cLas horas deben ser mayores a 0.");
-                return;
-            }
+            durationMillis = parsed;
+            formattedDuration = Global.formatDuration(durationMillis);
         }
 
         @SuppressWarnings("deprecation")
@@ -48,7 +49,6 @@ public class HardcorePlayerKillCommand implements AdvancedCommand {
             return;
         }
 
-        long durationMillis = hours * 3600000L;
         Instant expirationInstant = Instant.now().plusMillis(durationMillis);
 
         HardcoreDataManager.setBanExpiration(target.getUniqueId(), target.getName(), expirationInstant.toEpochMilli());
@@ -56,12 +56,21 @@ public class HardcorePlayerKillCommand implements AdvancedCommand {
         if (target.isOnline()) {
             Player onlinePlayer = target.getPlayer();
             if (onlinePlayer != null) {
-                String hStr = hours == 1 ? " hora" : " horas";
-                onlinePlayer.kick(Messenger.mini("<red>Has sido ejecutado preventivamente por un administrador durante " + hours + hStr + ".</red>"));
+                onlinePlayer.kick(Messenger.mini("<red>Has sido ejecutado preventivamente por un administrador durante " + formattedDuration + ".</red>"));
             }
         }
 
-        String hStr = hours == 1 ? " hora" : " horas";
-        Messenger.prefixedSend(sender, "&aSe ha aplicado un ban de muerte a &e" + target.getName() + "&a durante &e" + hours + hStr + "&a sin quitarle vidas.");
+        Messenger.prefixedSend(sender, "&aSe ha aplicado un ban de muerte a &e" + target.getName() + "&a durante &e" + formattedDuration + "&a sin quitarle vidas.");
+    }
+    
+    @Override
+    public void applySuggestions(CommandMeta meta) {
+        meta.setArgumentSuggestion(0, context -> {
+            String current = context.getCurrentArg().toLowerCase();
+            return Bukkit.getOnlinePlayers().stream()
+                    .map(Player::getName)
+                    .filter(name -> name.toLowerCase().startsWith(current))
+                    .collect(Collectors.toList());
+        });
     }
 }
