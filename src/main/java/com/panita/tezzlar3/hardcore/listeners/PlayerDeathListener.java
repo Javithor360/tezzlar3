@@ -122,12 +122,30 @@ public class PlayerDeathListener implements Listener {
             HardcoreModule.getPendingKicks().put(player.getUniqueId(), kickReason);
         }
         
-        // Broadcast the fall for all deaths
-        String rawBroadcast = Tezzlar.getConfigManager().getString(
-                "hardcore.messages.broadcastDeathMessage",
-                HardcoreConfigDefaults.HARDCORE_BROADCASTDEATHMESSAGE
+        // 1. The Vanilla death message is already broadcasted automatically by Bukkit (event.deathMessage())
+
+        // 2. Broadcast the generic death message
+        String rawGeneric = Tezzlar.getConfigManager().getString(
+                "hardcore.messages.genericDeathMessage",
+                HardcoreConfigDefaults.HARDCORE_GENERICDEATHMESSAGE
         );
-        String broadcastMsg = HardcoreMessageFormatter.processPlaceholders(rawBroadcast, player.getName(), deaths, null);
-        Messenger.broadcast(broadcastMsg);
+        String genericMsg = HardcoreMessageFormatter.processPlaceholders(rawGeneric, player.getName(), deaths, null);
+        Messenger.broadcast(genericMsg);
+        
+        // 3. Broadcast the custom player death message
+        String fallbackDefault = HardcoreConfigDefaults.HARDCORE_DEATHMESSAGES.getOrDefault(
+                player.getName(), 
+                HardcoreConfigDefaults.HARDCORE_DEATHMESSAGES.get("default")
+        );
+        String defaultCustomConfig = Tezzlar.getConfigManager().getString(
+                "hardcore.messages.deathMessages.default", 
+                fallbackDefault
+        );
+        String rawCustom = Tezzlar.getConfigManager().getString(
+                "hardcore.messages.deathMessages." + player.getName(),
+                defaultCustomConfig
+        );
+        String customMsg = HardcoreMessageFormatter.processPlaceholders(rawCustom, player.getName(), deaths, null);
+        Messenger.broadcast(customMsg);
     }
 }

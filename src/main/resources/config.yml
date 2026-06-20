@@ -31,7 +31,11 @@ hardcore:
     kickMessage: "<dark_red><bold>¡Has perdido una vida Hardcore!</bold></dark_red><newline><red>Muertes totales: <yellow>%deaths%</yellow></red><newline><gray>Estarás exiliado por <red>%ban_duration%</red>.</gray>"
     banMessage: "<dark_red><bold>¡Has perdido una vida Hardcore!</bold></dark_red><newline><red>Muertes totales: <yellow>%deaths%</yellow></red><newline><gray>Tu exilio terminará en <red>%ban_duration%</red>.</gray>"
     warnKickMessage: "<red>¡Has muerto!</red><newline><gray>Esta fue tu muerte #<yellow>%deaths%</yellow> de 3 permitidas libres.</gray><newline><yellow>Tómate un respiro antes de volver a entrar.</yellow>"
-    broadcastMessage: "<dark_red><bold>[HARDCORE]</bold></dark_red> <red>El jugador <yellow>%player_name%</yellow> ha caído (Muerte #%deaths%).</red>"
+    genericDeathMessage: "<dark_red>Las fuerzas del mal en este mundo han sumido en las tinieblas a <yellow>%player_name%</yellow> y su suplicio han iniciado una tormenta maligna</dark_red>"
+    deathMessages:
+      default: "<gray>El alma de <yellow>%player_name%</yellow> se ha perdido en el vacío.</gray>"
+      MrUnused: "<dark_purple>El gran <yellow>MrUnused</yellow> ha caído ante la oscuridad.</dark_purple>"
+      Fiendrox: "<gold>La leyenda de <yellow>Fiendrox</yellow> ha llegado a su fin.</gold>"
   deathSounds:
     - "entity.wither.spawn;1.0;0.5"
     - "entity.lightning_bolt.thunder;1.0;1.0"
