@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 @SubCommandSpec(
-        parent = "Tezzlar item",
+        parent = "tezzlar item",
         name = "save",
         description = "Save the item in your hand into the custom item collection.",
         syntax = "/Tezzlar item save <item_name>",

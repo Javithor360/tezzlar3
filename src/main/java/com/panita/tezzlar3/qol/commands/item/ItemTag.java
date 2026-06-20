@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 @SubCommandSpec(
-        parent = "Tezzlar item",
+        parent = "tezzlar item",
         name = "tag",
         description = "Adds custom plugin metadata to the item in your hand without saving it.",
         syntax = "/Tezzlar item tag <identifier>",

@@ -12,7 +12,7 @@ import org.bukkit.command.CommandSender;
 import java.util.stream.Collectors;
 
 @SubCommandSpec(
-        parent = "Tezzlar item",
+        parent = "tezzlar item",
         name = "remove",
         description = "Removes a saved custom item from the JSON file.",
         syntax = "/Tezzlar item remove <item_name>",
