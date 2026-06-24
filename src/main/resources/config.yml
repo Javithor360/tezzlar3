@@ -47,12 +47,29 @@ inventory:
   revenant:
     minions:
       - ZOMBIE
-      - HUSK
-      - SKELETON
-      - CAVE_SPIDER
-      - SLIME
-      - BOGGED
-      - PARCHED
-      - DROWNED
+#      - ZOMBIE_VILLAGER
+#      - HUSK
+#      - DROWNED
+#      - WITCH
+#      - SKELETON
+#      - STRAY
+#      - BOGGED
+#      - PARCHED
+#      - SPIDER
+#      - CAVE_SPIDER
+#      - PHANTOM
+#      - SLIME
+#      - VEX
+#      - PILLAGER
+#      - VINDICATOR
+#      - EVOKER
+#      - RAVAGER
+#      - ZOGLIN
+#      - WITHER_SKELETON
+#      - CREEPER
+#      - BREEZE
+#      - BLAZE
+#      - ILLUSIONER
+#      - BAT
     minionCount: 3
   deathCoordsReminder: "<gray>Parece que tienes una tumba activa en <red><bold>X:</bold> {x}  <bold>Y:</bold> {y}  <bold>Z:</bold> {z} ({dimension})</red>. Se te recomienda pedir ayuda a un compañero para recuperar tus cosas.</gray>"
