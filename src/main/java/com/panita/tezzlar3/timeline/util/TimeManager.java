@@ -24,11 +24,13 @@ public class TimeManager {
                 String todayDateStr = now.format(DateTimeFormatter.ISO_LOCAL_DATE);
                 if (!lastIncrementDate.equals(todayDateStr)) {
                     // Start of a new day!
-                    setCurrentDay(currentDay + 1);
+                    int oldDay = currentDay;
+                    int newDay = oldDay + 1;
+                    setCurrentDay(newDay);
                     lastIncrementDate = todayDateStr;
                     Tezzlar.getConfigManager().updateString("last_increment_date", lastIncrementDate, null);
                     
-                    Bukkit.getPluginManager().callEvent(new DayChangeEvent(currentDay));
+                    Bukkit.getPluginManager().callEvent(new DayChangeEvent(oldDay, newDay));
                 }
             }
         }, 20L * 60, 20L * 60); // Check every minute
