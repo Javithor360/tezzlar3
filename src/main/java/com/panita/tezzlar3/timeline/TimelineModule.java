@@ -20,7 +20,8 @@ public class TimelineModule implements PluginModule {
 
     @Override
     public void onEnable(JavaPlugin plugin) {
-        TimeManager.init();
+        TimeManager.init(plugin);
+        enabled = true;
     }
 
     @Override

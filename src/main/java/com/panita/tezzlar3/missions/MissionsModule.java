@@ -6,6 +6,7 @@ import com.panita.tezzlar3.missions.data.PlayerDataManager;
 import com.panita.tezzlar3.missions.listeners.MissionExpirationListener;
 import com.panita.tezzlar3.missions.listeners.MissionTracker;
 import com.panita.tezzlar3.missions.listeners.PlayerDataListener;
+import com.panita.tezzlar3.missions.ui.MissionBossBarManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -39,6 +40,9 @@ public class MissionsModule implements PluginModule {
         
         MissionExpirationListener expirationListener = new MissionExpirationListener(plugin);
         plugin.getServer().getPluginManager().registerEvents(expirationListener, plugin);
+        
+        MissionBossBarManager bossBarManager = new MissionBossBarManager(plugin);
+        plugin.getServer().getPluginManager().registerEvents(bossBarManager, plugin);
         
         enabled = true;
         

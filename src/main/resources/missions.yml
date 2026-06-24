@@ -1,6 +1,6 @@
 missions:
   full_diamond:
-    name: "Full Diamante"
+    name: "Consigue Armadura de Diamante Completa"
     start_day: 1
     end_day: 3
     scope: INDIVIDUAL
@@ -10,19 +10,19 @@ missions:
       amount: 4
     rewards:
       - id: "GIVE_EXP"
-        args: { levels: 10 }
+        args: { levels: 15 }
     punishments:
       - id: "DIAMOND_BAN"
       - id: "DAMAGE_MULTIPLIER"
         args: { multiplier: 1.5 }
         
   golden_apples:
-    name: "32 Manzanas Doradas"
+    name: "Craftear Manzanas Doradas"
     start_day: 4
     end_day: 6
     scope: INDIVIDUAL
     objective:
-      type: EAT_ITEM
+      type: CRAFT_ITEM
       target: GOLDEN_APPLE
       amount: 32
     rewards:
@@ -32,7 +32,7 @@ missions:
         args: { material: "ENCHANTED_GOLDEN_APPLE", amount: 3 }
         
   iron_golems:
-    name: "100 Gólems de Hierro"
+    name: "Spawnear Gólems de Hierro"
     start_day: 7
     end_day: 8
     scope: GROUP
@@ -50,8 +50,8 @@ missions:
 
   wither_nether:
     name: "Derrotar al Wither en el Nether"
-    start_day: 9
-    end_day: 10
+    start_day: 10
+    end_day: 12
     scope: GROUP
     objective:
       type: KILL_ENTITY
@@ -66,9 +66,9 @@ missions:
       - id: "WITHER_SKELETON_SPAWN_ON_DAMAGE"
 
   warden_spawn:
-    name: "Traer al Warden al Spawn"
-    start_day: 11
-    end_day: 12
+    name: "Traer un Warden al Spawn"
+    start_day: 13
+    end_day: 14
     scope: GROUP
     objective:
       type: BRING_ENTITY
@@ -82,8 +82,8 @@ missions:
 
   dragon_respawn:
     name: "Revivir al Ender Dragon"
-    start_day: 13
-    end_day: 15
+    start_day: 28
+    end_day: 30
     scope: GROUP
     objective:
       type: SPAWN_ENTITY

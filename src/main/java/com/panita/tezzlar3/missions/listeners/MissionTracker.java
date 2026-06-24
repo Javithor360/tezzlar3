@@ -194,4 +194,18 @@ public class MissionTracker implements Listener {
         String target = event.getItem().getType().name();
         checkObjective(player, "EAT_ITEM", target, 1);
     }
+
+    @EventHandler
+    public void onCraft(org.bukkit.event.inventory.CraftItemEvent event) {
+        if (!hasActiveMissionObjective("CRAFT_ITEM")) return;
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        
+        String target = event.getRecipe().getResult().getType().name();
+        // Count the result amount of the recipe
+        int amount = event.getRecipe().getResult().getAmount();
+        
+        // Note: For massive crafting shift-clicks it would require complex inventory math,
+        // this assumes standard crafting as the main progress.
+        checkObjective(player, "CRAFT_ITEM", target, amount);
+    }
 }
