@@ -1,0 +1,47 @@
+missions:
+  full_diamond:
+    name: "Full Diamante"
+    start_day: 1
+    end_day: 3
+    scope: INDIVIDUAL
+    objective:
+      type: EQUIP_ARMOR
+      target: DIAMOND_ARMOR
+      amount: 4
+    rewards:
+      - id: "GIVE_EXP"
+        args: { levels: 10 }
+    punishments:
+      - id: "DIAMOND_BAN"
+      - id: "DAMAGE_MULTIPLIER"
+        args: { multiplier: 1.5 }
+        
+  golden_apples:
+    name: "32 Manzanas Doradas"
+    start_day: 4
+    end_day: 6
+    scope: INDIVIDUAL
+    objective:
+      type: COLLECT_ITEM
+      target: GOLDEN_APPLE
+      amount: 32
+    rewards:
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "op_bow", amount: 1 }
+      - id: "GIVE_ITEM"
+        args: { material: "ENCHANTED_GOLDEN_APPLE", amount: 3 }
+        
+  iron_golems:
+    name: "100 Gólems de Hierro"
+    start_day: 7
+    end_day: 8
+    scope: GROUP
+    objective:
+      type: SUMMON_ENTITY
+      target: IRON_GOLEM
+      amount: 100
+    rewards:
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "op_iron_armor_set", amount: 1 }
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "op_iron_tools_set", amount: 1 }

@@ -1,0 +1,9 @@
+package com.panita.tezzlar3.missions.handlers;
+
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+
+public interface PunishmentHandler {
+    String getId();
+    void apply(Player player, ConfigurationSection args);
+}
