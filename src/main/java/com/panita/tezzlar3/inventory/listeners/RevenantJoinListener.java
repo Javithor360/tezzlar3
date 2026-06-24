@@ -25,11 +25,11 @@ public class RevenantJoinListener implements Listener {
             int z = grave.getInt("z");
             String worldName = grave.getString("world", Global.WORLD_NAME);
             
-            String dimension = "el Overworld";
+            String dimension = "Overworld";
             if (worldName.endsWith("_nether")) {
-                dimension = "el Nether";
+                dimension = "Nether";
             } else if (worldName.endsWith("_the_end")) {
-                dimension = "el End";
+                dimension = "End";
             }
             
             String rawMessage = Tezzlar.getConfigManager().getString("inventory.deathCoordsReminder", InventoryConfigDefaults.DEATH_COORDS_REMINDER);
@@ -40,7 +40,7 @@ public class RevenantJoinListener implements Listener {
                     .replace("{z}", String.valueOf(z))
                     .replace("{dimension}", dimension);
             
-            Messenger.send(player, message);
+            Messenger.prefixedSend(player, message);
         }
     }
 }
