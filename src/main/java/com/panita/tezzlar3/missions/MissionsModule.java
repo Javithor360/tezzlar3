@@ -22,9 +22,12 @@ public class MissionsModule implements PluginModule {
     }
 
     private static PlayerDataManager dataManager;
+    private static MissionManager missionManager;
 
     @Override
     public void onEnable(JavaPlugin plugin) {
+        missionManager = new MissionManager(plugin);
+        
         dataManager = new PlayerDataManager(plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerDataListener(dataManager), plugin);
         
@@ -43,6 +46,10 @@ public class MissionsModule implements PluginModule {
 
     public static PlayerDataManager getDataManager() {
         return dataManager;
+    }
+
+    public static MissionManager getMissionManager() {
+        return missionManager;
     }
 
     @Override

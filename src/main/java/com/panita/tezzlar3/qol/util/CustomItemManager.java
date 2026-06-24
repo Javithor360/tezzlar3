@@ -40,13 +40,10 @@ public class CustomItemManager {
     private static void loadItems() {
         try {
             if (!file.exists()) {
-                file.createNewFile();
-                items = new JsonObject();
-                saveItems();
-            } else {
-                items = gson.fromJson(new FileReader(file), JsonObject.class);
-                if (items == null) items = new JsonObject();
+                Tezzlar.getInstance().saveResource("customitems.json", false);
             }
+            items = gson.fromJson(new FileReader(file), JsonObject.class);
+            if (items == null) items = new JsonObject();
         } catch (Exception e) {
             e.printStackTrace();
             items = new JsonObject();

@@ -27,7 +27,7 @@ missions:
       amount: 32
     rewards:
       - id: "GIVE_CUSTOM_ITEM"
-        args: { custom_id: "op_bow", amount: 1 }
+        args: { custom_id: "tactic_bow", amount: 1 }
       - id: "GIVE_ITEM"
         args: { material: "ENCHANTED_GOLDEN_APPLE", amount: 3 }
         
