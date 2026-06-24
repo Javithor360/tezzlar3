@@ -14,6 +14,9 @@ public class Mission {
     private final String objectiveType;
     private final String objectiveTarget;
     private final int objectiveAmount;
+    private final String objectiveEnvironment;
+    private final String objectiveLocation;
+    private final int objectiveRadius;
     
     private final List<Map<?, ?>> rewards;
     private final List<Map<?, ?>> punishments;
@@ -29,6 +32,9 @@ public class Mission {
         this.objectiveType = obj.getString("type");
         this.objectiveTarget = obj.getString("target");
         this.objectiveAmount = obj.getInt("amount");
+        this.objectiveEnvironment = obj.getString("environment");
+        this.objectiveLocation = obj.getString("location");
+        this.objectiveRadius = obj.getInt("radius", 20);
         
         this.rewards = section.getMapList("rewards");
         this.punishments = section.getMapList("punishments");
@@ -42,6 +48,9 @@ public class Mission {
     public String getObjectiveType() { return objectiveType; }
     public String getObjectiveTarget() { return objectiveTarget; }
     public int getObjectiveAmount() { return objectiveAmount; }
+    public String getObjectiveEnvironment() { return objectiveEnvironment; }
+    public String getObjectiveLocation() { return objectiveLocation; }
+    public int getObjectiveRadius() { return objectiveRadius; }
     public List<Map<?, ?>> getRewards() { return rewards; }
     public List<Map<?, ?>> getPunishments() { return punishments; }
 }

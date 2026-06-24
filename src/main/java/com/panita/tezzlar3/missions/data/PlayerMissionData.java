@@ -19,6 +19,9 @@ public class PlayerMissionData {
     // Set of active punishment IDs (e.g. "DIAMOND_BAN")
     private final Set<String> activePunishments = new HashSet<>();
     
+    // Set of mission IDs pending to be claimed
+    private final Set<String> pendingRewards = new HashSet<>();
+    
     private long playtimeTicks = 0;
 
     public PlayerMissionData(UUID uuid, String name) {
@@ -77,6 +80,22 @@ public class PlayerMissionData {
     
     public void removePunishment(String punishmentId) {
         activePunishments.remove(punishmentId);
+    }
+
+    public Set<String> getPendingRewards() {
+        return pendingRewards;
+    }
+    
+    public void addPendingReward(String missionId) {
+        pendingRewards.add(missionId);
+    }
+    
+    public void removePendingReward(String missionId) {
+        pendingRewards.remove(missionId);
+    }
+    
+    public void clearPendingRewards() {
+        pendingRewards.clear();
     }
 
     public long getPlaytimeTicks() {

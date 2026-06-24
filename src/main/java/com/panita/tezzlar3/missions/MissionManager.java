@@ -9,6 +9,9 @@ import com.panita.tezzlar3.missions.handlers.punishments.DiamondBanPunishmentHan
 import com.panita.tezzlar3.missions.handlers.rewards.CustomItemRewardHandler;
 import com.panita.tezzlar3.missions.handlers.rewards.ExpRewardHandler;
 import com.panita.tezzlar3.missions.handlers.rewards.ItemRewardHandler;
+import com.panita.tezzlar3.missions.handlers.punishments.HostileIronGolemsPunishmentHandler;
+import com.panita.tezzlar3.missions.handlers.punishments.RegenerationToWitherPunishmentHandler;
+import com.panita.tezzlar3.missions.handlers.punishments.WitherSkeletonSpawnPunishmentHandler;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -52,6 +55,17 @@ public class MissionManager {
         DamageMultiplierPunishmentHandler damageMultiplier = new DamageMultiplierPunishmentHandler();
         registerPunishmentHandler(damageMultiplier);
         plugin.getServer().getPluginManager().registerEvents(damageMultiplier, plugin);
+
+        RegenerationToWitherPunishmentHandler regenWither = new RegenerationToWitherPunishmentHandler();
+        registerPunishmentHandler(regenWither);
+        plugin.getServer().getPluginManager().registerEvents(regenWither, plugin);
+        
+        WitherSkeletonSpawnPunishmentHandler witherSkeleton = new WitherSkeletonSpawnPunishmentHandler(0.10); // 10% chance
+        registerPunishmentHandler(witherSkeleton);
+        plugin.getServer().getPluginManager().registerEvents(witherSkeleton, plugin);
+        
+        HostileIronGolemsPunishmentHandler hostileGolems = new HostileIronGolemsPunishmentHandler(plugin);
+        registerPunishmentHandler(hostileGolems);
     }
 
     public void loadMissions() {

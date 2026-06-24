@@ -47,6 +47,12 @@ public class PlayerDataManager {
                 data.addPunishment(punishment);
             }
         }
+        
+        if (config.contains("pending_rewards")) {
+            for (String reward : config.getStringList("pending_rewards")) {
+                data.addPendingReward(reward);
+            }
+        }
 
         cachedData.put(player.getUniqueId(), data);
     }
@@ -68,6 +74,7 @@ public class PlayerDataManager {
 
         config.set("completed_missions", new ArrayList<>(data.getCompletedMissions()));
         config.set("active_punishments", new ArrayList<>(data.getActivePunishments()));
+        config.set("pending_rewards", new ArrayList<>(data.getPendingRewards()));
 
         customConfig.save();
     }
@@ -82,6 +89,43 @@ public class PlayerDataManager {
             Player player = plugin.getServer().getPlayer(uuid);
             if (player != null) {
                 savePlayerData(player);
+            }
+        }
+    }
+
+    public void giveRewardToEveryone(String missionId) {
+        java.io.File dataFolder = new java.io.File(plugin.getDataFolder(), "data");
+        if (!dataFolder.exists()) return;
+        
+        java.io.File[] files = dataFolder.listFiles((dir, name) -> name.endsWith(".yml"));
+        if (files == null) return;
+        
+        for (java.io.File file : files) {
+            String playerName = file.getName().replace(".yml", "");
+            org.bukkit.entity.Player p = org.bukkit.Bukkit.getPlayerExact(playerName);
+            if (p != null && p.isOnline()) {
+                PlayerMissionData data = getPlayerData(p);
+                if (data != null && !data.hasCompleted(missionId)) {
+                    data.addCompletedMission(missionId);
+                    data.addPendingReward(missionId);
+                }
+            } else {
+                CustomConfig customConfig = new CustomConfig(plugin, "data", file.getName());
+                FileConfiguration config = customConfig.getConfig();
+                
+                java.util.List<String> pending = config.getStringList("pending_rewards");
+                java.util.List<String> completed = config.getStringList("completed_missions");
+                
+                if (!completed.contains(missionId)) {
+                    completed.add(missionId);
+                    config.set("completed_missions", completed);
+                    
+                    if (!pending.contains(missionId)) {
+                        pending.add(missionId);
+                        config.set("pending_rewards", pending);
+                    }
+                    customConfig.save();
+                }
             }
         }
     }

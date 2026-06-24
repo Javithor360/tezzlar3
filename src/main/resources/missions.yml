@@ -6,7 +6,7 @@ missions:
     scope: INDIVIDUAL
     objective:
       type: EQUIP_ARMOR
-      target: DIAMOND_ARMOR
+      target: DIAMOND_ARMOR_SET
       amount: 4
     rewards:
       - id: "GIVE_EXP"
@@ -22,7 +22,7 @@ missions:
     end_day: 6
     scope: INDIVIDUAL
     objective:
-      type: COLLECT_ITEM
+      type: EAT_ITEM
       target: GOLDEN_APPLE
       amount: 32
     rewards:
@@ -45,3 +45,50 @@ missions:
         args: { custom_id: "op_iron_armor_set", amount: 1 }
       - id: "GIVE_CUSTOM_ITEM"
         args: { custom_id: "op_iron_tools_set", amount: 1 }
+    punishments:
+      - id: "HOSTILE_IRON_GOLEMS"
+
+  wither_nether:
+    name: "Derrotar al Wither en el Nether"
+    start_day: 9
+    end_day: 10
+    scope: GROUP
+    objective:
+      type: KILL_ENTITY
+      target: WITHER
+      amount: 1
+      environment: NETHER
+    rewards:
+      - id: "GIVE_EXP"
+        args: { levels: 50 }
+    punishments:
+      - id: "REGENERATION_TO_WITHER"
+      - id: "WITHER_SKELETON_SPAWN_ON_DAMAGE"
+
+  warden_spawn:
+    name: "Traer al Warden al Spawn"
+    start_day: 11
+    end_day: 12
+    scope: GROUP
+    objective:
+      type: BRING_ENTITY
+      target: WARDEN
+      amount: 1
+      location: "world,0,64,0"
+      radius: 20
+    rewards:
+      - id: "GIVE_EXP"
+        args: { levels: 100 }
+
+  dragon_respawn:
+    name: "Revivir al Ender Dragon"
+    start_day: 13
+    end_day: 15
+    scope: GROUP
+    objective:
+      type: SPAWN_ENTITY
+      target: ENDER_DRAGON
+      amount: 20
+    rewards:
+      - id: "GIVE_EXP"
+        args: { levels: 30 }

@@ -1,7 +1,10 @@
 package com.panita.tezzlar3.missions;
 
 import com.panita.tezzlar3.core.modules.PluginModule;
+import com.panita.tezzlar3.missions.data.GlobalMissionManager;
 import com.panita.tezzlar3.missions.data.PlayerDataManager;
+import com.panita.tezzlar3.missions.listeners.MissionExpirationListener;
+import com.panita.tezzlar3.missions.listeners.MissionTracker;
 import com.panita.tezzlar3.missions.listeners.PlayerDataListener;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -23,18 +26,29 @@ public class MissionsModule implements PluginModule {
 
     private static PlayerDataManager dataManager;
     private static MissionManager missionManager;
+    private static GlobalMissionManager globalMissionManager;
 
     @Override
     public void onEnable(JavaPlugin plugin) {
         missionManager = new MissionManager(plugin);
+        globalMissionManager = new GlobalMissionManager(plugin);
         
         dataManager = new PlayerDataManager(plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerDataListener(dataManager), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new MissionTracker(), plugin);
+        
+        MissionExpirationListener expirationListener = new MissionExpirationListener(plugin);
+        plugin.getServer().getPluginManager().registerEvents(expirationListener, plugin);
+        
+        enabled = true;
         
         // Load data for online players (useful on reloads)
         for (Player player : Bukkit.getOnlinePlayers()) {
             dataManager.loadPlayerData(player);
         }
+        
+        // Ejecutar expiraciones si el día cambió mientras el server estaba offline
+        expirationListener.evaluateExpirations(com.panita.tezzlar3.timeline.util.TimeManager.getCurrentDay());
     }
 
     @Override
@@ -50,6 +64,10 @@ public class MissionsModule implements PluginModule {
 
     public static MissionManager getMissionManager() {
         return missionManager;
+    }
+
+    public static GlobalMissionManager getGlobalMissionManager() {
+        return globalMissionManager;
     }
 
     @Override

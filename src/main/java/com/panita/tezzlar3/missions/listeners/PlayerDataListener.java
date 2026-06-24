@@ -1,6 +1,12 @@
 package com.panita.tezzlar3.missions.listeners;
 
+import com.panita.tezzlar3.Tezzlar;
+import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.missions.data.PlayerDataManager;
+import com.panita.tezzlar3.missions.data.PlayerMissionData;
+import com.panita.tezzlar3.missions.util.MissionsConfigDefaults;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -15,7 +21,16 @@ public class PlayerDataListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        dataManager.loadPlayerData(event.getPlayer());
+        Player player = event.getPlayer();
+        dataManager.loadPlayerData(player);
+
+        PlayerMissionData data = dataManager.getPlayerData(player);
+        if (data != null && !data.getActivePunishments().isEmpty()) {
+            Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+                String warning = Tezzlar.getConfigManager().getString("missions.messages.punishment_warning", MissionsConfigDefaults.MISSIONS_MESSAGES_PUNISHMENT_WARNING);
+                Messenger.prefixedSend(player, warning);
+            }, 20L); // 1 second delay
+        }
     }
 
     @EventHandler
