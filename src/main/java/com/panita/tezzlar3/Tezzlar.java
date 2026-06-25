@@ -1,5 +1,6 @@
 package com.panita.tezzlar3;
 
+import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.commands.CommandRegistry;
 import com.panita.tezzlar3.core.config.Config;
 import com.panita.tezzlar3.core.config.ConfigManager;
@@ -49,6 +50,9 @@ public class Tezzlar extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
         getLogger().info("Tezzlar is shutting down!");
+
+        // Clean up bossbars to prevent duplication on reload
+        Messenger.hideAllBossBars();
 
         if (moduleManager != null) {
             moduleManager.disableAll();

@@ -227,6 +227,24 @@ public class Messenger {
         }
     }
 
+    /**
+     * Hides all active boss bars for all players. Useful on plugin reload/disable.
+     */
+    public static void hideAllBossBars() {
+        for (UUID uuid : activeBars.keySet()) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                Map<String, BossBar> bars = activeBars.get(uuid);
+                if (bars != null) {
+                    for (BossBar bar : bars.values()) {
+                        player.hideBossBar(bar);
+                    }
+                }
+            }
+        }
+        activeBars.clear();
+    }
+
     // ---> Titles <----
 
     /**
