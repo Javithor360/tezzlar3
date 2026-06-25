@@ -1,0 +1,76 @@
+package com.panita.tezzlar3.difficulty.mechanics;
+
+import com.panita.tezzlar3.core.chat.Messenger;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+public class GoatHornParalyzeMechanic extends DifficultyMechanic {
+
+    private final Map<UUID, Long> cooldowns = new HashMap<>();
+
+    public GoatHornParalyzeMechanic(JavaPlugin plugin) {
+        super(plugin, 4);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onHornUse(PlayerInteractEvent event) {
+        if (!isActive()) return;
+        
+        if (event.getAction().isRightClick() && event.getItem() != null && event.getItem().getType() == Material.GOAT_HORN) {
+            Player player = event.getPlayer();
+            
+            long now = System.currentTimeMillis();
+            if (cooldowns.containsKey(player.getUniqueId())) {
+                if (now - cooldowns.get(player.getUniqueId()) < 15000) {
+                    return; // Prevent execution spam before custom 15s cooldown applies
+                }
+            }
+            cooldowns.put(player.getUniqueId(), now);
+            
+            // Set vanilla visual cooldown to 15 seconds (300 ticks)
+            player.setCooldown(Material.GOAT_HORN, 300);
+
+            int count = 0;
+            for (Entity entity : player.getNearbyEntities(15, 15, 15)) {
+                if (entity instanceof Mob mob) {
+                    // setAware(false) disables pathfinding and targeting AI but preserves gravity
+                    mob.setAware(false);
+                    
+                    new org.bukkit.scheduler.BukkitRunnable() {
+                        int passedTicks = 0;
+                        @Override
+                        public void run() {
+                            if (!mob.isValid() || mob.isDead() || passedTicks >= 200) {
+                                if (mob.isValid() && !mob.isDead()) {
+                                    mob.setAware(true);
+                                }
+                                this.cancel();
+                                return;
+                            }
+                            mob.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, mob.getLocation().add(0, 1, 0), 10, 0.4, 0.4, 0.4, 0.0);
+                            passedTicks += 10;
+                        }
+                    }.runTaskTimer(plugin, 0L, 10L); // 10 seconds duration (runs every 0.5s)
+                    
+                    count++;
+                }
+            }
+            
+            if (count > 0) {
+                Messenger.prefixedSend(player, "<gold>¡Has paralizado a <white>" + count + " <gold>mobs por 10 segundos!");
+            }
+        }
+    }
+}
