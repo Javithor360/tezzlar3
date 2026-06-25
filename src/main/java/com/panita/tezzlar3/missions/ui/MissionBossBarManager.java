@@ -42,10 +42,14 @@ public class MissionBossBarManager implements Listener {
                 PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player);
                 Set<String> displayedThisTick = new HashSet<>();
                 
+                int incompleteMissions = 0;
+                
                 for (Mission mission : activeMissions) {
                     if (data != null && data.hasCompleted(mission.getId())) {
                         continue; // Do not show completed missions
                     }
+                    
+                    incompleteMissions++;
                     
                     int currentProgress = 0;
                     if (mission.getScope().equalsIgnoreCase("GROUP")) {
@@ -82,6 +86,32 @@ public class MissionBossBarManager implements Listener {
                     // Build text
                     String text = "<b><yellow>Día " + currentDay + "</yellow></b> <dark_gray>-</dark_gray> " + mission.getName() + " <gray>(" + currentProgress + "/" + mission.getObjectiveAmount() + ")</gray>";
                     String barId = "mission_" + mission.getId();
+                    
+                    Messenger.showBossBar(player, barId, text, barColor, BossBar.Overlay.PROGRESS, timeProgress);
+                    displayedThisTick.add(barId);
+                }
+                
+                if (incompleteMissions == 0) {
+                    // Show default timeline bossbar
+                    ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/Mexico_City"));
+                    ZonedDateTime today2PM = now.withHour(14).withMinute(0).withSecond(0).withNano(0);
+                    
+                    long millisPassedInCurrentDay;
+                    if (now.isBefore(today2PM)) {
+                        ZonedDateTime yesterday2PM = today2PM.minusDays(1);
+                        millisPassedInCurrentDay = Duration.between(yesterday2PM, now).toMillis();
+                    } else {
+                        millisPassedInCurrentDay = Duration.between(today2PM, now).toMillis();
+                    }
+                    
+                    long totalDayMillis = 24L * 60L * 60L * 1000L;
+                    float timeProgress = 1.0f - ((float) millisPassedInCurrentDay / totalDayMillis);
+                    timeProgress = Math.max(0.0f, Math.min(1.0f, timeProgress));
+                    
+                    BossBar.Color barColor = BossBar.Color.BLUE;
+                    
+                    String text = "<gradient:#5FE2C5:#C6DEF1:#5FE2C5><shadow:#0D1E40:1>TEZZLAR</shadow></gradient> <dark_gray>-</dark_gray> <#F2E76B>Día " + currentDay + "</#F2E76B>";
+                    String barId = "timeline_day_bar";
                     
                     Messenger.showBossBar(player, barId, text, barColor, BossBar.Overlay.PROGRESS, timeProgress);
                     displayedThisTick.add(barId);
