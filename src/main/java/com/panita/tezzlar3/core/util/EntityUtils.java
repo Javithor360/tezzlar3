@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.NamespacedKey;
 
 import java.util.Base64;
 import java.util.UUID;
@@ -93,6 +94,19 @@ public class EntityUtils {
         return reason == SpawnReason.NATURAL || 
                reason == SpawnReason.SPAWNER ||
                reason == SpawnReason.SPAWNER_EGG;
+    }
+
+    /**
+     * Checks if a mob has been marked as a custom Tezzlar mob (e.g. Beekeeper, Infrared).
+     * This relies on the custom mobs using PersistentDataContainer keys that start with "is_".
+     */
+    public static boolean isCustomMob(LivingEntity entity) {
+        for (NamespacedKey key : entity.getPersistentDataContainer().getKeys()) {
+            if (key.getKey().startsWith("is_")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

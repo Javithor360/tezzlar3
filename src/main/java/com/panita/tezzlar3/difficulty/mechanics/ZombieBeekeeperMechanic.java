@@ -58,12 +58,24 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
                         zombie.setHealth(30.0);
                     }
                     
+                    // Double Attack Damage
+                    AttributeInstance damageAttr = zombie.getAttribute(Attribute.ATTACK_DAMAGE);
+                    if (damageAttr != null) {
+                        damageAttr.setBaseValue(damageAttr.getBaseValue() * 2.0);
+                    }
+                    
                     EntityUtils.equipArmor(zombie, 
                         new ItemStack(Material.BEE_NEST), 
                         new ItemStack(Material.GOLDEN_CHESTPLATE), 
                         new ItemStack(Material.GOLDEN_LEGGINGS), 
                         new ItemStack(Material.GOLDEN_BOOTS), 
                         0.0f);
+                        
+                    org.bukkit.inventory.EntityEquipment eq = zombie.getEquipment();
+                    if (eq != null) {
+                        eq.setItemInMainHand(new ItemStack(Material.GOLDEN_SWORD));
+                        eq.setItemInMainHandDropChance(0.0f);
+                    }
                 }
             }
         }
