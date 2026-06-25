@@ -47,4 +47,11 @@ public class GlobalMissionManager {
     public void addProgress(String missionId, int amount) {
         setProgress(missionId, getProgress(missionId) + amount);
     }
+    
+    public void resetProgress(String missionId) {
+        if (globalProgress.containsKey(missionId)) {
+            globalProgress.remove(missionId);
+            save();
+        }
+    }
 }

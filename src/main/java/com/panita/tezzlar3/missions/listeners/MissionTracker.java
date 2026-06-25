@@ -19,7 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
@@ -73,10 +73,10 @@ public class MissionTracker implements Listener {
                     if (mission.getObjectiveType().equalsIgnoreCase("EQUIP_ARMOR")) {
                         if (mission.getObjectiveTarget().equalsIgnoreCase("DIAMOND_ARMOR_SET")) {
                             int count = 0;
-                            if (player.getInventory().getHelmet() != null && player.getInventory().getHelmet().getType() == Material.DIAMOND_HELMET) count++;
-                            if (player.getInventory().getChestplate() != null && player.getInventory().getChestplate().getType() == Material.DIAMOND_CHESTPLATE) count++;
-                            if (player.getInventory().getLeggings() != null && player.getInventory().getLeggings().getType() == Material.DIAMOND_LEGGINGS) count++;
-                            if (player.getInventory().getBoots() != null && player.getInventory().getBoots().getType() == Material.DIAMOND_BOOTS) count++;
+                            if (player.getInventory().getHelmet().getType() == Material.DIAMOND_HELMET) count++;
+                            if (player.getInventory().getChestplate().getType() == Material.DIAMOND_CHESTPLATE) count++;
+                            if (player.getInventory().getLeggings().getType() == Material.DIAMOND_LEGGINGS) count++;
+                            if (player.getInventory().getBoots().getType() == Material.DIAMOND_BOOTS) count++;
                             
                             if (count >= mission.getObjectiveAmount()) {
                                 // Add the full target amount at once because it's a state, not cumulative
@@ -183,15 +183,15 @@ public class MissionTracker implements Listener {
     }
 
     @EventHandler
-    public void onEntitySpawn(EntitySpawnEvent event) {
+    public void onEntitySpawn(CreatureSpawnEvent event) {
         if (!hasActiveMissionObjective("SPAWN_ENTITY") && !hasActiveMissionObjective("SUMMON_ENTITY")) return;
         
         if (event.getEntityType() == EntityType.ENDER_DRAGON) {
             checkObjective(null, "SPAWN_ENTITY", "ENDER_DRAGON", 1);
         } else if (event.getEntityType() == EntityType.IRON_GOLEM) {
-            // Can be extended to check if built by a player
-            // For simplicity in the counter, we just count the spawn
-            checkObjective(null, "SUMMON_ENTITY", "IRON_GOLEM", 1);
+            if (event.getSpawnReason() == CreatureSpawnEvent.SpawnReason.BUILD_IRONGOLEM) {
+                checkObjective(null, "SUMMON_ENTITY", "IRON_GOLEM", 1);
+            }
         }
     }
 

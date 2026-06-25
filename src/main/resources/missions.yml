@@ -57,7 +57,7 @@ missions:
     name: "Derrotar al Wither en el Nether"
     start_day: 10
     end_day: 12
-    scope: GROUP
+    scope: INDIVIDUAL
     objective:
       type: KILL_ENTITY
       target: WITHER
