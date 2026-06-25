@@ -54,6 +54,7 @@ public class MissionExpirationListener implements Listener {
                                     String id = (String) punishmentMap.get("id");
                                     if (!data.hasPunishment(id)) {
                                         data.addPunishment(id);
+                                        data.setPunishmentsAcknowledged(false);
                                     }
                                 }
                             }
@@ -74,6 +75,7 @@ public class MissionExpirationListener implements Listener {
                                 }
                                 if (changed) {
                                     config.set("active_punishments", activePunishments);
+                                    config.set("punishments_acknowledged", false);
                                     customConfig.save();
                                 }
                             }

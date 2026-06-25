@@ -37,7 +37,7 @@ hardcore:
     genericDeathMessage: "<red>Las fuerzas del mal en este mundo han sumido en las tinieblas a <yellow>%player_name%</yellow> llevándose su alma y castigándonos con sus represalias.</red>"
     deathMessages:
       default: "<gray>%player_name% ha muerto y ha perdido una de sus vidas.</gray>"
-  deathSounds:
+  deathSounds: # - sound;volume;pitch
     - "entity.wither.death;1.0;0.0"
     - "entity.lightning_bolt.thunder;1.0;2.0"
 
@@ -72,5 +72,29 @@ inventory:
 #      - BLAZE
 #      - ILLUSIONER
 #      - BAT
-    minionCount: 3
+    minionCount: 1
   deathCoordsReminder: "<gray>Parece que tienes una tumba activa en <red><bold>X:</bold> {x}  <bold>Y:</bold> {y}  <bold>Z:</bold> {z} ({dimension})</red>. Se te recomienda pedir ayuda a un compañero para recuperar tus cosas.</gray>"
+
+# Timeline Module
+timeline:
+  messages:
+    day_change_title: "<red><b>DÍA %day%</b>"
+    day_change_subtitle: "<gray>Un nuevo día ha comenzado..."
+    day_change_chat: "<dark_red><b>[!]</b> <red>Ha comenzado el Día %day%. ¡Prepárate!"
+  sound: "entity.ender_dragon.growl;1.0;0.8" # sound;volume;pitch
+
+# Missions Module
+missions:
+  messages:
+    punishment_warning: "&c[!] Tienes castigos activos. Usa /punishments para verlos."
+    individual_completed: "&aEl jugador &e%player% &acompletó la misión: &6%mission%"
+    group_completed: "&a¡Todos han completado la misión grupal: &6%mission%!"
+    reward_claimed: "&eHas reclamado las recompensas de la misión: &6%mission%"
+    rewards_empty: "&cNo tienes recompensas pendientes por reclamar."
+    punishments_empty: "&aNo tienes castigos activos."
+  punishments_dictionary:
+    DIAMOND_BAN: "No puedes guardar diamantes en tu inventario."
+    DAMAGE_MULTIPLIER: "Recibes 1.5x de daño de todas las fuentes."
+    HOSTILE_IRON_GOLEMS: "Los Gólems de Hierro te atacarán naturalmente."
+    REGENERATION_TO_WITHER: "Recibes Wither II en lugar de Regeneración."
+    WITHER_SKELETON_SPAWN_ON_DAMAGE: "Posibilidad de invocar Esqueletos Wither al recibir daño en el Nether."

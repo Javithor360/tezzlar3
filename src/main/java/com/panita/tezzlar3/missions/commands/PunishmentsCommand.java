@@ -15,6 +15,10 @@ import org.bukkit.entity.Player;
 import com.panita.tezzlar3.Tezzlar;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import org.bukkit.configuration.file.FileConfiguration;
+
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,11 +49,11 @@ public class PunishmentsCommand implements AdvancedCommand, TabSuggestingCommand
         if (onlineTarget != null) {
             PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(onlineTarget);
             if (data != null) {
-                activePunishments = new java.util.ArrayList<>(data.getActivePunishments());
+                activePunishments = new ArrayList<>(data.getActivePunishments());
             }
         } else {
-            java.io.File dataDir = new java.io.File(Tezzlar.getInstance().getDataFolder(), "data");
-            java.io.File playerFile = new java.io.File(dataDir, targetName + ".yml");
+            File dataDir = new File(Tezzlar.getInstance().getDataFolder(), "data");
+            File playerFile = new File(dataDir, targetName + ".yml");
             
             if (playerFile.exists()) {
                 CustomConfig customConfig = new CustomConfig(Tezzlar.getInstance(), "data", targetName + ".yml");
@@ -70,7 +74,9 @@ public class PunishmentsCommand implements AdvancedCommand, TabSuggestingCommand
 
         Messenger.prefixedSend(sender, "&cCastigos activos de &e" + targetName + "&c:");
         for (String punishment : activePunishments) {
-            Messenger.prefixedSend(sender, " &7- &c" + punishment);
+            String defaultDictValue = MissionsConfigDefaults.MISSIONS_PUNISHMENTS_DICTIONARY.getOrDefault(punishment, punishment);
+            String friendlyName = Tezzlar.getConfigManager().getString("missions.punishments_dictionary." + punishment, defaultDictValue);
+            Messenger.prefixedSend(sender, " &7- &c" + friendlyName);
         }
     }
 

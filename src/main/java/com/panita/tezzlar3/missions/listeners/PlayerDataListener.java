@@ -25,11 +25,12 @@ public class PlayerDataListener implements Listener {
         dataManager.loadPlayerData(player);
 
         PlayerMissionData data = dataManager.getPlayerData(player);
-        if (data != null && !data.getActivePunishments().isEmpty()) {
+        if (data != null && !data.getActivePunishments().isEmpty() && !data.hasPunishmentsAcknowledged()) {
             Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
                 String warning = Tezzlar.getConfigManager().getString("missions.messages.punishment_warning", MissionsConfigDefaults.MISSIONS_MESSAGES_PUNISHMENT_WARNING);
                 Messenger.prefixedSend(player, warning);
-            }, 20L); // 1 second delay
+                data.setPunishmentsAcknowledged(true);
+            }, 100L); // 5 seconds delay
         }
     }
 

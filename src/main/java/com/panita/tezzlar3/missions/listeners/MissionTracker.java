@@ -10,10 +10,17 @@ import com.panita.tezzlar3.missions.util.MissionsConfigDefaults;
 import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 
 import java.util.Map;
@@ -35,7 +42,7 @@ public class MissionTracker implements Listener {
                     String[] parts = locStr.split(",");
                     if (parts.length < 4) continue;
                     
-                    org.bukkit.World world = Bukkit.getWorld(parts[0]);
+                    World world = Bukkit.getWorld(parts[0]);
                     if (world == null) continue;
                     
                     try {
@@ -43,11 +50,11 @@ public class MissionTracker implements Listener {
                         double y = Double.parseDouble(parts[2]);
                         double z = Double.parseDouble(parts[3]);
                         
-                        org.bukkit.Location targetLoc = new org.bukkit.Location(world, x, y, z);
+                        Location targetLoc = new Location(world, x, y, z);
                         int radius = mission.getObjectiveRadius();
                         
-                        for (org.bukkit.entity.Entity entity : world.getNearbyEntities(targetLoc, radius, radius, radius)) {
-                            if (entity.getType() == org.bukkit.entity.EntityType.WARDEN) {
+                        for (Entity entity : world.getNearbyEntities(targetLoc, radius, radius, radius)) {
+                            if (entity.getType() == EntityType.WARDEN) {
                                 advanceProgress(null, mission.getId(), mission.getObjectiveAmount());
                                 break;
                             }
@@ -77,7 +84,7 @@ public class MissionTracker implements Listener {
                     }
                 }
             }
-        }, 20L, 40L); // Check every 2 seconds
+        }, 20L, 100L); // Check every 5 seconds
     }
 
     private void advanceProgress(Player player, String missionId, int amount) {
@@ -174,12 +181,12 @@ public class MissionTracker implements Listener {
     }
 
     @EventHandler
-    public void onEntitySpawn(org.bukkit.event.entity.EntitySpawnEvent event) {
+    public void onEntitySpawn(EntitySpawnEvent event) {
         if (!hasActiveMissionObjective("SPAWN_ENTITY") && !hasActiveMissionObjective("SUMMON_ENTITY")) return;
         
-        if (event.getEntityType() == org.bukkit.entity.EntityType.ENDER_DRAGON) {
+        if (event.getEntityType() == EntityType.ENDER_DRAGON) {
             checkObjective(null, "SPAWN_ENTITY", "ENDER_DRAGON", 1);
-        } else if (event.getEntityType() == org.bukkit.entity.EntityType.IRON_GOLEM) {
+        } else if (event.getEntityType() == EntityType.IRON_GOLEM) {
             // Can be extended to check if built by a player
             // For simplicity in the counter, we just count the spawn
             checkObjective(null, "SUMMON_ENTITY", "IRON_GOLEM", 1);
@@ -196,7 +203,7 @@ public class MissionTracker implements Listener {
     }
 
     @EventHandler
-    public void onCraft(org.bukkit.event.inventory.CraftItemEvent event) {
+    public void onCraft(CraftItemEvent event) {
         if (!hasActiveMissionObjective("CRAFT_ITEM")) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
         

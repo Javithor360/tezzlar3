@@ -22,6 +22,8 @@ public class PlayerMissionData {
     // Set of mission IDs pending to be claimed
     private final Set<String> pendingRewards = new HashSet<>();
     
+    private boolean punishmentsAcknowledged = true;
+    
     private long playtimeTicks = 0;
 
     public PlayerMissionData(UUID uuid, String name) {
@@ -108,5 +110,13 @@ public class PlayerMissionData {
     
     public void addPlaytimeTicks(long ticks) {
         this.playtimeTicks += ticks;
+    }
+
+    public boolean hasPunishmentsAcknowledged() {
+        return punishmentsAcknowledged;
+    }
+
+    public void setPunishmentsAcknowledged(boolean punishmentsAcknowledged) {
+        this.punishmentsAcknowledged = punishmentsAcknowledged;
     }
 }

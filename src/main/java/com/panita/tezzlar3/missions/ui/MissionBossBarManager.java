@@ -80,7 +80,7 @@ public class MissionBossBarManager implements Listener {
                     else if (timeProgress < 0.5f) barColor = BossBar.Color.YELLOW;
                     
                     // Build text
-                    String text = "<dark_aqua>Tezzlar III <gray>~ <yellow>Día " + currentDay + " <gray>- <white>" + mission.getName() + " <gray>(" + currentProgress + "/" + mission.getObjectiveAmount() + ")";
+                    String text = "<b><yellow>Día " + currentDay + "</yellow></b> <dark_gray>-</dark_gray> " + mission.getName() + " <gray>(" + currentProgress + "/" + mission.getObjectiveAmount() + ")</gray>";
                     String barId = "mission_" + mission.getId();
                     
                     Messenger.showBossBar(player, barId, text, barColor, BossBar.Overlay.PROGRESS, timeProgress);
@@ -96,7 +96,7 @@ public class MissionBossBarManager implements Listener {
                 }
                 playerActiveBars.put(player.getUniqueId(), displayedThisTick);
             }
-        }, 20L, 20L); // Update every second
+        }, 600L, 600L); // Update every minute
     }
 
     @EventHandler

@@ -11,6 +11,7 @@ missions:
     rewards:
       - id: "GIVE_EXP"
         args: { levels: 15 }
+        description: "15 Niveles de Experiencia"
     punishments:
       - id: "DIAMOND_BAN"
       - id: "DAMAGE_MULTIPLIER"
@@ -28,8 +29,10 @@ missions:
     rewards:
       - id: "GIVE_CUSTOM_ITEM"
         args: { custom_id: "tactic_bow", amount: 1 }
+        description: "1x Arco Táctico"
       - id: "GIVE_ITEM"
         args: { material: "ENCHANTED_GOLDEN_APPLE", amount: 3 }
+        description: "3x Manzana Encantada"
         
   iron_golems:
     name: "Spawnear Gólems de Hierro"
@@ -43,8 +46,10 @@ missions:
     rewards:
       - id: "GIVE_CUSTOM_ITEM"
         args: { custom_id: "op_iron_armor_set", amount: 1 }
+        description: "1x Armadura de Hierro Mejorada"
       - id: "GIVE_CUSTOM_ITEM"
         args: { custom_id: "op_iron_tools_set", amount: 1 }
+        description: "1x Herramientas de Hierro Mejoradas"
     punishments:
       - id: "HOSTILE_IRON_GOLEMS"
 
@@ -61,6 +66,7 @@ missions:
     rewards:
       - id: "GIVE_EXP"
         args: { levels: 50 }
+        description: "50 Niveles de Experiencia"
     punishments:
       - id: "REGENERATION_TO_WITHER"
       - id: "WITHER_SKELETON_SPAWN_ON_DAMAGE"
@@ -79,6 +85,7 @@ missions:
     rewards:
       - id: "GIVE_EXP"
         args: { levels: 100 }
+        description: "100 Niveles de Experiencia"
 
   dragon_respawn:
     name: "Revivir al Ender Dragon"
@@ -92,3 +99,4 @@ missions:
     rewards:
       - id: "GIVE_EXP"
         args: { levels: 30 }
+        description: "30 Niveles de Experiencia"

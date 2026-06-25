@@ -63,6 +63,13 @@ public class RewardsClaimCommand implements AdvancedCommand {
                 String claimMsg = Tezzlar.getConfigManager().getString("missions.messages.reward_claimed", MissionsConfigDefaults.MISSIONS_MESSAGES_REWARD_CLAIMED);
                 claimMsg = claimMsg.replace("%mission%", mission.getName());
                 Messenger.prefixedSend(player, claimMsg);
+                
+                for (Map<?, ?> rewardMap : mission.getRewards()) {
+                    String desc = (String) rewardMap.get("description");
+                    if (desc != null && !desc.isEmpty()) {
+                        Messenger.prefixedSend(player, " &7- " + desc);
+                    }
+                }
             }
         }
     }
