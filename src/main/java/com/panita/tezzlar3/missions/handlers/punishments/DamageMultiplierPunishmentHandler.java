@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import com.panita.tezzlar3.core.chat.Messenger;
 
 public class DamageMultiplierPunishmentHandler implements PunishmentHandler, Listener {
     
@@ -39,7 +40,9 @@ public class DamageMultiplierPunishmentHandler implements PunishmentHandler, Lis
             double highestMultiplier = 1.0;
             
             for (String punishment : data.getActivePunishments()) {
-                if (punishment.startsWith(getId() + ":")) {
+                if (punishment.equals(getId())) {
+                    if (1.5 > highestMultiplier) highestMultiplier = 1.5;
+                } else if (punishment.startsWith(getId() + ":")) {
                     try {
                         double mult = Double.parseDouble(punishment.split(":")[1]);
                         if (mult > highestMultiplier) {

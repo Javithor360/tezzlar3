@@ -2,10 +2,16 @@ package com.panita.tezzlar3.core.util;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.inventory.EntityEquipment;
 
 import java.util.Base64;
 import java.util.UUID;
@@ -77,6 +83,41 @@ public class EntityUtils {
         skull.setItemMeta(skullMeta);
 
         return skull;
+    }
+
+    /**
+     * Checks if a spawn reason is considered natural or valid for applying difficulty mechanics.
+     * Allowed: NATURAL, SPAWNER, SPAWNER_EGG
+     */
+    public static boolean isValidNaturalSpawn(SpawnReason reason) {
+        return reason == SpawnReason.NATURAL || 
+               reason == SpawnReason.SPAWNER ||
+               reason == SpawnReason.SPAWNER_EGG;
+    }
+
+    /**
+     * Equips armor to a LivingEntity with a specified drop chance.
+     */
+    public static void equipArmor(LivingEntity entity, ItemStack helmet, ItemStack chestplate, ItemStack leggings, ItemStack boots, float dropChance) {
+        EntityEquipment equipment = entity.getEquipment();
+        if (equipment != null) {
+            if (helmet != null) {
+                equipment.setHelmet(helmet);
+                equipment.setHelmetDropChance(dropChance);
+            }
+            if (chestplate != null) {
+                equipment.setChestplate(chestplate);
+                equipment.setChestplateDropChance(dropChance);
+            }
+            if (leggings != null) {
+                equipment.setLeggings(leggings);
+                equipment.setLeggingsDropChance(dropChance);
+            }
+            if (boots != null) {
+                equipment.setBoots(boots);
+                equipment.setBootsDropChance(dropChance);
+            }
+        }
     }
 }
 

@@ -5,8 +5,10 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.enchantments.Enchantment;
 
 import java.util.Arrays;
+import java.util.Random;
 
 public class ItemUtils {
     public static boolean checkItemModel(ItemStack item, NamespacedKey modelKey) {
@@ -39,6 +41,32 @@ public class ItemUtils {
             amount -= take;
             if (amount <= 0) break;
         }
+    }
+
+    /**
+     * Calculates extra drops based on the looting level of the player's main hand item.
+     * Mimics Vanilla logic: random number from 0 to LootingLevel.
+     */
+    public static int getLootingBonus(Player player) {
+        if (player == null) return 0;
+        ItemStack hand = player.getInventory().getItemInMainHand();
+        if (!hand.hasItemMeta()) return 0;
+        
+        int lootingLevel = hand.getEnchantmentLevel(Enchantment.LOOTING);
+        if (lootingLevel > 0) {
+            return new Random().nextInt(lootingLevel + 1);
+        }
+        return 0;
+    }
+
+    /**
+     * Quickly applies an unsafe enchantment to an item and returns it for chaining.
+     */
+    public static ItemStack enchantItem(ItemStack item, Enchantment enchantment, int level) {
+        if (item != null && item.getType() != Material.AIR) {
+            item.addUnsafeEnchantment(enchantment, level);
+        }
+        return item;
     }
 }
 
