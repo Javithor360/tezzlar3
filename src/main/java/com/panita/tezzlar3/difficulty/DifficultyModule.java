@@ -4,6 +4,8 @@ import com.panita.tezzlar3.core.modules.PluginModule;
 import com.panita.tezzlar3.difficulty.mechanics.AnimalOneShotMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DifficultyMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubleFallDamageMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.GoatHornParalyzeMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.InfraredSkeletonMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ZombieBeekeeperMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,6 +34,10 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new DoubleFallDamageMechanic(plugin));
         mechanics.add(new AnimalOneShotMechanic(plugin));
         mechanics.add(new ZombieBeekeeperMechanic(plugin));
+        
+        // Day 4
+        mechanics.add(new GoatHornParalyzeMechanic(plugin));
+        mechanics.add(new InfraredSkeletonMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);

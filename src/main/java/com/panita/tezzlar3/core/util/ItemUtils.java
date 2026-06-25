@@ -5,7 +5,9 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.Color;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -65,6 +67,18 @@ public class ItemUtils {
     public static ItemStack enchantItem(ItemStack item, Enchantment enchantment, int level) {
         if (item != null && item.getType() != Material.AIR) {
             item.addUnsafeEnchantment(enchantment, level);
+        }
+        return item;
+    }
+
+    /**
+     * Creates a colored leather armor piece.
+     */
+    public static ItemStack createColoredLeather(Material material, Color color) {
+        ItemStack item = new ItemStack(material);
+        if (item.getItemMeta() instanceof LeatherArmorMeta meta) {
+            meta.setColor(color);
+            item.setItemMeta(meta);
         }
         return item;
     }
