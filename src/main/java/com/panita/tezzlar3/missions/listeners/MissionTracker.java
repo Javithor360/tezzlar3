@@ -22,6 +22,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.inventory.ItemStack;
+import com.panita.tezzlar3.core.util.CraftingUtils;
 
 import java.util.Map;
 
@@ -207,12 +209,51 @@ public class MissionTracker implements Listener {
         if (!hasActiveMissionObjective("CRAFT_ITEM")) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
         
-        String target = event.getRecipe().getResult().getType().name();
-        // Count the result amount of the recipe
-        int amount = event.getRecipe().getResult().getAmount();
+        if (event.getRecipe() == null || event.getRecipe().getResult() == null) return;
         
-        // Note: For massive crafting shift-clicks it would require complex inventory math,
-        // this assumes standard crafting as the main progress.
-        checkObjective(player, "CRAFT_ITEM", target, amount);
+        ItemStack result = event.getRecipe().getResult();
+        String target = result.getType().name();
+        
+        int amount = CraftingUtils.getCraftedAmount(event);
+        if (amount <= 0) return;
+        
+        int maxAddable = getMaxAddable(player, result, amount, event.isShiftClick());
+        if (maxAddable <= 0) return;
+        
+        // Round down to the nearest multiple of the recipe's result amount
+        // Because you can't craft a fraction of a recipe
+        int recipeYield = result.getAmount();
+        int actualCrafted = (maxAddable / recipeYield) * recipeYield;
+        
+        if (actualCrafted <= 0) return;
+        
+        checkObjective(player, "CRAFT_ITEM", target, actualCrafted);
+    }
+    
+    private int getMaxAddable(Player player, ItemStack item, int attemptAmount, boolean isShiftClick) {
+        int maxStack = item.getMaxStackSize();
+        int remaining = attemptAmount;
+
+        if (!isShiftClick) {
+            // Normal click: item goes to cursor
+            ItemStack cursor = player.getOpenInventory().getCursor();
+            if (cursor == null || cursor.getType() == Material.AIR) {
+                remaining -= Math.min(remaining, maxStack);
+            } else if (cursor.getType() == item.getType()) {
+                remaining -= Math.min(remaining, maxStack - cursor.getAmount());
+            }
+        } else {
+            // Shift click: items go directly to inventory (ignoring cursor)
+            for (ItemStack invItem : player.getInventory().getContents()) {
+                if (remaining <= 0) break;
+                if (invItem == null || invItem.getType() == Material.AIR) {
+                    remaining -= Math.min(remaining, maxStack);
+                } else if (invItem.getType() == item.getType()) {
+                    remaining -= Math.min(remaining, maxStack - invItem.getAmount());
+                }
+            }
+        }
+
+        return attemptAmount - remaining;
     }
 }

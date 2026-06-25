@@ -96,7 +96,7 @@ public class MissionBossBarManager implements Listener {
                 }
                 playerActiveBars.put(player.getUniqueId(), displayedThisTick);
             }
-        }, 600L, 600L); // Update every minute
+        }, 20L, 20L); // Update every second
     }
 
     @EventHandler

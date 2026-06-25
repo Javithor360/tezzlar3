@@ -1,7 +1,6 @@
 package com.panita.tezzlar3.timeline;
 
 import com.panita.tezzlar3.core.modules.PluginModule;
-import com.panita.tezzlar3.timeline.listeners.DayChangeListener;
 import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -22,7 +21,6 @@ public class TimelineModule implements PluginModule {
     @Override
     public void onEnable(JavaPlugin plugin) {
         TimeManager.init(plugin);
-        plugin.getServer().getPluginManager().registerEvents(new DayChangeListener(), plugin);
         enabled = true;
     }
 

@@ -32,7 +32,7 @@ public class MissionExpirationListener implements Listener {
         File dataFolder = new File(plugin.getDataFolder(), "data");
         if (!dataFolder.exists()) return;
         
-        File[] files = dataFolder.listFiles((dir, name) -> name.endsWith(".yml"));
+        File[] files = dataFolder.listFiles((dir, name) -> name.endsWith(".yml") && !name.equals("global_missions.yml"));
         if (files == null) return;
 
         for (Map.Entry<String, Mission> entry : MissionsModule.getMissionManager().getLoadedMissions().entrySet()) {

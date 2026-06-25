@@ -36,7 +36,6 @@ public class MissionsModule implements PluginModule {
         
         dataManager = new PlayerDataManager(plugin);
         plugin.getServer().getPluginManager().registerEvents(new PlayerDataListener(dataManager), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new MissionTracker(), plugin);
         
         MissionExpirationListener expirationListener = new MissionExpirationListener(plugin);
         plugin.getServer().getPluginManager().registerEvents(expirationListener, plugin);
