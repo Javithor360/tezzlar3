@@ -5,17 +5,14 @@ import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.qol.util.CustomItemManager;
 import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.Blaze;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Ghast;
-import org.bukkit.entity.MagmaCube;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,7 +20,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import org.bukkit.entity.LivingEntity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +47,14 @@ public class GigaMagmaCubeBoss {
         // Setup Attributes
         boss.setSize(20);
         boss.setRemoveWhenFarAway(false);
-        EntityUtils.setCustomName(boss, "<#FF5252><b>Giga Magma Cube</b></#FF5252>");
+        EntityUtils.setCustomName(boss, "<#E88331><b>Giga Magma Cube</b></#E88331>", true);
+        
+        // Ensure it is not riding anything and nothing is riding it
+        boss.leaveVehicle();
+        boss.getPassengers().forEach(Entity::remove);
+        
+        // Add yellow glowing
+        EntityUtils.setColoredGlowing(boss, NamedTextColor.YELLOW);
 
         EntityUtils.trySetAttribute(boss, Attribute.MAX_HEALTH, 1000.0);
         EntityUtils.trySetAttribute(boss, Attribute.GRAVITY, 0.45);
@@ -67,10 +70,10 @@ public class GigaMagmaCubeBoss {
         
         // Broadcast
         if (isNewSpawn) {
-            Messenger.prefixedBroadcast("<#FF5252>¡Un Giga Magma Cube ha despertado en el Nether! (" 
+            Messenger.prefixedBroadcast("<#E88331>¡Un Giga Magma Cube ha despertado en el Nether! ("
                 + boss.getLocation().getBlockX() + ", " 
                 + boss.getLocation().getBlockY() + ", " 
-                + boss.getLocation().getBlockZ() + ")</#FF5252>");
+                + boss.getLocation().getBlockZ() + ")</#E88331>");
             for (Player p : Bukkit.getOnlinePlayers()) {
                 SoundUtils.play(p, "entity.ender_dragon.growl", 1, 0.5f);
             }
@@ -172,7 +175,7 @@ public class GigaMagmaCubeBoss {
         options.get(0).run();
         options.get(1).run();
         
-        Messenger.prefixedSend(p, "<#81C784>¡Has recibido grandiosas recompensas por la derrota del Giga Magma Cube!</#81C784>");
+        Messenger.prefixedSend(p, "<#E88331>¡Has recibido grandiosas recompensas por la derrota del Giga Magma Cube!</#E88331>");
         SoundUtils.play(p, "entity.player.levelup", 1, 2);
     }
     

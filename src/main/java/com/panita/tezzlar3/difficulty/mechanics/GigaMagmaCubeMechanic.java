@@ -77,15 +77,19 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
         if (event.getEntity().getPersistentDataContainer().has(BOSS_KEY, PersistentDataType.BYTE)) return;
         if (event.getEntity().getPersistentDataContainer().has(MINION_KEY, PersistentDataType.BYTE)) return;
         
-        // Only spawn on lava
         Material type = event.getLocation().getBlock().getType();
         Material downType = event.getLocation().getBlock().getRelative(BlockFace.DOWN).getType();
-        if (type != Material.LAVA && downType != Material.LAVA) return;
+        boolean isLava = (type == Material.LAVA || downType == Material.LAVA);
         
-        // Ensure open space for size 20 and minions
-        if (!hasOpenSpace(event.getLocation())) return;
-
-        if (random.nextInt(500) != 0) return;
+        if (isLava) {
+            // Lava: 1 in 150 chance, 11x11x10 space (radius 5)
+            if (random.nextInt(150) != 0) return;
+            if (!hasOpenSpace(event.getLocation(), 5, 10)) return;
+        } else {
+            // Not lava: 1 in 500 chance, 15x15x15 space (radius 7)
+            if (random.nextInt(500) != 0) return;
+            if (!hasOpenSpace(event.getLocation(), 7, 15)) return;
+        }
         
         event.setCancelled(true);
         
@@ -184,16 +188,15 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
         }
     }
     
-    private boolean hasOpenSpace(Location loc) {
+    private boolean hasOpenSpace(Location loc, int radius, int height) {
         World world = loc.getWorld();
         int cx = loc.getBlockX();
         int cy = loc.getBlockY();
         int cz = loc.getBlockZ();
         
-        // Radius 7 gives a 15x15 space. Height 15.
-        for (int x = -7; x <= 7; x++) {
-            for (int y = 0; y <= 15; y++) {
-                for (int z = -7; z <= 7; z++) {
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = 0; y <= height; y++) {
+                for (int z = -radius; z <= radius; z++) {
                     Block b = world.getBlockAt(cx + x, cy + y, cz + z);
                     if (b.getType().isSolid()) {
                         return false;
