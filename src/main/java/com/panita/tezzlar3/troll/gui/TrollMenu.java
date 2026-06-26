@@ -80,6 +80,20 @@ public class TrollMenu extends Menu {
                 .lore("<gray>Durante 5s, el bloque bajo", "<gray>sus pies se vuelve cobre.")
                 .build();
         inventory.setItem(16, copper);
+
+        // 8. Half Heart
+        ItemStack halfHeart = new ItemBuilder(Material.FERMENTED_SPIDER_EYE)
+                .name("<dark_red><bold>Medio Corazón")
+                .lore("<gray>Reduce instantáneamente la", "<gray>vida del jugador a medio corazón.")
+                .build();
+        inventory.setItem(19, halfHeart);
+
+        // 9. Starve
+        ItemStack starve = new ItemBuilder(Material.ROTTEN_FLESH)
+                .name("<color:#8B4513><bold>Hambruna")
+                .lore("<gray>Vacia completamente la barra", "<gray>de comida y saturación.")
+                .build();
+        inventory.setItem(20, starve);
     }
 
     @Override
@@ -125,9 +139,17 @@ public class TrollMenu extends Menu {
                 TrollManager.enableCopperTrail(target);
                 Messenger.prefixedSend(player, "&aTrolleo &eCopper Trail &aaplicado a " + target.getName());
                 break;
+            case 19:
+                TrollManager.executeHalfHeart(target);
+                Messenger.prefixedSend(player, "&aTrolleo &eMedio Corazón &aaplicado a " + target.getName());
+                break;
+            case 20:
+                TrollManager.executeStarve(target);
+                Messenger.prefixedSend(player, "&aTrolleo &eHambruna &aaplicado a " + target.getName());
+                break;
         }
         
-        if (slot >= 10 && slot <= 16) {
+        if ((slot >= 10 && slot <= 16) || slot == 19 || slot == 20) {
             player.closeInventory();
         }
     }

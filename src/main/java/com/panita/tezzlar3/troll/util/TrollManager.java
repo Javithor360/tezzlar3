@@ -110,4 +110,13 @@ public class TrollManager {
     public static void enableCopperTrail(Player target) {
         TrollListener.addCopperTrailTarget(target.getUniqueId());
     }
+
+    public static void executeHalfHeart(Player target) {
+        target.setHealth(1.0);
+    }
+
+    public static void executeStarve(Player target) {
+        target.setFoodLevel(0);
+        target.setSaturation(0.0f);
+    }
 }
