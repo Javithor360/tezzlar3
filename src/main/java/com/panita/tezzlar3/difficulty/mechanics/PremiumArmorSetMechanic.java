@@ -12,18 +12,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class PremiumArmorSetMechanic extends DifficultyMechanic {
 
-    private final NamespacedKey HELMET_KEY;
-    private final NamespacedKey CHESTPLATE_KEY;
-    private final NamespacedKey LEGGINGS_KEY;
-    private final NamespacedKey BOOTS_KEY;
+    private final NamespacedKey CUSTOM_ID_KEY;
 
     public PremiumArmorSetMechanic(JavaPlugin plugin) {
         super(plugin, 1); // Available from the start
         
-        HELMET_KEY = new NamespacedKey(plugin, "premium_iron_helmet");
-        CHESTPLATE_KEY = new NamespacedKey(plugin, "premium_iron_chestplate");
-        LEGGINGS_KEY = new NamespacedKey(plugin, "premium_iron_leggings");
-        BOOTS_KEY = new NamespacedKey(plugin, "premium_iron_boots");
+        CUSTOM_ID_KEY = new NamespacedKey(plugin, "custom_item_id");
         
         // Run a check every second (20 ticks) for all players
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
@@ -32,8 +26,8 @@ public class PremiumArmorSetMechanic extends DifficultyMechanic {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (hasFullPremiumSet(player)) {
                     // Strength II (amplifier 1) for 1.5 seconds (30 ticks)
-                    // Hidden particles to not obstruct vision (false, false, true)
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 30, 1, false, false, true));
+                    // Hidden particles to not obstruct vision (false, false, false)
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 30, 1, false, false, false));
                 }
             }
         }, 20L, 20L);
@@ -43,14 +37,14 @@ public class PremiumArmorSetMechanic extends DifficultyMechanic {
         EntityEquipment eq = player.getEquipment();
         if (eq == null) return false;
         
-        return isPremiumPiece(eq.getHelmet(), HELMET_KEY) &&
-               isPremiumPiece(eq.getChestplate(), CHESTPLATE_KEY) &&
-               isPremiumPiece(eq.getLeggings(), LEGGINGS_KEY) &&
-               isPremiumPiece(eq.getBoots(), BOOTS_KEY);
+        return isPremiumPiece(eq.getHelmet(), "premium_iron_helmet") &&
+               isPremiumPiece(eq.getChestplate(), "premium_iron_chestplate") &&
+               isPremiumPiece(eq.getLeggings(), "premium_iron_leggings") &&
+               isPremiumPiece(eq.getBoots(), "premium_iron_boots");
     }
 
-    private boolean isPremiumPiece(ItemStack item, NamespacedKey expectedKey) {
-        NamespacedKey key = ItemUtils.getItemModel(item);
-        return expectedKey.equals(key);
+    private boolean isPremiumPiece(ItemStack item, String expectedId) {
+        String customId = ItemUtils.getCustomItemId(item, CUSTOM_ID_KEY);
+        return expectedId.equals(customId);
     }
 }

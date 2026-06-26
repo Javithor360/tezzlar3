@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.Color;
 
 import java.util.Arrays;
@@ -26,6 +27,16 @@ public class ItemUtils {
 
         ItemMeta meta = item.getItemMeta();
         return meta.getItemModel();
+    }
+
+    /**
+     * Gets a custom String ID stored in the item's PersistentDataContainer.
+     * Useful for identifying custom items from other plugins or configurations.
+     */
+    public static String getCustomItemId(ItemStack item, NamespacedKey key) {
+        if (item == null || !item.hasItemMeta()) return null;
+        
+        return item.getItemMeta().getPersistentDataContainer().get(key, PersistentDataType.STRING);
     }
 
     public static int countMaterial(Player player, Material mat) {

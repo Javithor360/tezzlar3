@@ -1,6 +1,8 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
 import com.panita.tezzlar3.core.chat.Messenger;
+import com.panita.tezzlar3.core.util.EntityUtils;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -11,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,14 +50,16 @@ public class GoatHornParalyzeMechanic extends DifficultyMechanic {
                 if (entity instanceof Mob mob) {
                     // setAware(false) disables pathfinding and targeting AI but preserves gravity
                     mob.setAware(false);
+                    EntityUtils.setColoredGlowing(mob, NamedTextColor.DARK_BLUE);
                     
-                    new org.bukkit.scheduler.BukkitRunnable() {
+                    new BukkitRunnable() {
                         int passedTicks = 0;
                         @Override
                         public void run() {
-                            if (!mob.isValid() || mob.isDead() || passedTicks >= 200) {
+                            if (!mob.isValid() || mob.isDead() || passedTicks >= 100) {
                                 if (mob.isValid() && !mob.isDead()) {
                                     mob.setAware(true);
+                                    EntityUtils.removeColoredGlowing(mob);
                                 }
                                 this.cancel();
                                 return;
@@ -62,14 +67,14 @@ public class GoatHornParalyzeMechanic extends DifficultyMechanic {
                             mob.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, mob.getLocation().add(0, 1, 0), 10, 0.4, 0.4, 0.4, 0.0);
                             passedTicks += 10;
                         }
-                    }.runTaskTimer(plugin, 0L, 10L); // 10 seconds duration (runs every 0.5s)
+                    }.runTaskTimer(plugin, 0L, 10L); // 5 seconds duration (runs every 0.5s)
                     
                     count++;
                 }
             }
             
             if (count > 0) {
-                Messenger.prefixedSend(player, "<gold>¡Has paralizado a <white>" + count + " <gold>mobs por 10 segundos!");
+                Messenger.prefixedSend(player, "<gold>¡Has paralizado a <white>" + count + " <gold>mobs por 5 segundos!");
             }
         }
     }
