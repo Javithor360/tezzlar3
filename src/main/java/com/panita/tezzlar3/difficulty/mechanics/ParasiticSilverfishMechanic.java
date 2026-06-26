@@ -112,6 +112,7 @@ public class ParasiticSilverfishMechanic extends DifficultyMechanic {
                     parasite.getPersistentDataContainer().set(ATTACH_TIME_KEY, PersistentDataType.INTEGER, 0);
                     player.addPassenger(parasite);
                     event.setCancelled(true); // Cancels the initial melee damage
+                    Messenger.prefixedSend(player, "<#1F7A55>Un <red>Lepisma Parásito</red> se ha subido en ti, ¡spammea SHIFT para sacudirte!</#1F7A55>");
                 }
             }
         }
