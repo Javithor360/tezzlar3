@@ -14,6 +14,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.NamespacedKey;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
+import org.bukkit.entity.Entity;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.Base64;
 import java.util.UUID;
@@ -148,6 +152,38 @@ public class EntityUtils {
      */
     public static void setCustomName(LivingEntity entity, String name) {
         setCustomName(entity, name, false);
+    }
+
+    /**
+     * Sets an entity to glow with a specific color by adding them to a scoreboard team.
+     */
+    public static void setColoredGlowing(Entity entity, NamedTextColor color) {
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        String teamName = "tezzlar_glow_" + color.toString();
+        
+        Team team = scoreboard.getTeam(teamName);
+        if (team == null) {
+            team = scoreboard.registerNewTeam(teamName);
+            team.color(color);
+        }
+        
+        team.addEntry(entity.getUniqueId().toString());
+        entity.setGlowing(true);
+    }
+
+    /**
+     * Removes an entity from its glowing scoreboard team and disables its glow.
+     */
+    public static void removeColoredGlowing(Entity entity) {
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+        String uuidStr = entity.getUniqueId().toString();
+        
+        Team team = scoreboard.getEntryTeam(uuidStr);
+        if (team != null && team.getName().startsWith("tezzlar_glow_")) {
+            team.removeEntry(uuidStr);
+        }
+        
+        entity.setGlowing(false);
     }
 }
 
