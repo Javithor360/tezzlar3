@@ -3,7 +3,6 @@ package com.panita.tezzlar3.difficulty.mechanics;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.ItemUtils;
 import com.panita.tezzlar3.core.util.MobGearUtils;
-import com.panita.tezzlar3.core.util.Messenger;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
