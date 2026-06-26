@@ -4,6 +4,7 @@ import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.core.util.ItemUtils;
 import com.panita.tezzlar3.core.util.MobGearUtils;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -95,8 +96,7 @@ public class ShinyPiglinMechanic extends DifficultyMechanic {
         EntityEquipment eq = entity.getEquipment();
         if (eq != null) {
             ItemStack axe = new ItemStack(Material.NETHERITE_AXE);
-            axe = MobGearUtils.applyRandomEnchantments(axe);
-            
+            axe = MobGearUtils.applyRandomEnchantments(axe, MobGearUtils.getTier(TimeManager.getCurrentDay()));
             eq.setItemInMainHand(axe);
             eq.setItemInMainHandDropChance(0.0f);
         }
