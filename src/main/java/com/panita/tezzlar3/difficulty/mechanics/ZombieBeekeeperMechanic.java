@@ -85,6 +85,32 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
         
         if (event.getEntity() instanceof Zombie zombie) {
             if (zombie.getPersistentDataContainer().has(BEEKEEPER_KEY, PersistentDataType.BYTE)) {
+                
+                // Adjust enchantment damage specific to Beekeeper (Day 3 logic)
+                if (event.getDamager() instanceof Player player) {
+                    ItemStack weapon = player.getInventory().getItemInMainHand();
+                    if (weapon.hasItemMeta()) {
+                        
+                        // If it has Sharpness or Smite, it deals ZERO damage
+                        if (weapon.containsEnchantment(Enchantment.SHARPNESS) ||
+                            weapon.containsEnchantment(Enchantment.SMITE)) {
+                            event.setDamage(0);
+                            return;
+                        }
+                        
+                        double damageToAdd = 0.0;
+                        
+                        // Bane of Arthropods (DAMAGE_ARTHROPODS): 2.5 * level
+                        if (weapon.containsEnchantment(Enchantment.BANE_OF_ARTHROPODS)) {
+                            int level = weapon.getEnchantmentLevel(Enchantment.BANE_OF_ARTHROPODS);
+                            damageToAdd += 2.5 * level;
+                        }
+                        
+                        double finalDamage = event.getDamage() + damageToAdd;
+                        event.setDamage(finalDamage);
+                    }
+                }
+
                 // Spawn angry bee
                 Bee bee = zombie.getWorld().spawn(zombie.getLocation().add(0, 1.5, 0), Bee.class);
                 

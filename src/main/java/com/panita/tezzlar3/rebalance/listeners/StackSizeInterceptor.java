@@ -17,6 +17,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 
 public class StackSizeInterceptor implements Listener {
 
@@ -158,6 +159,8 @@ public class StackSizeInterceptor implements Listener {
      * @return true if the item was modified
      */
     private boolean applyCustomStackSize(ItemStack item) {
+        if (TimeManager.getCurrentDay() < 2) return false;
+        
         if (item == null || item.getType() == Material.AIR) return false;
 
         int newStackSize = getCustomMaxStackSize(item.getType());
