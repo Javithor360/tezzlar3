@@ -18,3 +18,8 @@ The following rules must be strictly adhered to during the development of this p
    - **Open/Closed Principle (OCP)**: Design systems to be easily extensible. New commands or modules must not alter the logic of existing registries.
    - **Modern Java Conventions**: Utilize the Streams API for collection processing and adopt Pattern Matching (e.g., `instanceof Player player`) for safe and implicit casting.
 7. **Explicit Imports**: When modifying or creating Java classes, NEVER leave fully qualified paths in the code body (e.g., `org.bukkit.ban.ProfileBanList`). You must add the corresponding imports at the top of the file to keep the code clean.
+
+# Additional Tezzlar3 Project Rules
+
+- ALWAYS avoid "inline imports" (e.g., use header imports instead of referencing the fully qualified package in a line of code).
+- For a command structure (in `@CommandSpec`), the `syntax` and `description` properties must always be written in English.

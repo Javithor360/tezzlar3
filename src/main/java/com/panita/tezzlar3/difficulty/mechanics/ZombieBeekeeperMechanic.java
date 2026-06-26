@@ -94,8 +94,7 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
                         // If it has Sharpness or Smite, it deals ZERO damage
                         if (weapon.containsEnchantment(Enchantment.SHARPNESS) || 
                             weapon.containsEnchantment(Enchantment.SMITE)) {
-                            event.setCancelled(true);
-                            // We can return immediately since the event is cancelled
+                            event.setDamage(0);
                             return;
                         }
                         

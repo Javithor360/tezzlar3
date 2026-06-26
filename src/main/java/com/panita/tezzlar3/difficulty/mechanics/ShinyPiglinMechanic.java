@@ -1,11 +1,9 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
-import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.core.util.ItemUtils;
 import com.panita.tezzlar3.core.util.MobGearUtils;
 import com.panita.tezzlar3.timeline.util.TimeManager;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -54,7 +52,7 @@ public class ShinyPiglinMechanic extends DifficultyMechanic {
         if (type != EntityType.PIGLIN && type != EntityType.ZOMBIFIED_PIGLIN && type != EntityType.ENDERMAN) return;
 
         // 3% chance to become a Shiny Piglin
-        if (random.nextDouble() < 0.03) {
+        if (random.nextDouble() < 0.01) {
             // Cancel the original spawn (e.g. Enderman or Zombified Piglin)
             event.setCancelled(true);
             
