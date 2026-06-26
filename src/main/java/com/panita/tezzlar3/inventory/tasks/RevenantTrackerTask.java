@@ -13,7 +13,9 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
 import org.bukkit.inventory.ItemStack;
@@ -134,9 +136,9 @@ public class RevenantTrackerTask implements Runnable {
             String typeStr = minions.get(random.nextInt(minions.size()));
             try {
                 EntityType type = EntityType.valueOf(typeStr.toUpperCase());
-                org.bukkit.entity.Entity minion = loc.getWorld().spawnEntity(loc.clone().add(random.nextInt(3) - 1, 1, random.nextInt(3) - 1), type);
-                if (minion instanceof org.bukkit.entity.LivingEntity) {
-                    ((org.bukkit.entity.LivingEntity) minion).setRemoveWhenFarAway(false);
+                Entity minion = loc.getWorld().spawnEntity(loc.clone().add(random.nextInt(3) - 1, 1, random.nextInt(3) - 1), type);
+                if (minion instanceof LivingEntity) {
+                    ((LivingEntity) minion).setRemoveWhenFarAway(false);
                 }
             } catch (Exception ignored) {
             }

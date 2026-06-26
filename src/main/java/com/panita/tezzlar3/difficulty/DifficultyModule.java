@@ -3,13 +3,16 @@ package com.panita.tezzlar3.difficulty;
 import com.panita.tezzlar3.core.modules.PluginModule;
 import com.panita.tezzlar3.difficulty.mechanics.AngryWolfMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.AnimalOneShotMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.AcidRainMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DifficultyMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubleFallDamageMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.FastDrowningMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.GoatHornParalyzeMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.InfraredSkeletonMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.OverworldBedExplosionMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ParasiticSilverfishMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PremiumArmorSetMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.LightningSkeletonMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.RandomMobGearMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.RandomMobSizeMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.RealisticSpiderMechanic;
@@ -64,6 +67,11 @@ public class DifficultyModule implements PluginModule {
         // Day 7
         mechanics.add(new ShinyPiglinMechanic(plugin));
         mechanics.add(new AngryWolfMechanic(plugin));
+        
+        // Day 8
+        mechanics.add(new LightningSkeletonMechanic(plugin));
+        mechanics.add(new FastDrowningMechanic(plugin));
+        mechanics.add(new AcidRainMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);

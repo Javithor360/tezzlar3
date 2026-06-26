@@ -2,6 +2,7 @@ package com.panita.tezzlar3.rebalance;
 
 import com.panita.tezzlar3.core.modules.PluginModule;
 import com.panita.tezzlar3.rebalance.listeners.StackSizeInterceptor;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class RebalanceModule implements PluginModule {
@@ -26,7 +27,7 @@ public class RebalanceModule implements PluginModule {
         
         // Background sweep task to catch /give and other silent inventory updates (every 40 ticks = 2.0s)
         plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
-            for (org.bukkit.entity.Player player : plugin.getServer().getOnlinePlayers()) {
+            for (Player player : plugin.getServer().getOnlinePlayers()) {
                 if (interceptor.sweepInventory(player.getInventory())) {
                     player.updateInventory();
                 }
