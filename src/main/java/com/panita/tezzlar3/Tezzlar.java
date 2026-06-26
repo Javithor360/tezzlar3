@@ -12,6 +12,7 @@ import com.panita.tezzlar3.qol.QualityOfLifeModule;
 import com.panita.tezzlar3.rebalance.RebalanceModule;
 import com.panita.tezzlar3.difficulty.DifficultyModule;
 import com.panita.tezzlar3.timeline.TimelineModule;
+import com.panita.tezzlar3.troll.TrollModule;
 import com.panita.tezzlar3.core.listeners.MenuListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -46,6 +47,7 @@ public class Tezzlar extends JavaPlugin {
         moduleManager.register(new MissionsModule());
         moduleManager.register(new RebalanceModule());
         moduleManager.register(new DifficultyModule());
+        moduleManager.register(new TrollModule());
     }
 
     @Override
