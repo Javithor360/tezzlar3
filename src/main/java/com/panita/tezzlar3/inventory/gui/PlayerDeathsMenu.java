@@ -9,6 +9,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -50,7 +52,15 @@ public class PlayerDeathsMenu extends PaginatedMenu {
             ConfigurationSection data = entry.getValue();
 
             String date = data.getString("diedAt", "Desconocida");
-            String world = data.getString("world", "Desconocido");
+            String worldName = data.getString("world", "Desconocido");
+            String dimension = worldName;
+            World bukkitWorld = Bukkit.getWorld(worldName);
+            if (bukkitWorld != null) {
+                dimension = bukkitWorld.getEnvironment().name();
+                if (dimension.equals("NORMAL")) {
+                    dimension = "OVERWORLD";
+                }
+            }
             int x = data.getInt("x", 0);
             int y = data.getInt("y", 0);
             int z = data.getInt("z", 0);
@@ -59,7 +69,7 @@ public class PlayerDeathsMenu extends PaginatedMenu {
             ItemBuilder barrel = new ItemBuilder(Material.BARREL)
                     .name("<gold><bold>Muerte:</bold> " + date)
                     .lore(
-                            "<gray>Mundo: <white>" + world,
+                            "<gray>Mundo: <white>" + dimension,
                             "<gray>Ubicación: <red>X: " + x + " Y: " + y + " Z: " + z + "</red>",
                             "<gray>Causa: <white>" + deathCause,
                             "",
