@@ -7,7 +7,9 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Slime;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -38,9 +40,19 @@ public class PeacefulBiomeSpawnsMechanic extends DifficultyMechanic {
                 // Deep Dark and Mushroom Fields are usually peaceful
                 if (biome == Biome.DEEP_DARK || biome == Biome.MUSHROOM_FIELDS) {
                     
+                    // Limit mobs to 30 around the player
+                    long nearbyHostiles = loc.getWorld().getNearbyEntities(loc, 40, 40, 40).stream()
+                        .filter(e -> e instanceof Monster || e instanceof Slime)
+                        .count();
+                        
+                    if (nearbyHostiles >= 30) {
+                        continue;
+                    }
+                    
                     // Attempt to spawn a few mobs around the player
                     int mobsToSpawn = 1 + random.nextInt(3); // 1 to 3 mobs
                     
+                    int spawned = 0;
                     for (int i = 0; i < mobsToSpawn; i++) {
                         // Find a random location in a 20 block radius
                         double offsetX = (random.nextDouble() * 40) - 20;
@@ -60,6 +72,7 @@ public class PeacefulBiomeSpawnsMechanic extends DifficultyMechanic {
                                 EntityType type = COMMON_MOBS.get(random.nextInt(COMMON_MOBS.size()));
                                 // Spawn using NATURAL reason so it passes through other mechanics
                                 loc.getWorld().spawnEntity(spawnLoc, type, CreatureSpawnEvent.SpawnReason.NATURAL);
+                                spawned++;
                             }
                         }
                     }

@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class DoubleMobCapMechanic extends DifficultyMechanic {
-    private final Map<UUID, Integer> originalLimits = new HashMap<>();
-
     public DoubleMobCapMechanic(JavaPlugin plugin) {
         super(plugin, 9); // Day 9
         
@@ -19,28 +17,16 @@ public class DoubleMobCapMechanic extends DifficultyMechanic {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (isActive()) {
                 // Day 9 is active, ensure all worlds have double mob cap
+                int doubleLimit = Bukkit.getMonsterSpawnLimit() * 2;
+                if (doubleLimit <= 0) doubleLimit = 140; // Fallback just in case
+                
                 for (World world : Bukkit.getWorlds()) {
-                    if (!originalLimits.containsKey(world.getUID())) {
-                        int currentLimit = world.getSpawnLimit(SpawnCategory.MONSTER);
-                        
-                        // Bukkit might return -1 if the world relies on server default configs
-                        if (currentLimit > 0) {
-                            originalLimits.put(world.getUID(), currentLimit);
-                            world.setSpawnLimit(SpawnCategory.MONSTER, currentLimit * 2);
-                        } else if (currentLimit < 0) {
-                            originalLimits.put(world.getUID(), -1);
-                            world.setSpawnLimit(SpawnCategory.MONSTER, 140); // 70 is vanilla default, so 140 is double
-                        }
-                    }
+                    world.setSpawnLimit(SpawnCategory.MONSTER, doubleLimit);
                 }
             } else {
-                // Day 9 is not active, restore any altered worlds
+                // Day 9 is not active, restore any altered worlds to the server default
                 for (World world : Bukkit.getWorlds()) {
-                    if (originalLimits.containsKey(world.getUID())) {
-                        int original = originalLimits.get(world.getUID());
-                        world.setSpawnLimit(SpawnCategory.MONSTER, original);
-                        originalLimits.remove(world.getUID());
-                    }
+                    world.setSpawnLimit(SpawnCategory.MONSTER, -1);
                 }
             }
         }, 100L, 100L); // Check every 5 seconds (100 ticks)
