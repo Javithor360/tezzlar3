@@ -2,6 +2,7 @@ package com.panita.tezzlar3.core.util;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
+import com.panita.tezzlar3.core.chat.Messenger;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -132,6 +133,21 @@ public class EntityUtils {
                 equipment.setBootsDropChance(dropChance);
             }
         }
+    }
+
+    /**
+     * Applies a formatted custom name to an entity using MiniMessage and sets its visibility.
+     */
+    public static void setCustomName(LivingEntity entity, String name, boolean visible) {
+        entity.customName(Messenger.mini(name));
+        entity.setCustomNameVisible(visible);
+    }
+
+    /**
+     * Applies a formatted custom name to an entity using MiniMessage and hides it by default.
+     */
+    public static void setCustomName(LivingEntity entity, String name) {
+        setCustomName(entity, name, false);
     }
 }
 

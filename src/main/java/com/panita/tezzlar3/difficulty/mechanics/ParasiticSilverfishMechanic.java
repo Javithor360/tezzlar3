@@ -159,9 +159,8 @@ public class ParasiticSilverfishMechanic extends DifficultyMechanic {
 
     private void makeParasite(Silverfish silverfish) {
         silverfish.getPersistentDataContainer().set(PARASITE_KEY, PersistentDataType.BYTE, (byte) 1);
-        
-        silverfish.customName(Messenger.mini("&cLepisma Parásito"));
-        silverfish.setCustomNameVisible(false); // Hide name by default
+        // Nombre personalizado (oculto por defecto)
+        EntityUtils.setCustomName(silverfish, "&cLepisma Parásito");
         
         // Envolver en 1 tick de delay (runTask) asegura que Spigot/Paper haya finalizado el spawn
         Bukkit.getScheduler().runTask(plugin, () -> {

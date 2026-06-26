@@ -62,9 +62,8 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
     private void makeRealistic(Spider spider) {
         spider.getPersistentDataContainer().set(REALISTIC_KEY, PersistentDataType.BYTE, (byte) 1);
         
-        // Custom Name
-        spider.customName(Messenger.mini("&cAraña Realista"));
-        spider.setCustomNameVisible(false);
+        // Custom name
+        EntityUtils.setCustomName(spider, "&cAraña Realista");
         
         // El servidor suele sobreescribir los atributos si se cambian en el mismo tick de aparición.
         // Un delay de 1 tick (runTask) asegura que se apliquen correctamente de forma instantánea al ojo humano.

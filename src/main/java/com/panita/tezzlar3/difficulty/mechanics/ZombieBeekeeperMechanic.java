@@ -18,8 +18,6 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.core.util.ItemUtils;
@@ -48,9 +46,8 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
                 if (random.nextDouble() < 0.10) {
                     zombie.getPersistentDataContainer().set(BEEKEEPER_KEY, PersistentDataType.BYTE, (byte) 1);
                     
-                    // Name
-                    zombie.customName(Messenger.mini("&eZombi Apicultor"));
-                    zombie.setCustomNameVisible(false);
+                    // Set Custom Name
+                    EntityUtils.setCustomName(zombie, "&eZombi Apicultor");
                     
                     // Health (30 HP)
                     AttributeInstance healthAttr = zombie.getAttribute(Attribute.MAX_HEALTH);

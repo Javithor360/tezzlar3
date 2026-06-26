@@ -39,8 +39,7 @@ public class InfraredSkeletonMechanic extends DifficultyMechanic {
                 if (random.nextDouble() < 0.10) {
                     skeleton.getPersistentDataContainer().set(INFRARED_KEY, PersistentDataType.BYTE, (byte) 1);
                     
-                    skeleton.customName(Messenger.mini("&cEsqueleto Infrarrojo"));
-                    skeleton.setCustomNameVisible(false);
+                    EntityUtils.setCustomName(skeleton, "&cEsqueleto Infrarrojo");
                     
                     // Armor
                     ItemStack head = new ItemStack(Material.RED_STAINED_GLASS);

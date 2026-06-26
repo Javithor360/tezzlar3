@@ -1,6 +1,7 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
 import com.panita.tezzlar3.core.chat.Messenger;
+import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.core.util.ItemUtils;
 import com.panita.tezzlar3.core.util.MobGearUtils;
 import org.bukkit.Bukkit;
@@ -11,6 +12,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Piglin;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -38,6 +40,12 @@ public class ShinyPiglinMechanic extends DifficultyMechanic {
         if (!isActive()) return;
 
         LivingEntity entity = event.getEntity();
+        
+        // Prevent infinite loops when we spawn the Shiny Piglin manually
+        if (entity.getPersistentDataContainer().has(SHINY_KEY, PersistentDataType.BYTE)) {
+            return;
+        }
+        
         EntityType type = entity.getType();
 
         // Only Piglins, Zombified Piglins, and Endermen in the Nether
@@ -46,10 +54,14 @@ public class ShinyPiglinMechanic extends DifficultyMechanic {
 
         // 3% chance to become a Shiny Piglin
         if (random.nextDouble() < 0.03) {
-            // Apply 1 tick delay to override vanilla spawning properly
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                if (!entity.isValid() || entity.isDead()) return;
-                makeShiny(entity);
+            // Cancel the original spawn (e.g. Enderman or Zombified Piglin)
+            event.setCancelled(true);
+            
+            // Spawn an ACTUAL Piglin in its place and apply the shiny attributes
+            entity.getWorld().spawn(entity.getLocation(), Piglin.class, piglin -> {
+                makeShiny(piglin);
+                // Piglins spawned via code might need their adult state forced, though they are adults by default
+                piglin.setAdult(); 
             });
         }
     }
@@ -57,9 +69,8 @@ public class ShinyPiglinMechanic extends DifficultyMechanic {
     private void makeShiny(LivingEntity entity) {
         entity.getPersistentDataContainer().set(SHINY_KEY, PersistentDataType.BYTE, (byte) 1);
         
-        // Custom Name
-        entity.customName(Messenger.mini("&6Piglin Shiny"));
-        entity.setCustomNameVisible(true);
+        // Custom Name (visible = false by default in the utility method)
+        EntityUtils.setCustomName(entity, "&6Piglin Shiny");
 
         // Triple Base Damage
         AttributeInstance damage = entity.getAttribute(Attribute.ATTACK_DAMAGE);
