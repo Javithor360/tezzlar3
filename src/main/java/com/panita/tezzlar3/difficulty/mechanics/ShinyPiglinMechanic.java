@@ -72,6 +72,19 @@ public class ShinyPiglinMechanic extends DifficultyMechanic {
         // Custom Name (visible = false by default in the utility method)
         EntityUtils.setCustomName(entity, "&6Piglin Shiny");
 
+        // Health (100 HP)
+        AttributeInstance health = entity.getAttribute(Attribute.MAX_HEALTH);
+        if (health != null) {
+            health.setBaseValue(100.0);
+            entity.setHealth(100.0);
+        }
+
+        // Base Armor (50)
+        AttributeInstance armor = entity.getAttribute(Attribute.ARMOR);
+        if (armor != null) {
+            armor.setBaseValue(50.0);
+        }
+
         // Triple Base Damage
         AttributeInstance damage = entity.getAttribute(Attribute.ATTACK_DAMAGE);
         if (damage != null) {

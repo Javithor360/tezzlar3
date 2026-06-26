@@ -1,7 +1,21 @@
 package com.panita.tezzlar3.difficulty;
 
 import com.panita.tezzlar3.core.modules.PluginModule;
-import com.panita.tezzlar3.difficulty.mechanics.*;
+import com.panita.tezzlar3.difficulty.mechanics.AngryWolfMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.AnimalOneShotMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.DifficultyMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.DoubleFallDamageMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.GoatHornParalyzeMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.InfraredSkeletonMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.OverworldBedExplosionMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ParasiticSilverfishMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.PremiumArmorSetMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.RandomMobGearMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.RandomMobSizeMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.RealisticSpiderMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ShinyPiglinMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ZombieBeekeeperMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ZombieCavalryMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -24,6 +38,9 @@ public class DifficultyModule implements PluginModule {
     @Override
     public void onEnable(JavaPlugin plugin) {
         List<DifficultyMechanic> mechanics = new ArrayList<>();
+        
+        // Day 1
+        mechanics.add(new PremiumArmorSetMechanic(plugin));
         
         // Day 3
         mechanics.add(new DoubleFallDamageMechanic(plugin));

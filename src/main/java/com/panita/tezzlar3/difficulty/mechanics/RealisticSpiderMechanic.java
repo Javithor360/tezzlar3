@@ -65,8 +65,8 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
         // Custom name
         EntityUtils.setCustomName(spider, "&cAraña Realista");
         
-        // El servidor suele sobreescribir los atributos si se cambian en el mismo tick de aparición.
-        // Un delay de 1 tick (runTask) asegura que se apliquen correctamente de forma instantánea al ojo humano.
+        // The server usually overwrites attributes if changed in the same spawn tick.
+        // A 1 tick delay (runTask) ensures they are applied correctly instantly to the human eye.
         Bukkit.getScheduler().runTask(plugin, () -> {
             if (!spider.isValid() || spider.isDead()) return;
             
