@@ -92,9 +92,10 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
                     if (weapon.hasItemMeta()) {
                         
                         // If it has Sharpness or Smite, it deals ZERO damage
-                        if (weapon.containsEnchantment(Enchantment.SHARPNESS) ||
+                        if (weapon.containsEnchantment(Enchantment.SHARPNESS) || 
                             weapon.containsEnchantment(Enchantment.SMITE)) {
-                            event.setDamage(0);
+                            event.setCancelled(true);
+                            // We can return immediately since the event is cancelled
                             return;
                         }
                         
@@ -102,7 +103,7 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
                         
                         // Bane of Arthropods (DAMAGE_ARTHROPODS): 2.5 * level
                         if (weapon.containsEnchantment(Enchantment.BANE_OF_ARTHROPODS)) {
-                            int level = weapon.getEnchantmentLevel(Enchantment.BANE_OF_ARTHROPODS);
+                            int level = weapon.getEnchantments().getOrDefault(Enchantment.BANE_OF_ARTHROPODS, 0);
                             damageToAdd += 2.5 * level;
                         }
                         

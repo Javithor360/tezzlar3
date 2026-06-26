@@ -21,7 +21,7 @@ public class LavaDepthStriderMechanic extends DifficultyMechanic {
                     if (boots != null && boots.containsEnchantment(Enchantment.DEPTH_STRIDER)) {
                         // Only boost if the player is actively swimming/moving forward
                         if (p.isSwimming()) {
-                            int lvl = boots.getEnchantmentLevel(Enchantment.DEPTH_STRIDER);
+                            int lvl = boots.getEnchantments().getOrDefault(Enchantment.DEPTH_STRIDER, 0);
                             Vector dir = p.getLocation().getDirection().normalize().multiply(0.04 * lvl);
                             p.setVelocity(p.getVelocity().add(dir));
                         }
