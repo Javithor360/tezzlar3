@@ -53,8 +53,8 @@ public class ParasiticSilverfishMechanic extends DifficultyMechanic {
                         double damage = Math.pow(1.15, time);
                         
                         // Cap at 70 HP max damage per second
-                        if (damage > 50.0) {
-                            damage = 50.0;
+                        if (damage > 70.0) {
+                            damage = 70.0;
                         }
                         
                         player.damage(damage, parasite);
