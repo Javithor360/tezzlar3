@@ -106,7 +106,7 @@ public class MobGearUtils {
         eq.setLeggingsDropChance(0.01f);
         eq.setBootsDropChance(0.01f);
         eq.setItemInMainHandDropChance(0.0f);
-        eq.setItemInOffHandDropChance(0.01f);
+        eq.setItemInOffHandDropChance(0.15f);
     }
 
     private static ItemStack getRandomArmor(Material[] options) {
@@ -121,7 +121,7 @@ public class MobGearUtils {
         return new ItemStack(getWeightedMaterial(options));
     }
 
-    private static ItemStack applyRandomEnchantments(ItemStack item) {
+    public static ItemStack applyRandomEnchantments(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) return item;
         
         if (random.nextDouble() > 0.30) {
@@ -149,7 +149,7 @@ public class MobGearUtils {
                 pool.add(Enchantment.DEPTH_STRIDER);
                 pool.add(Enchantment.SOUL_SPEED);
             }
-        } else if (name.contains("SWORD")) {
+        } else if (name.contains("SWORD") || name.contains("AXE") || name.contains("PICKAXE") || name.contains("SHOVEL") || name.contains("SPEAR")) {
             pool.add(Enchantment.SHARPNESS);
             pool.add(Enchantment.SMITE);
             pool.add(Enchantment.KNOCKBACK);
