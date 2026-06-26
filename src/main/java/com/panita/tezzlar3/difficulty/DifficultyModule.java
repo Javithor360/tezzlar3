@@ -35,6 +35,10 @@ import com.panita.tezzlar3.difficulty.mechanics.ShinyPiglinMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.VillagerProfessionLossMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ZombieBeekeeperMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ZombieCavalryMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.FastHungerMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.SlimeBanzaiMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.InvisibleChargedCreeperMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.CopperGolemLightningMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -109,6 +113,12 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new NetherBlazeSpawnsMechanic(plugin));
         mechanics.add(new CopperDamageMechanic(plugin));
         mechanics.add(new EliteMobStatsMechanic(plugin));
+        
+        // Day 12
+        mechanics.add(new FastHungerMechanic(plugin));
+        mechanics.add(new SlimeBanzaiMechanic(plugin));
+        mechanics.add(new InvisibleChargedCreeperMechanic(plugin));
+        mechanics.add(new CopperGolemLightningMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);
