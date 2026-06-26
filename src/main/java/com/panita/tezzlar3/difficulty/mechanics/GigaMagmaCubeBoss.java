@@ -43,7 +43,7 @@ public class GigaMagmaCubeBoss {
     private int attackCooldown = 0;
     private final String bossId;
 
-    public GigaMagmaCubeBoss(MagmaCube boss, JavaPlugin plugin) {
+    public GigaMagmaCubeBoss(MagmaCube boss, JavaPlugin plugin, boolean isNewSpawn) {
         this.boss = boss;
         this.plugin = plugin;
         this.bossId = boss.getUniqueId().toString();
@@ -66,10 +66,15 @@ public class GigaMagmaCubeBoss {
         boss.setHealth(maxHealth);
         
         // Broadcast
-        Messenger.prefixedBroadcast("<#FF5252>¡Un Giga Magma Cube ha despertado en el Nether! (" 
-            + boss.getLocation().getBlockX() + ", " 
-            + boss.getLocation().getBlockY() + ", " 
-            + boss.getLocation().getBlockZ() + ")</#FF5252>");
+        if (isNewSpawn) {
+            Messenger.prefixedBroadcast("<#FF5252>¡Un Giga Magma Cube ha despertado en el Nether! (" 
+                + boss.getLocation().getBlockX() + ", " 
+                + boss.getLocation().getBlockY() + ", " 
+                + boss.getLocation().getBlockZ() + ")</#FF5252>");
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                SoundUtils.play(p, "entity.ender_dragon.growl", 1, 0.5f);
+            }
+        }
         
         // Task
         this.task = new BukkitRunnable() {
@@ -77,6 +82,7 @@ public class GigaMagmaCubeBoss {
             public void run() {
                 if (boss.isDead() || !boss.isValid()) {
                     hideBossBarGlobal();
+                    GigaMagmaCubeMechanic.removeActiveBoss(boss.getUniqueId());
                     this.cancel();
                     return;
                 }

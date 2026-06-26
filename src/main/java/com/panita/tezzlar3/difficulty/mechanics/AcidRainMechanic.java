@@ -4,6 +4,7 @@ import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.SoundUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -29,6 +30,7 @@ public class AcidRainMechanic extends DifficultyMechanic {
                 
                 for (Player player : world.getPlayers()) {
                     if (player.isDead() || !player.isValid()) continue;
+                    if (player.getGameMode() != GameMode.SURVIVAL) continue;
                     
                     if (player.isInRain()) {
                         double newHealth = Math.max(0, player.getHealth() - 1.0);
@@ -52,6 +54,9 @@ public class AcidRainMechanic extends DifficultyMechanic {
             isAcidRain = random.nextInt(100) < 40;
             if (isAcidRain) {
                 Messenger.prefixedBroadcast("<#64B5F6>Se informa a todos los supervivientes que una <#81C784>lluvia ácida</#81C784> está a punto de comenzar, se recomienda buscar refugio.</#64B5F6>");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    SoundUtils.play(p, "block.note_block.pling", 1, 2.0f);
+                }
             }
         } else {
             isAcidRain = false;

@@ -37,7 +37,11 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
     public static NamespacedKey MINION_KEY;
     
     // Map to keep track of active bosses
-    private final Map<UUID, GigaMagmaCubeBoss> activeBosses = new HashMap<>();
+    private static final Map<UUID, GigaMagmaCubeBoss> activeBosses = new HashMap<>();
+
+    public static void removeActiveBoss(UUID uuid) {
+        activeBosses.remove(uuid);
+    }
 
     public GigaMagmaCubeMechanic(JavaPlugin plugin) {
         super(plugin, 10); // Day 10
@@ -53,7 +57,7 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
                 for (Entity entity : world.getEntitiesByClass(MagmaCube.class)) {
                     if (entity.getPersistentDataContainer().has(BOSS_KEY, PersistentDataType.BYTE)) {
                         if (!activeBosses.containsKey(entity.getUniqueId())) {
-                            activeBosses.put(entity.getUniqueId(), new GigaMagmaCubeBoss((MagmaCube) entity, plugin));
+                            activeBosses.put(entity.getUniqueId(), new GigaMagmaCubeBoss((MagmaCube) entity, plugin, false));
                         }
                     }
                 }
@@ -81,7 +85,7 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
         // Ensure open space for size 20 and minions
         if (!hasOpenSpace(event.getLocation())) return;
 
-        if (random.nextInt(100) != 0) return;
+        if (random.nextInt(500) != 0) return;
         
         event.setCancelled(true);
         
@@ -89,7 +93,7 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
         MagmaCube boss = (MagmaCube) event.getLocation().getWorld().spawnEntity(event.getLocation(), EntityType.MAGMA_CUBE);
         boss.getPersistentDataContainer().set(BOSS_KEY, PersistentDataType.BYTE, (byte) 1);
         
-        activeBosses.put(boss.getUniqueId(), new GigaMagmaCubeBoss(boss, plugin));
+        activeBosses.put(boss.getUniqueId(), new GigaMagmaCubeBoss(boss, plugin, true));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -133,10 +137,10 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
             }
         }
         
-        // Handle minion hit (25% chance to spawn another minion)
+        // Handle minion hit (10% chance to spawn another minion)
         if (event.getDamager().getPersistentDataContainer().has(MINION_KEY, PersistentDataType.BYTE)) {
             if (event.getEntity() instanceof Player p) {
-                if (random.nextInt(100) < 25) {
+                if (random.nextInt(100) < 10) {
                     Location loc = p.getLocation().add(random.nextInt(5) - 2, 1, random.nextInt(5) - 2);
                     MagmaCube newMinion = (MagmaCube) p.getWorld().spawnEntity(loc, EntityType.MAGMA_CUBE);
                     EntityUtils.setCustomName(newMinion, "<#FFCA28>Magma Cube Secuaz</#FFCA28>");
