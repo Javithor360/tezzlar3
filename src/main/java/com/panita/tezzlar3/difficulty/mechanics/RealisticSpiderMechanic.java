@@ -39,6 +39,11 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
             
             if (EntityUtils.isValidNaturalSpawn(event.getSpawnReason())) {
                 
+                // Only 10% of natural spiders become Realistic Spiders
+                if (random.nextDouble() > 0.10) {
+                    return;
+                }
+                
                 // Modify the original spider
                 makeRealistic(spider);
                 
@@ -65,16 +70,16 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (!spider.isValid() || spider.isDead()) return;
             
-            // Scale to half size
+            // Scale to 0.2
             if (spider.getAttribute(Attribute.SCALE) != null) {
-                spider.getAttribute(Attribute.SCALE).setBaseValue(0.5);
+                spider.getAttribute(Attribute.SCALE).setBaseValue(0.2);
             }
             
-            // Reduce Health
+            // Reduce Health (4.0 HP - Half of previous 8.0)
             if (spider.getAttribute(Attribute.MAX_HEALTH) != null) {
-                spider.getAttribute(Attribute.MAX_HEALTH).setBaseValue(8.0);
-                if (spider.getHealth() > 8.0) {
-                    spider.setHealth(8.0);
+                spider.getAttribute(Attribute.MAX_HEALTH).setBaseValue(4.0);
+                if (spider.getHealth() > 4.0) {
+                    spider.setHealth(4.0);
                 }
             }
             

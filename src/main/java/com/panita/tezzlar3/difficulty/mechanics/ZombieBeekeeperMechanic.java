@@ -14,6 +14,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -71,7 +72,7 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
                         new ItemStack(Material.GOLDEN_BOOTS), 
                         0.0f);
                         
-                    org.bukkit.inventory.EntityEquipment eq = zombie.getEquipment();
+                    EntityEquipment eq = zombie.getEquipment();
                     if (eq != null) {
                         eq.setItemInMainHand(new ItemStack(Material.GOLDEN_SWORD));
                         eq.setItemInMainHandDropChance(0.0f);
