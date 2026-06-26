@@ -6,23 +6,28 @@ import com.panita.tezzlar3.difficulty.mechanics.AnimalOneShotMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.AcidRainMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.CreeperExplosionMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.GhastExplosionMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.NightRainMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DifficultyMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubleMobCapMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubleFallDamageMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.EliteMobStatsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.FastDrowningMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.FastStriderMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.GigaMagmaCubeMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.GoatHornParalyzeMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.InfraredSkeletonMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.LavaDepthStriderMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.NetherBlazeSpawnsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.OverworldBedExplosionMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ParasiticSilverfishMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PhantomRideMechanic;
-import com.panita.tezzlar3.difficulty.mechanics.PremiumArmorSetMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.LightningSkeletonMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.NaturalRavagerMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PeacefulBiomeSpawnsMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.PhantomRideMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PlayerKillOnlyDropsMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.PremiumArmorSetMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.CopperDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.RandomMobGearMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.RandomMobSizeMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.RealisticSpiderMechanic;
@@ -98,6 +103,12 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new PeacefulBiomeSpawnsMechanic(plugin));
         mechanics.add(new VillagerProfessionLossMechanic(plugin));
         mechanics.add(new GigaMagmaCubeMechanic(plugin));
+        
+        // Day 11
+        mechanics.add(new NightRainMechanic(plugin));
+        mechanics.add(new NetherBlazeSpawnsMechanic(plugin));
+        mechanics.add(new CopperDamageMechanic(plugin));
+        mechanics.add(new EliteMobStatsMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);

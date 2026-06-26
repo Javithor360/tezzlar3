@@ -7,6 +7,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.enchantments.Enchantment;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,20 @@ public class MobGearUtils {
 
     private static final Random random = new Random();
 
+    public enum GearTier {
+        VANILLA, // Day 1-4
+        BASIC,   // Day 5-10
+        ELITE,   // Day 11-21
+        MASTER   // Day 22+
+    }
+
+    public static GearTier getTier(int day) {
+        if (day >= 22) return GearTier.MASTER;
+        if (day >= 11) return GearTier.ELITE;
+        if (day >= 5) return GearTier.BASIC;
+        return GearTier.VANILLA;
+    }
+
     // Valid Entities List
     private static final List<EntityType> VALID_MOBS = List.of(
             EntityType.PIGLIN, EntityType.ZOMBIFIED_PIGLIN, EntityType.DROWNED, 
@@ -24,11 +39,17 @@ public class MobGearUtils {
             EntityType.WITHER_SKELETON, EntityType.ZOMBIE, EntityType.ZOMBIE_VILLAGER
     );
 
-    // Armor Materials
+    // Normal Armor Materials (Basic)
     private static final Material[] HELMETS = {Material.LEATHER_HELMET, Material.COPPER_HELMET, Material.CHAINMAIL_HELMET, Material.IRON_HELMET, Material.GOLDEN_HELMET, Material.DIAMOND_HELMET};
     private static final Material[] CHESTPLATES = {Material.LEATHER_CHESTPLATE, Material.COPPER_CHESTPLATE, Material.CHAINMAIL_CHESTPLATE, Material.IRON_CHESTPLATE, Material.GOLDEN_CHESTPLATE, Material.DIAMOND_CHESTPLATE};
     private static final Material[] LEGGINGS = {Material.LEATHER_LEGGINGS, Material.COPPER_LEGGINGS, Material.CHAINMAIL_LEGGINGS, Material.IRON_LEGGINGS, Material.GOLDEN_LEGGINGS, Material.DIAMOND_LEGGINGS};
     private static final Material[] BOOTS = {Material.LEATHER_BOOTS, Material.COPPER_BOOTS, Material.CHAINMAIL_BOOTS, Material.IRON_BOOTS, Material.GOLDEN_BOOTS, Material.DIAMOND_BOOTS};
+
+    // Elite & Master Armor Materials (Day 11+)
+    private static final Material[] ELITE_HELMETS = {Material.COPPER_HELMET, Material.CHAINMAIL_HELMET, Material.IRON_HELMET, Material.DIAMOND_HELMET, Material.NETHERITE_HELMET};
+    private static final Material[] ELITE_CHESTPLATES = {Material.COPPER_CHESTPLATE, Material.CHAINMAIL_CHESTPLATE, Material.IRON_CHESTPLATE, Material.DIAMOND_CHESTPLATE, Material.NETHERITE_CHESTPLATE};
+    private static final Material[] ELITE_LEGGINGS = {Material.COPPER_LEGGINGS, Material.CHAINMAIL_LEGGINGS, Material.IRON_LEGGINGS, Material.DIAMOND_LEGGINGS, Material.NETHERITE_LEGGINGS};
+    private static final Material[] ELITE_BOOTS = {Material.COPPER_BOOTS, Material.CHAINMAIL_BOOTS, Material.IRON_BOOTS, Material.DIAMOND_BOOTS, Material.NETHERITE_BOOTS};
 
     // Weapon Materials
     private static final Material[] MELEE_WEAPONS = {
@@ -40,7 +61,15 @@ public class MobGearUtils {
             Material.FISHING_ROD, Material.TRIDENT, Material.MACE
     };
 
-    private static final Material[] RANGED_WEAPONS = {Material.BOW};
+    // Elite & Master Weapon Materials (Day 11+)
+    private static final Material[] ELITE_MELEE_WEAPONS = {
+            Material.IRON_SWORD, Material.DIAMOND_SWORD, Material.COPPER_SWORD, Material.NETHERITE_SWORD,
+            Material.IRON_AXE, Material.DIAMOND_AXE, Material.COPPER_AXE, Material.NETHERITE_AXE,
+            Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE, Material.COPPER_PICKAXE, Material.NETHERITE_PICKAXE,
+            Material.IRON_SHOVEL, Material.DIAMOND_SHOVEL, Material.COPPER_SHOVEL, Material.NETHERITE_SHOVEL,
+            Material.IRON_SPEAR, Material.DIAMOND_SPEAR, Material.COPPER_SPEAR, Material.NETHERITE_SPEAR,
+            Material.TRIDENT, Material.MACE
+    };
 
     // Offhand Materials
     private static final Material[] OFFHAND_ITEMS = {
@@ -57,18 +86,31 @@ public class MobGearUtils {
         EntityEquipment eq = entity.getEquipment();
         if (eq == null) return;
 
-        // Armor Assignment
-        if (random.nextDouble() < 0.60) eq.setHelmet(applyRandomEnchantments(getRandomArmor(HELMETS)));
-        if (random.nextDouble() < 0.50) eq.setChestplate(applyRandomEnchantments(getRandomArmor(CHESTPLATES)));
-        if (random.nextDouble() < 0.50) eq.setLeggings(applyRandomEnchantments(getRandomArmor(LEGGINGS)));
-        if (random.nextDouble() < 0.60) eq.setBoots(applyRandomEnchantments(getRandomArmor(BOOTS)));
+        GearTier tier = getTier(TimeManager.getCurrentDay());
+        if (tier == GearTier.VANILLA) return;
+        
+        // Armor Assignment (higher chances depending on tier)
+        double helmetChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.70 : 0.40);
+        double chestChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.65 : 0.30);
+        double legsChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.65 : 0.30);
+        double bootsChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.70 : 0.40);
+
+        Material[] hPool = tier == GearTier.BASIC ? HELMETS : ELITE_HELMETS;
+        Material[] cPool = tier == GearTier.BASIC ? CHESTPLATES : ELITE_CHESTPLATES;
+        Material[] lPool = tier == GearTier.BASIC ? LEGGINGS : ELITE_LEGGINGS;
+        Material[] bPool = tier == GearTier.BASIC ? BOOTS : ELITE_BOOTS;
+
+        if (random.nextDouble() < helmetChance) eq.setHelmet(applyRandomEnchantments(getRandomArmor(hPool, tier), tier));
+        if (random.nextDouble() < chestChance) eq.setChestplate(applyRandomEnchantments(getRandomArmor(cPool, tier), tier));
+        if (random.nextDouble() < legsChance) eq.setLeggings(applyRandomEnchantments(getRandomArmor(lPool, tier), tier));
+        if (random.nextDouble() < bootsChance) eq.setBoots(applyRandomEnchantments(getRandomArmor(bPool, tier), tier));
 
         // Weapons Assignment
         EntityType type = entity.getType();
-        
         boolean isSkeleton = type == EntityType.SKELETON || type == EntityType.WITHER_SKELETON || type == EntityType.STRAY || type == EntityType.BOGGED || type == EntityType.PARCHED;
         
-        if (random.nextDouble() < 0.70) {
+        double weaponChance = tier == GearTier.MASTER ? 1.0 : (tier == GearTier.ELITE ? 0.75 : 0.50);
+        if (random.nextDouble() < weaponChance) {
             ItemStack weapon = null;
             
             // Attempt to assign ranged weapon
@@ -82,25 +124,31 @@ public class MobGearUtils {
             
             // If ranged wasn't chosen or allowed, assign melee weapon
             if (weapon == null) {
-                Material meleeMat = getWeightedMaterial(MELEE_WEAPONS);
+                Material[] pool = tier == GearTier.BASIC ? MELEE_WEAPONS : ELITE_MELEE_WEAPONS;
+                Material meleeMat = getWeightedMaterial(pool, tier);
                 
                 // Skeletons cannot use SPEARS
                 while (isSkeleton && meleeMat.name().contains("SPEAR")) {
-                    meleeMat = getWeightedMaterial(MELEE_WEAPONS);
+                    meleeMat = getWeightedMaterial(pool, tier);
                 }
                 
                 weapon = new ItemStack(meleeMat);
             }
             
-            eq.setItemInMainHand(applyRandomEnchantments(weapon));
+            eq.setItemInMainHand(applyRandomEnchantments(weapon, tier));
         }
 
         // Offhand Assignment
-        if (random.nextDouble() < 0.15) {
-            eq.setItemInOffHand(getRandomItem(OFFHAND_ITEMS));
+        double offhandChance = tier == GearTier.MASTER ? 0.50 : (tier == GearTier.ELITE ? 0.30 : 0.15);
+        if (random.nextDouble() < offhandChance) {
+            ItemStack offhand = getRandomItem(OFFHAND_ITEMS, tier);
+            if (offhand.getType() == Material.SHIELD) {
+                offhand = applyRandomEnchantments(offhand, tier);
+            }
+            eq.setItemInOffHand(offhand);
         }
 
-        // Drop Chances
+        // Drop Chances (hardcoded low so players don't farm easily)
         eq.setHelmetDropChance(0.01f);
         eq.setChestplateDropChance(0.01f);
         eq.setLeggingsDropChance(0.01f);
@@ -109,26 +157,38 @@ public class MobGearUtils {
         eq.setItemInOffHandDropChance(0.15f);
     }
 
-    private static ItemStack getRandomArmor(Material[] options) {
-        Material mat = getWeightedMaterial(options);
+    private static ItemStack getRandomArmor(Material[] options, GearTier tier) {
+        Material mat = getWeightedMaterial(options, tier);
         if (mat.name().contains("LEATHER_")) {
             return ItemUtils.createColoredLeather(mat, Color.fromRGB(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
         }
         return new ItemStack(mat);
     }
 
-    private static ItemStack getRandomItem(Material[] options) {
-        return new ItemStack(getWeightedMaterial(options));
+    private static ItemStack getRandomItem(Material[] options, GearTier tier) {
+        return new ItemStack(getWeightedMaterial(options, tier));
     }
 
-    public static ItemStack applyRandomEnchantments(ItemStack item) {
+    public static ItemStack applyRandomEnchantments(ItemStack item, GearTier tier) {
         if (item == null || item.getType() == Material.AIR) return item;
         
-        if (random.nextDouble() > 0.30) {
-            return item; // 70% chance to NOT have enchantments
+        // Base probability of having NO enchantments
+        double noneChance = switch (tier) {
+            case MASTER -> 0.10; // 10% chance of no enchants
+            case ELITE -> 0.50;  // 50% chance of no enchants
+            default -> 0.70;     // 70% chance of no enchants
+        };
+
+        if (random.nextDouble() < noneChance) {
+            return item; 
         }
         
-        int enchantsToApply = random.nextBoolean() ? 1 : 2; // 1 or 2 enchants
+        int enchantsToApply = switch (tier) {
+            case MASTER -> random.nextInt(2) + 3; // 3 to 4 enchants
+            case ELITE -> random.nextInt(3) + 1;  // 1 to 3 enchants
+            default -> random.nextBoolean() ? 1 : 2; // 1 to 2 enchants
+        };
+
         List<Enchantment> pool = new ArrayList<>();
         String name = item.getType().name();
         
@@ -163,6 +223,8 @@ public class MobGearUtils {
                 pool.add(Enchantment.PUNCH);
                 pool.add(Enchantment.FLAME);
             }
+        } else if (name.contains("SHIELD")) {
+            pool.add(Enchantment.UNBREAKING);
         }
         
         if (pool.isEmpty()) return item;
@@ -170,7 +232,20 @@ public class MobGearUtils {
         for (int i = 0; i < enchantsToApply; i++) {
             Enchantment selected = pool.get(random.nextInt(pool.size()));
             int maxLevel = selected.getMaxLevel();
-            int randomLevel = random.nextInt(maxLevel + 1) + 1; // [1, maxLevel + 1] (Allows exceeding max level by 1)
+            int randomLevel;
+            
+            switch (tier) {
+                case MASTER:
+                    randomLevel = maxLevel; // Always max level
+                    break;
+                case ELITE:
+                    randomLevel = maxLevel == 1 ? 1 : Math.max(2, random.nextInt(maxLevel + 1) + 1); // Min level 2
+                    break;
+                default:
+                    randomLevel = random.nextInt(maxLevel + 1) + 1; // [1, maxLevel + 1]
+                    break;
+            }
+            
             item.addUnsafeEnchantment(selected, randomLevel);
         }
         
@@ -180,16 +255,24 @@ public class MobGearUtils {
     /**
      * Re-rolls if the picked material is overpowered to make them statistically rare.
      */
-    private static Material getWeightedMaterial(Material[] options) {
+    private static Material getWeightedMaterial(Material[] options, GearTier tier) {
         for (int i = 0; i < 4; i++) {
             Material mat = options[random.nextInt(options.length)];
+            
+            if (mat.name().contains("NETHERITE_")) {
+                double chance = tier == GearTier.MASTER ? 0.35 : 0.10;
+                if (random.nextDouble() < chance) return mat;
+                continue;
+            }
+            
             boolean isOP = mat.name().contains("DIAMOND_") || mat.name().equals("TOTEM_OF_UNDYING") || 
                            mat.name().equals("TRIDENT") || mat.name().equals("MACE");
             
             if (isOP) {
-                if (random.nextDouble() < 0.10) return mat; // 10% chance to keep the OP item if rolled
+                double chance = tier == GearTier.MASTER ? 0.80 : (tier == GearTier.ELITE ? 0.25 : 0.10);
+                if (random.nextDouble() < chance) return mat;
             } else {
-                return mat; // Accept normal items immediately
+                return mat; // Normal items accepted immediately
             }
         }
         // Fallback to the weakest material if everything failed

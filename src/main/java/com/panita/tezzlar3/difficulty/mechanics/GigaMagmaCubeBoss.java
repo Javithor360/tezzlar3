@@ -14,6 +14,8 @@ import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.entity.Player;
+import com.panita.tezzlar3.core.util.PlayerUtils;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
@@ -97,9 +99,13 @@ public class GigaMagmaCubeBoss {
                 List<Player> nearbyPlayers = new ArrayList<>();
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     if (player.getWorld().equals(boss.getWorld()) && player.getLocation().distance(boss.getLocation()) <= 100) {
-                        Messenger.showBossBar(player, bossId, "<#FF5252><b>Giga Magma Cube</b></#FF5252>", BossBar.Color.RED, BossBar.Overlay.PROGRESS, progress);
-                        if (player.getLocation().distance(boss.getLocation()) <= 50) {
-                            nearbyPlayers.add(player);
+                        if (PlayerUtils.isSurvival(player)) {
+                            Messenger.showBossBar(player, bossId, "<#FF5252><b>Giga Magma Cube</b></#FF5252>", BossBar.Color.RED, BossBar.Overlay.PROGRESS, progress);
+                            if (player.getLocation().distance(boss.getLocation()) <= 50) {
+                                nearbyPlayers.add(player);
+                            }
+                        } else {
+                            Messenger.hideBossBar(player, bossId);
                         }
                     } else {
                         Messenger.hideBossBar(player, bossId);

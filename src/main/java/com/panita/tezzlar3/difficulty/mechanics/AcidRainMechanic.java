@@ -4,7 +4,7 @@ import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.SoundUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.GameMode;
+import com.panita.tezzlar3.core.util.PlayerUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -30,7 +30,7 @@ public class AcidRainMechanic extends DifficultyMechanic {
                 
                 for (Player player : world.getPlayers()) {
                     if (player.isDead() || !player.isValid()) continue;
-                    if (player.getGameMode() != GameMode.SURVIVAL) continue;
+                    if (!PlayerUtils.isSurvival(player)) continue;
                     
                     if (player.isInRain()) {
                         double newHealth = Math.max(0, player.getHealth() - 1.0);
