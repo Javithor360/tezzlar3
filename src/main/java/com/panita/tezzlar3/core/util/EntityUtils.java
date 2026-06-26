@@ -14,6 +14,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.entity.Entity;
@@ -184,6 +185,29 @@ public class EntityUtils {
         }
         
         entity.setGlowing(false);
+    }
+
+    /**
+     * Safely attempts to register and set an attribute for an entity.
+     * Falls back to a safe limit (like 2048 for health) if the value exceeds server caps.
+     * @param entity The living entity
+     * @param attr The attribute to set
+     * @param value The value to apply
+     */
+    public static void trySetAttribute(LivingEntity entity, Attribute attr, double value) {
+        try {
+            if (entity.getAttribute(attr) == null) {
+                entity.registerAttribute(attr);
+            }
+            if (entity.getAttribute(attr) != null) {
+                entity.getAttribute(attr).setBaseValue(value);
+            }
+        } catch (Exception e) {
+            // If the server has a cap in spigot.yml (e.g. 2048 for health)
+            if (attr == Attribute.MAX_HEALTH) {
+                try { entity.getAttribute(attr).setBaseValue(2048.0); } catch (Exception ignored) {}
+            }
+        }
     }
 }
 

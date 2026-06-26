@@ -8,6 +8,7 @@ import com.panita.tezzlar3.difficulty.mechanics.DifficultyMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubleMobCapMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubleFallDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.FastDrowningMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.GigaMagmaCubeMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.GoatHornParalyzeMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.InfraredSkeletonMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.OverworldBedExplosionMechanic;
@@ -15,10 +16,13 @@ import com.panita.tezzlar3.difficulty.mechanics.ParasiticSilverfishMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PremiumArmorSetMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.LightningSkeletonMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.NaturalRavagerMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.PeacefulBiomeSpawnsMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.PlayerKillOnlyDropsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.RandomMobGearMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.RandomMobSizeMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.RealisticSpiderMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ShinyPiglinMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.VillagerProfessionLossMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ZombieBeekeeperMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ZombieCavalryMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -78,6 +82,12 @@ public class DifficultyModule implements PluginModule {
         // Day 9
         mechanics.add(new NaturalRavagerMechanic(plugin));
         mechanics.add(new DoubleMobCapMechanic(plugin));
+        
+        // Day 10
+        mechanics.add(new PlayerKillOnlyDropsMechanic(plugin));
+        mechanics.add(new PeacefulBiomeSpawnsMechanic(plugin));
+        mechanics.add(new VillagerProfessionLossMechanic(plugin));
+        mechanics.add(new GigaMagmaCubeMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);
