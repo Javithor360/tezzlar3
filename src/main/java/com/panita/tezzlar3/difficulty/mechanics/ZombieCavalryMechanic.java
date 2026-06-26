@@ -1,0 +1,87 @@
+package com.panita.tezzlar3.difficulty.mechanics;
+
+import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.World;
+import org.bukkit.entity.Zombie;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Random;
+
+public class ZombieCavalryMechanic extends DifficultyMechanic {
+
+    private final Random random = new Random();
+    private final EntityType[] MOUNTS = {
+            EntityType.HORSE, EntityType.ZOMBIE_HORSE, EntityType.SKELETON_HORSE, 
+            EntityType.LLAMA, EntityType.MULE, EntityType.DONKEY
+    };
+
+    public ZombieCavalryMechanic(JavaPlugin plugin) {
+        super(plugin, 6);
+    }
+
+    // Runs on HIGHEST priority to execute after the RandomMobGearMechanic (HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onZombieSpawn(CreatureSpawnEvent event) {
+        if (!isActive()) return;
+        
+        LivingEntity entity = event.getEntity();
+        EntityType type = entity.getType();
+        
+        // Verify if it belongs to the Zombie family
+        boolean isZombie = type == EntityType.ZOMBIE || type == EntityType.ZOMBIE_VILLAGER || type == EntityType.DROWNED || type == EntityType.HUSK;
+        
+        if (isZombie) {
+            // If in the Overworld, only allow cavalry on the surface (Y >= 63)
+            // Other dimensions do not have this height restriction
+            World world = entity.getWorld();
+            if (world.getEnvironment() == World.Environment.NORMAL && entity.getLocation().getY() < 63) {
+                return;
+            }
+            
+            // Delay 2 ticks to ensure RandomMobGearMechanic (which runs on 1 tick delay) has already equipped the zombie
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (!entity.isValid() || entity.isDead()) return;
+                
+                EntityEquipment eq = entity.getEquipment();
+                if (eq != null) {
+                    ItemStack mainHand = eq.getItemInMainHand();
+                    // If carrying a spear, grant a guaranteed mount
+                    if (mainHand != null && mainHand.getType().name().contains("SPEAR")) {
+                        
+                        EntityType mountType = MOUNTS[random.nextInt(MOUNTS.length)];
+                        LivingEntity mount = (LivingEntity) entity.getWorld().spawnEntity(entity.getLocation(), mountType);
+                        
+                        // Double the speed of the mount
+                        AttributeInstance speed = mount.getAttribute(Attribute.MOVEMENT_SPEED);
+                        if (speed != null) speed.setBaseValue(speed.getBaseValue() * 2.0);
+                        
+                        mount.addPassenger(entity);
+                    }
+                }
+            }, 2L);
+        }
+    }
+
+    // Prevent zombies from suffocating (especially useful when riding fast horses near walls/trees)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onZombieSuffocate(EntityDamageEvent event) {
+        if (!isActive()) return;
+        
+        if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
+            if (event.getEntity() instanceof Zombie zombie) {
+                // If it's a zombie, we make it immune to suffocation to prevent cavalry from dying in walls
+                event.setCancelled(true);
+            }
+        }
+    }
+}

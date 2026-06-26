@@ -8,8 +8,11 @@ import com.panita.tezzlar3.difficulty.mechanics.GoatHornParalyzeMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.InfraredSkeletonMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ZombieBeekeeperMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.OverworldBedExplosionMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ParasiticSilverfishMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.RandomMobGearMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.RandomMobSizeMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.RealisticSpiderMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ZombieCavalryMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -41,11 +44,16 @@ public class DifficultyModule implements PluginModule {
         // Day 4
         mechanics.add(new GoatHornParalyzeMechanic(plugin));
         mechanics.add(new InfraredSkeletonMechanic(plugin));
+        mechanics.add(new RandomMobSizeMechanic(plugin));
         
         // Day 5
         mechanics.add(new OverworldBedExplosionMechanic(plugin));
         mechanics.add(new RandomMobGearMechanic(plugin));
         mechanics.add(new RealisticSpiderMechanic(plugin));
+        
+        // Day 6
+        mechanics.add(new ZombieCavalryMechanic(plugin));
+        mechanics.add(new ParasiticSilverfishMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);

@@ -66,8 +66,9 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
         spider.customName(Messenger.mini("&cAraña Realista"));
         spider.setCustomNameVisible(false);
         
-        // Delay logic by 3 seconds (60 ticks) to overwrite any other datapacks/plugins modifying attributes on spawn
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+        // El servidor suele sobreescribir los atributos si se cambian en el mismo tick de aparición.
+        // Un delay de 1 tick (runTask) asegura que se apliquen correctamente de forma instantánea al ojo humano.
+        Bukkit.getScheduler().runTask(plugin, () -> {
             if (!spider.isValid() || spider.isDead()) return;
             
             // Scale to 0.2
@@ -87,6 +88,6 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
             if (spider.getAttribute(Attribute.MOVEMENT_SPEED) != null) {
                 spider.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.4);
             }
-        }, 60L); // 3 seconds delay
+        });
     }
 }
