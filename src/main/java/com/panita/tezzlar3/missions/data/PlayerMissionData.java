@@ -24,7 +24,11 @@ public class PlayerMissionData {
     
     private boolean punishmentsAcknowledged = true;
     
-    private long playtimeTicks = 0;
+    private int deaths = 0; // Exiled deaths
+    private int maxLives = 3; // Max lives
+    private long banExpiration = 0;
+    private int dayChangeAcknowledged = 1;
+    private int lives = 3; // Remaining lives
 
     public PlayerMissionData(UUID uuid, String name) {
         this.uuid = uuid;
@@ -100,23 +104,51 @@ public class PlayerMissionData {
         pendingRewards.clear();
     }
 
-    public long getPlaytimeTicks() {
-        return playtimeTicks;
-    }
-
-    public void setPlaytimeTicks(long playtimeTicks) {
-        this.playtimeTicks = playtimeTicks;
-    }
-    
-    public void addPlaytimeTicks(long ticks) {
-        this.playtimeTicks += ticks;
-    }
-
     public boolean hasPunishmentsAcknowledged() {
         return punishmentsAcknowledged;
     }
 
     public void setPunishmentsAcknowledged(boolean punishmentsAcknowledged) {
         this.punishmentsAcknowledged = punishmentsAcknowledged;
+    }
+    
+    public int getDeaths() {
+        return deaths;
+    }
+
+    public void setDeaths(int deaths) {
+        this.deaths = deaths;
+    }
+    
+    public int getMaxLives() {
+        return maxLives;
+    }
+    
+    public void setMaxLives(int maxLives) {
+        this.maxLives = maxLives;
+    }
+
+    public long getBanExpiration() {
+        return banExpiration;
+    }
+
+    public void setBanExpiration(long banExpiration) {
+        this.banExpiration = banExpiration;
+    }
+    
+    public int getDayChangeAcknowledged() {
+        return dayChangeAcknowledged;
+    }
+    
+    public void setDayChangeAcknowledged(int dayChangeAcknowledged) {
+        this.dayChangeAcknowledged = dayChangeAcknowledged;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public void setLives(int lives) {
+        this.lives = lives;
     }
 }

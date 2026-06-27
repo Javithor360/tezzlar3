@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 @SubCommandSpec(
         parent = "tezzlar hardcore player",
         name = "kill",
-        description = "Aplica un baneo preventivo a un jugador sin sumarle muertes.",
-        syntax = "/hardcore player kill <jugador> [tiempo]",
+        description = "Applies a preventive ban to a player without adding deaths.",
+        syntax = "/tezzlar hardcore player kill <player> [time]",
         permission = "tezzlar.command.hardcore.player.kill"
 )
 public class HardcorePlayerKillCommand implements AdvancedCommand, TabSuggestingCommand {

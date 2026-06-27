@@ -12,8 +12,8 @@ import java.util.Map;
 @SubCommandSpec(
         parent = "tezzlar hardcore",
         name = "topDeaths",
-        description = "Muestra el top 10 de jugadores con más muertes.",
-        syntax = "/hardcore topDeaths",
+        description = "Shows the top 10 players with the most deaths.",
+        syntax = "/tezzlar hardcore topDeaths",
         permission = "tezzlar.command.hardcore.topdeaths"
 )
 public class HardcoreTopDeathsCommand implements AdvancedCommand {

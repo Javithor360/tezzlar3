@@ -32,15 +32,26 @@ public class PlayerDeathListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
         
-        // 1. Increment and get deaths
-        HardcoreDataManager.incrementDeaths(player.getUniqueId(), player.getName());
-        int deaths = HardcoreDataManager.getDeaths(player.getUniqueId());
+        // 1. Get current state and update
+        int lives = HardcoreDataManager.getLives(player.getUniqueId(), player.getName());
+        int maxLives = HardcoreDataManager.getMaxLives(player.getUniqueId(), player.getName());
+        int currentDeaths = HardcoreDataManager.getDeaths(player.getUniqueId(), player.getName());
+        
+        boolean isBanDeath = (lives <= 0);
+        
+        if (!isBanDeath) {
+            lives--;
+            HardcoreDataManager.setLives(player.getUniqueId(), player.getName(), lives);
+        } else {
+            currentDeaths++;
+            HardcoreDataManager.incrementDeaths(player.getUniqueId(), player.getName());
+        }
 
         try {
-            player.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, player.getLocation(), 1);
+            player.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, player.getLocation(), 5);
         } catch (Exception e) {
             // Fallback for older versions if EXPLOSION_EMITTER doesn't exist
-            player.getLocation().getWorld().spawnParticle(Particle.valueOf("EXPLOSION_HUGE"), player.getLocation(), 1);
+            player.getLocation().getWorld().spawnParticle(Particle.valueOf("EXPLOSION_HUGE"), player.getLocation(), 5);
         }
         
         // 3. Place death structure
@@ -72,19 +83,20 @@ public class PlayerDeathListener implements Listener {
         }
 
         // 4. Process penalty
-        if (deaths <= 3) {
-            // Kick without ban for the first 3 deaths
+        if (!isBanDeath) {
+            // Kick without ban (lives lost)
             String rawWarnMsg = Tezzlar.getConfigManager().getString(
                     "hardcore.messages.warnKickMessage", 
                     HardcoreConfigDefaults.HARDCORE_WARNKICKMESSAGE
             );
-            String kickMsg = HardcoreMessageFormatter.processPlaceholders(rawWarnMsg, player.getName(), deaths, null);
+            String kickMsg = HardcoreMessageFormatter.processPlaceholders(rawWarnMsg, player, null);
             HardcoreModule.getPendingKicks().put(player.getUniqueId(), kickMsg);
         } else {
-            // Ban for 4th death and beyond
-            int hoursToBan = 8;
-            if (deaths >= 5) {
-                hoursToBan = (deaths - 4) * 12;
+            // Ban for deaths when lives are 0
+            int banNumber = currentDeaths;
+            int hoursToBan = (banNumber - 1) * 12;
+            if (banNumber == 1) {
+                hoursToBan = 8;
             }
             
             long durationMillis = hoursToBan * 3600000L;
@@ -99,7 +111,7 @@ public class PlayerDeathListener implements Listener {
                     HardcoreConfigDefaults.HARDCORE_KICKMESSAGE
             );
             
-            String kickReason = HardcoreMessageFormatter.processPlaceholders(rawKickReason, player.getName(), deaths, formattedTime);
+            String kickReason = HardcoreMessageFormatter.processPlaceholders(rawKickReason, player, formattedTime);
 
             // Store the ban in our custom data manager using UUID to completely bypass the Vanilla ban UI
             HardcoreDataManager.setBanExpiration(player.getUniqueId(), player.getName(), expirationInstant.toEpochMilli());
@@ -115,7 +127,7 @@ public class PlayerDeathListener implements Listener {
                 "hardcore.messages.genericDeathMessage",
                 HardcoreConfigDefaults.HARDCORE_GENERICDEATHMESSAGE
         );
-        String genericMsg = HardcoreMessageFormatter.processPlaceholders(rawGeneric, player.getName(), deaths, null);
+        String genericMsg = HardcoreMessageFormatter.processPlaceholders(rawGeneric, player, null);
         Messenger.broadcast(genericMsg);
         
         // 3. Broadcast the custom player death message
@@ -131,7 +143,7 @@ public class PlayerDeathListener implements Listener {
                 "hardcore.messages.deathMessages." + player.getName(),
                 defaultCustomConfig
         );
-        String customMsg = HardcoreMessageFormatter.processPlaceholders(rawCustom, player.getName(), deaths, null);
+        String customMsg = HardcoreMessageFormatter.processPlaceholders(rawCustom, player, null);
         Messenger.broadcast(customMsg);
         // 4. Show title and play dramatic sounds synchronously
         String rawTitle = Tezzlar.getConfigManager().getString(
@@ -143,8 +155,8 @@ public class PlayerDeathListener implements Listener {
                 HardcoreConfigDefaults.HARDCORE_DEATHSUBTITLE
         );
         
-        String parsedTitle = HardcoreMessageFormatter.processPlaceholders(rawTitle, player.getName(), deaths, null);
-        String parsedSub = HardcoreMessageFormatter.processPlaceholders(rawSubtitle, player.getName(), deaths, null);
+        String parsedTitle = HardcoreMessageFormatter.processPlaceholders(rawTitle, player, null);
+        String parsedSub = HardcoreMessageFormatter.processPlaceholders(rawSubtitle, player, null);
         
         List<String> sounds = Tezzlar.getConfigManager().getStringList("hardcore.deathSounds");
         if (sounds == null || sounds.isEmpty()) {

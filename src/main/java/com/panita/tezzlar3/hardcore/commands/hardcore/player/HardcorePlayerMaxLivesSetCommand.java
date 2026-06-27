@@ -16,13 +16,13 @@ import org.bukkit.entity.Player;
 import java.util.stream.Collectors;
 
 @SubCommandSpec(
-        parent = "tezzlar hardcore player deaths",
+        parent = "tezzlar hardcore player maxlives",
         name = "set",
-        description = "Sets the number of deaths for a player.",
-        syntax = "/tezzlar hardcore player deaths set <player> <amount>",
-        permission = "tezzlar.command.hardcore.player.deaths.set"
+        description = "Sets the maximum lives of a player.",
+        syntax = "/tezzlar hardcore player maxlives set <player> <amount>",
+        permission = "tezzlar.command.hardcore.player.maxlives.set"
 )
-public class HardcorePlayerDeathsSetCommand implements AdvancedCommand, TabSuggestingCommand {
+public class HardcorePlayerMaxLivesSetCommand implements AdvancedCommand, TabSuggestingCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
@@ -45,13 +45,18 @@ public class HardcorePlayerDeathsSetCommand implements AdvancedCommand, TabSugge
 
         @SuppressWarnings("deprecation")
         OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
+        if (!target.hasPlayedBefore() && !target.isOnline()) {
+            Messenger.prefixedSend(sender, "&cEse jugador nunca se ha conectado al servidor.");
+            return;
+        }
+        
         if (!Global.isValidPlayer(sender, target, targetName)) {
             return;
         }
 
-        HardcoreDataManager.setDeaths(target.getUniqueId(), target.getName(), amount);
-        String muertesStr = amount == 1 ? " muerte" : " muertes";
-        Messenger.prefixedSend(sender, "&aSe han establecido las muertes de &e" + target.getName() + "&a a &e" + amount + muertesStr + "&a.");
+        HardcoreDataManager.setMaxLives(target.getUniqueId(), target.getName(), amount);
+        String vidasStr = amount == 1 ? " vida máxima" : " vidas máximas";
+        Messenger.prefixedSend(sender, "&aSe han establecido las vidas máximas de &e" + target.getName() + "&a a &e" + amount + vidasStr + "&a.");
     }
     
     @Override

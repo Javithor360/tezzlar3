@@ -14,6 +14,8 @@ import com.panita.tezzlar3.difficulty.DifficultyModule;
 import com.panita.tezzlar3.timeline.TimelineModule;
 import com.panita.tezzlar3.troll.TrollModule;
 import com.panita.tezzlar3.core.listeners.MenuListener;
+import com.panita.tezzlar3.core.papi.TezzlarPlaceholderExpansion;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Tezzlar extends JavaPlugin {
@@ -48,6 +50,11 @@ public class Tezzlar extends JavaPlugin {
         moduleManager.register(new RebalanceModule());
         moduleManager.register(new DifficultyModule());
         moduleManager.register(new TrollModule());
+        
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new TezzlarPlaceholderExpansion().register();
+            getLogger().info("Found PAPI plugin, registering Tezzlar 3 placeholders!");
+        }
     }
 
     @Override

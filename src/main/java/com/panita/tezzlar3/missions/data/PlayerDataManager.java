@@ -32,8 +32,12 @@ public class PlayerDataManager {
 
         PlayerMissionData data = new PlayerMissionData(player.getUniqueId(), player.getName());
 
-        data.setPlaytimeTicks(config.getLong("playtime_ticks", 0));
         data.setPunishmentsAcknowledged(config.getBoolean("punishments_acknowledged", true));
+        data.setDeaths(config.getInt("deaths", 0));
+        data.setMaxLives(config.getInt("max_lives", 3));
+        data.setBanExpiration(config.getLong("ban_expiration", 0L));
+        data.setDayChangeAcknowledged(config.getInt("day_change_acknowledged", 1));
+        data.setLives(config.getInt("lives", 3));
         
         if (config.contains("active_progress")) {
             for (String key : config.getConfigurationSection("active_progress").getKeys(false)) {
@@ -69,9 +73,18 @@ public class PlayerDataManager {
         CustomConfig customConfig = new CustomConfig(plugin, "data", player.getName() + ".yml");
         FileConfiguration config = customConfig.getConfig();
 
+        Map<String, Object> values = config.getValues(false);
+        for (String k : values.keySet()) {
+            config.set(k, null);
+        }
+
         config.set("uuid", data.getUuid().toString());
         config.set("name", data.getName());
-        config.set("playtime_ticks", data.getPlaytimeTicks());
+        config.set("max_lives", data.getMaxLives());
+        config.set("lives", data.getLives());
+        config.set("deaths", data.getDeaths());
+        config.set("ban_expiration", data.getBanExpiration());
+        config.set("day_change_acknowledged", data.getDayChangeAcknowledged());
         config.set("punishments_acknowledged", data.hasPunishmentsAcknowledged());
 
         for (Map.Entry<String, Integer> entry : data.getActiveProgress().entrySet()) {

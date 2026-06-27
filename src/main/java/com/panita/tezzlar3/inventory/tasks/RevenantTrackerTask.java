@@ -82,7 +82,7 @@ public class RevenantTrackerTask implements Runnable {
         // Spawn Zombie
         Zombie zombie = (Zombie) loc.getWorld().spawnEntity(loc.clone().add(0, 1, 0), EntityType.ZOMBIE);
         // Paper supports Adventure components natively
-        zombie.customName(Messenger.mini("<dark_red><bold>El Vengativo " + playerName + "</bold></dark_red>"));
+        zombie.customName(Messenger.mini("<b><gradient:#E17F00:#E17F00>Vest</gradient><gradient:#E17F00:#04B784>igio Errante de " + playerName + "</gradient></b>"));
         zombie.setCustomNameVisible(true);
         zombie.setPersistent(true);
         zombie.setRemoveWhenFarAway(false);

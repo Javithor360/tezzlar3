@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 @SubCommandSpec(
         parent = "tezzlar hardcore player",
         name = "unban",
-        description = "Desbanea a un jugador exiliado por muertes.",
-        syntax = "/hardcore player unban <jugador>",
+        description = "Unbans a player exiled by deaths.",
+        syntax = "/tezzlar hardcore player unban <player>",
         permission = "tezzlar.command.hardcore.player.unban"
 )
 public class HardcorePlayerUnbanCommand implements AdvancedCommand, TabSuggestingCommand {
@@ -37,7 +37,7 @@ public class HardcorePlayerUnbanCommand implements AdvancedCommand, TabSuggestin
             return;
         }
 
-        long banExpiration = HardcoreDataManager.getBanExpiration(target.getUniqueId());
+        long banExpiration = HardcoreDataManager.getBanExpiration(target.getUniqueId(), target.getName());
         
         if (banExpiration <= System.currentTimeMillis()) {
             Messenger.prefixedSend(sender, "&eEl jugador &c" + target.getName() + " &eno se encuentra baneado por muertes actualmente.");
