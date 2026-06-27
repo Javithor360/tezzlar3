@@ -18,14 +18,22 @@ public class LavaDepthStriderMechanic extends DifficultyMechanic {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 if (p.isInLava()) {
                     ItemStack boots = p.getInventory().getBoots();
-                    if (boots != null && boots.containsEnchantment(Enchantment.DEPTH_STRIDER)) {
-                        Vector vel = p.getVelocity();
-                        // Verify if the player is trying to move horizontally (velocity > 0.005)
-                        if (Math.sqrt(vel.getX() * vel.getX() + vel.getZ() * vel.getZ()) > 0.005) {
-                            int lvl = boots.getEnchantments().getOrDefault(Enchantment.DEPTH_STRIDER, 0);
-                            // Boost in the direction they are currently moving
-                            Vector boost = vel.clone().setY(0).normalize().multiply(0.03 * lvl);
-                            p.setVelocity(vel.add(boost));
+                    if (!boots.isEmpty() && boots.containsEnchantment(Enchantment.DEPTH_STRIDER)) {
+                        int lvl = boots.getEnchantmentLevel(Enchantment.DEPTH_STRIDER);
+
+                        Vector dir = p.getLocation().getDirection();
+
+                        // If it looks down, we'll avoid pushing him to the bottom so it won't be hard for him to climb back up
+                        if (dir.getY() < 0) {
+                            dir.setY(0);
+                        } else {
+                            // If it looks up, we'll give you a little extra push to help you stay afloat
+                            dir.setY(dir.getY() * 1.5);
+                        }
+
+                        if (dir.lengthSquared() > 0) {
+                            dir = dir.normalize().multiply(0.04 * lvl);
+                            p.setVelocity(p.getVelocity().add(dir));
                         }
                     }
                 }

@@ -4,6 +4,8 @@ import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.timeline.events.DayChangeEvent;
 import com.panita.tezzlar3.timeline.util.TimelineConfigDefaults;
+import com.panita.tezzlar3.missions.MissionsModule;
+import com.panita.tezzlar3.missions.data.PlayerMissionData;
 import com.panita.tezzlar3.core.util.SoundUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -29,6 +31,11 @@ public class DayChangeListener implements Listener {
         Messenger.broadcast(chat);
         for (Player player : Bukkit.getOnlinePlayers()) {
             Messenger.showTitle(player, title, subtitle, Duration.ofSeconds(1), Duration.ofSeconds(4), Duration.ofSeconds(1));
+            
+            PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player.getUniqueId());
+            if (data != null) {
+                data.setDayChangeAcknowledged(event.getNewDay());
+            }
         }
 
         if (soundRaw != null && !soundRaw.isEmpty() && !soundRaw.equalsIgnoreCase("none")) {
