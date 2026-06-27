@@ -19,11 +19,13 @@ public class LavaDepthStriderMechanic extends DifficultyMechanic {
                 if (p.isInLava()) {
                     ItemStack boots = p.getInventory().getBoots();
                     if (boots != null && boots.containsEnchantment(Enchantment.DEPTH_STRIDER)) {
-                        // Only boost if the player is actively swimming/moving forward
-                        if (p.isSwimming()) {
+                        Vector vel = p.getVelocity();
+                        // Verify if the player is trying to move horizontally (velocity > 0.005)
+                        if (Math.sqrt(vel.getX() * vel.getX() + vel.getZ() * vel.getZ()) > 0.005) {
                             int lvl = boots.getEnchantments().getOrDefault(Enchantment.DEPTH_STRIDER, 0);
-                            Vector dir = p.getLocation().getDirection().normalize().multiply(0.04 * lvl);
-                            p.setVelocity(p.getVelocity().add(dir));
+                            // Boost in the direction they are currently moving
+                            Vector boost = vel.clone().setY(0).normalize().multiply(0.03 * lvl);
+                            p.setVelocity(vel.add(boost));
                         }
                     }
                 }

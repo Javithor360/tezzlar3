@@ -3,6 +3,7 @@ package com.panita.tezzlar3.difficulty.mechanics;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 
 import java.util.Random;
 
@@ -16,6 +17,9 @@ public class NightRainMechanic extends DifficultyMechanic {
         // Check every 100 ticks (5 seconds)
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (!isActive()) return;
+            
+            // Revert the "always rain at night" mechanic on day 15+ since it's eternal night
+            if (TimeManager.getCurrentDay() >= 15) return;
             
             for (World world : Bukkit.getWorlds()) {
                 if (world.getEnvironment() == World.Environment.NORMAL) {
