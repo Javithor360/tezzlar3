@@ -25,7 +25,6 @@ import com.panita.tezzlar3.difficulty.mechanics.PhantomRideMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.LightningSkeletonMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.NaturalRavagerMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PeacefulBiomeSpawnsMechanic;
-import com.panita.tezzlar3.difficulty.mechanics.PhantomRideMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PlayerKillOnlyDropsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PremiumArmorSetMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.CopperDamageMechanic;
@@ -43,6 +42,10 @@ import com.panita.tezzlar3.difficulty.mechanics.CopperGolemLightningMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.WeavingSpiderMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.BuffedSnowGolemMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PeruvianVindicatorMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.EternalFireMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.StrayFreezeMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.GlobalVariantsMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.WitherSkeletonEliteGearMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -129,6 +132,12 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new WeavingSpiderMechanic(plugin));
         mechanics.add(new BuffedSnowGolemMechanic(plugin));
         mechanics.add(new PeruvianVindicatorMechanic(plugin));
+        
+        // Day 14
+        mechanics.add(new EternalFireMechanic(plugin));
+        mechanics.add(new StrayFreezeMechanic(plugin));
+        mechanics.add(new GlobalVariantsMechanic(plugin));
+        mechanics.add(new WitherSkeletonEliteGearMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);
