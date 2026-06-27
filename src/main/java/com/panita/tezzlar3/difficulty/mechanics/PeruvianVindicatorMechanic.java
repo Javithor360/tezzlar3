@@ -58,8 +58,8 @@ public class PeruvianVindicatorMechanic extends DifficultyMechanic {
             World.Environment env = entity.getWorld().getEnvironment();
             if (env == World.Environment.NORMAL || env == World.Environment.THE_END) {
                 
-                // 8% chance to spawn
-                if (random.nextDouble() < 0.08) {
+                // 2% chance to spawn
+                if (random.nextDouble() < 0.02) {
                     entity.getWorld().spawn(entity.getLocation(), Llama.class, llama -> {
                         // Decorate and prepare llama
                         llama.getPersistentDataContainer().set(PERUVIAN_KEY, PersistentDataType.BYTE, (byte) 1);
@@ -80,6 +80,7 @@ public class PeruvianVindicatorMechanic extends DifficultyMechanic {
                             llama.addPassenger(vindicator);
                             
                             EntityUtils.trySetAttribute(vindicator, Attribute.MAX_HEALTH, 35.0);
+                            EntityUtils.trySetAttribute(vindicator, Attribute.FOLLOW_RANGE, 32.0); // Double follow range
                             vindicator.setHealth(35.0);
                         });
                     });
