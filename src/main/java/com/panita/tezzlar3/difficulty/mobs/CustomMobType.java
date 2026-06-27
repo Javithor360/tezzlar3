@@ -1,0 +1,14 @@
+package com.panita.tezzlar3.difficulty.mobs;
+
+public enum CustomMobType {
+    ZOMBIE_BEEKEEPER,
+    INFRARED_SKELETON,
+    REALISTIC_SPIDER,
+    PARASITE_SILVERFISH,
+    SHINY_PIGLIN,
+    LIGHTNING_SKELETON,
+    GIGA_MAGMA_CUBE,
+    SLIME_BANZAI,
+    PERUVIAN_VINDICATOR,
+    ZOMBIE_RATATOUILLE
+}
