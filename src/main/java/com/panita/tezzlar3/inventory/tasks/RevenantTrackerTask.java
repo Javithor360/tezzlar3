@@ -5,6 +5,8 @@ import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.inventory.util.InventoryConfigDefaults;
 import com.panita.tezzlar3.inventory.util.GravesDataManager;
 import com.panita.tezzlar3.inventory.util.InventorySerializer;
+import com.panita.tezzlar3.core.util.EntityUtils;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -84,13 +86,14 @@ public class RevenantTrackerTask implements Runnable {
         zombie.setCustomNameVisible(true);
         zombie.setPersistent(true);
         zombie.setRemoveWhenFarAway(false);
-        zombie.setGlowing(true);
+        EntityUtils.setColoredGlowing(zombie, NamedTextColor.RED);
 
-        // 100 HP
-        if (zombie.getAttribute(Attribute.MAX_HEALTH) != null) {
-            zombie.getAttribute(Attribute.MAX_HEALTH).setBaseValue(100.0);
-            zombie.setHealth(100.0);
-        }
+        // Health
+        double customHealth = Tezzlar.getConfigManager().getDouble("inventory.revenant.health", InventoryConfigDefaults.REVENANT_HEALTH);
+        EntityUtils.trySetAttribute(zombie, Attribute.MAX_HEALTH, customHealth);
+        try {
+            zombie.setHealth(customHealth);
+        } catch(Exception ignored) {}
 
         // Helmet
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD);

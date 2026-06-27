@@ -2,6 +2,7 @@ package com.panita.tezzlar3.difficulty;
 
 import com.panita.tezzlar3.core.modules.PluginModule;
 import com.panita.tezzlar3.difficulty.mechanics.AngryWolfMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.SuffocationImmunityMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.AnimalOneShotMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.AcidRainMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.CreeperExplosionMechanic;
@@ -72,6 +73,7 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new DoubleFallDamageMechanic(plugin));
         mechanics.add(new AnimalOneShotMechanic(plugin));
         mechanics.add(new ZombieBeekeeperMechanic(plugin));
+        mechanics.add(new SuffocationImmunityMechanic(plugin));
         
         // Day 4
         mechanics.add(new GoatHornParalyzeMechanic(plugin));
@@ -93,7 +95,7 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new ShinyPiglinMechanic(plugin));
         mechanics.add(new CreeperExplosionMechanic(plugin));
         
-        // Dia 8
+        // Day 8
         mechanics.add(new LightningSkeletonMechanic(plugin));
         mechanics.add(new FastDrowningMechanic(plugin));
         mechanics.add(new AcidRainMechanic(plugin));

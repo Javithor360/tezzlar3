@@ -46,6 +46,7 @@ inventory:
   enabled: true
   revenantZombie: true
   revenant:
+    health: 50.0
     minions:
       - ZOMBIE
 #      - ZOMBIE_VILLAGER
