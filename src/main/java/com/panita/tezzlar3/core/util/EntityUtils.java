@@ -200,12 +200,15 @@ public class EntityUtils {
                 entity.registerAttribute(attr);
             }
             if (entity.getAttribute(attr) != null) {
+                // Prevent Spigot hard limit crash
+                if (attr == Attribute.MAX_HEALTH && value > 1024.0) {
+                    value = 1024.0;
+                }
                 entity.getAttribute(attr).setBaseValue(value);
             }
         } catch (Exception e) {
-            // If the server has a cap in spigot.yml (e.g. 2048 for health)
             if (attr == Attribute.MAX_HEALTH) {
-                try { entity.getAttribute(attr).setBaseValue(2048.0); } catch (Exception ignored) {}
+                try { entity.getAttribute(attr).setBaseValue(1024.0); } catch (Exception ignored) {}
             }
         }
     }

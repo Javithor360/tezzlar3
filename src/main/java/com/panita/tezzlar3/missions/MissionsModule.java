@@ -6,6 +6,7 @@ import com.panita.tezzlar3.missions.data.PlayerDataManager;
 import com.panita.tezzlar3.missions.listeners.MissionExpirationListener;
 import com.panita.tezzlar3.missions.listeners.MissionTracker;
 import com.panita.tezzlar3.missions.listeners.PlayerDataListener;
+import com.panita.tezzlar3.missions.refuge.RefugeManager;
 import com.panita.tezzlar3.missions.ui.MissionBossBarManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -28,9 +29,12 @@ public class MissionsModule implements PluginModule {
     private static PlayerDataManager dataManager;
     private static MissionManager missionManager;
     private static GlobalMissionManager globalMissionManager;
+    private static RefugeManager refugeManager;
 
     @Override
     public void onEnable(JavaPlugin plugin) {
+        refugeManager = new RefugeManager(plugin);
+        plugin.getServer().getPluginManager().registerEvents(refugeManager, plugin);
         missionManager = new MissionManager(plugin);
         globalMissionManager = new GlobalMissionManager(plugin);
         
@@ -71,6 +75,10 @@ public class MissionsModule implements PluginModule {
 
     public static GlobalMissionManager getGlobalMissionManager() {
         return globalMissionManager;
+    }
+    
+    public static RefugeManager getRefugeManager() {
+        return refugeManager;
     }
 
     @Override

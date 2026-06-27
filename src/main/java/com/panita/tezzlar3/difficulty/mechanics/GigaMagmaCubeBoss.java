@@ -100,7 +100,7 @@ public class GigaMagmaCubeBoss {
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     if (player.getWorld().equals(boss.getWorld()) && player.getLocation().distance(boss.getLocation()) <= 100) {
                         if (PlayerUtils.isSurvival(player)) {
-                            Messenger.showBossBar(player, bossId, "<#FF5252><b>Giga Magma Cube</b></#FF5252>", BossBar.Color.RED, BossBar.Overlay.PROGRESS, progress);
+                            Messenger.showBossBar(player, bossId, "<#FF5252><b>Giga Magma Cube</b></#FF5252>", BossBar.Color.YELLOW, BossBar.Overlay.NOTCHED_20, progress);
                             if (player.getLocation().distance(boss.getLocation()) <= 50) {
                                 nearbyPlayers.add(player);
                             }

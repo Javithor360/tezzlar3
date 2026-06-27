@@ -85,6 +85,12 @@ timeline:
 
 # Missions Module
 missions:
+  refuge:
+    x: 1000
+    y: 64
+    z: 1000
+    radius: 30
+    duration: 300
   messages:
     punishment_warning: "&c[!] Tienes castigos activos. Usa /punishments para verlos."
     individual_completed: "&aEl jugador &e%player% &acompletó la misión: &6%mission%"
