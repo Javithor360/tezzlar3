@@ -42,7 +42,7 @@ public class LightningSkeletonMechanic extends DifficultyMechanic {
                     }
                 }
             }
-        }, 2400L, 2400L);
+        }, 60L, 2400L);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
