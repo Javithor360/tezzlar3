@@ -95,19 +95,18 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
                         if (weapon.containsEnchantment(Enchantment.SHARPNESS) || 
                             weapon.containsEnchantment(Enchantment.SMITE)) {
                             event.setDamage(0.000001);
-                            return;
+                        } else {
+                            double damageToAdd = 0.0;
+                            
+                            // Bane of Arthropods (DAMAGE_ARTHROPODS): 2.5 * level
+                            if (weapon.containsEnchantment(Enchantment.BANE_OF_ARTHROPODS)) {
+                                int level = weapon.getEnchantments().getOrDefault(Enchantment.BANE_OF_ARTHROPODS, 0);
+                                damageToAdd += 2.5 * level;
+                            }
+                            
+                            double finalDamage = event.getDamage() + damageToAdd;
+                            event.setDamage(finalDamage);
                         }
-                        
-                        double damageToAdd = 0.0;
-                        
-                        // Bane of Arthropods (DAMAGE_ARTHROPODS): 2.5 * level
-                        if (weapon.containsEnchantment(Enchantment.BANE_OF_ARTHROPODS)) {
-                            int level = weapon.getEnchantments().getOrDefault(Enchantment.BANE_OF_ARTHROPODS, 0);
-                            damageToAdd += 2.5 * level;
-                        }
-                        
-                        double finalDamage = event.getDamage() + damageToAdd;
-                        event.setDamage(finalDamage);
                     }
                 }
 
