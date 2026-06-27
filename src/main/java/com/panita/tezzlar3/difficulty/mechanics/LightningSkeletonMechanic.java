@@ -56,7 +56,7 @@ public class LightningSkeletonMechanic extends DifficultyMechanic {
     
     private void transform(Skeleton skeleton) {
         skeleton.getPersistentDataContainer().set(LIGHTNING_KEY, PersistentDataType.BYTE, (byte) 1);
-        EntityUtils.setCustomName(skeleton, "<color:#894B0A>Esqueleto Relámpago</color>");
+        EntityUtils.setCustomName(skeleton, "<#894B0A>Esqueleto Relámpago</#894B0A>");
         
         Bukkit.getScheduler().runTask(plugin, () -> {
             if (!skeleton.isValid() || skeleton.isDead()) return;

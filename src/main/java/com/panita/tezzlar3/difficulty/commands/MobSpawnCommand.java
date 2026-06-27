@@ -6,6 +6,7 @@ import com.panita.tezzlar3.core.commands.dynamic.TabSuggestingCommand;
 import com.panita.tezzlar3.core.commands.identifiers.CommandSpec;
 import com.panita.tezzlar3.core.commands.identifiers.CommandMeta;
 import com.panita.tezzlar3.core.util.CommandUtils;
+import com.panita.tezzlar3.difficulty.gui.MobSpawnMenu;
 import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
 import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
 import org.bukkit.command.CommandSender;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 @CommandSpec(
         name = "mobspawn",
         description = "Spawnea mobs customizados del sistema de dificultad.",
-        syntax = "/mobspawn <mob>",
+        syntax = "/mobspawn [mob]",
         permission = "tezzlar.command.mobspawn"
 )
 public class MobSpawnCommand implements AdvancedCommand, TabSuggestingCommand {
@@ -29,14 +30,15 @@ public class MobSpawnCommand implements AdvancedCommand, TabSuggestingCommand {
             return;
         }
         
-        if (!CommandUtils.checkArgsOrUsage(sender, args, 1, MobSpawnCommand.class)) {
+        if (args.length == 0) {
+            new MobSpawnMenu(player).open();
             return;
         }
         
         try {
             CustomMobType type = CustomMobType.valueOf(args[0].toUpperCase());
             CustomMobManager.spawn(type, player.getLocation());
-            Messenger.prefixedSend(sender, "&aSe ha spawneado un &e" + type.name() + "&a.");
+            Messenger.prefixedSend(sender, "&aSe ha spawneado un &e" + type.getCustomName() + "&a.");
         } catch (IllegalArgumentException e) {
             Messenger.prefixedSend(sender, "&cMob inválido. Usa TAB para ver la lista.");
         }

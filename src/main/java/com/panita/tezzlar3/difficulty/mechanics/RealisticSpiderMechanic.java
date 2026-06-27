@@ -70,7 +70,7 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
         spider.getPersistentDataContainer().set(REALISTIC_KEY, PersistentDataType.BYTE, (byte) 1);
         
         // Custom name
-        EntityUtils.setCustomName(spider, "&cAraña Realista");
+        EntityUtils.setCustomName(spider, "&4Araña Realista");
         
         // The server usually overwrites attributes if changed in the same spawn tick.
         // A 1 tick delay (runTask) ensures they are applied correctly instantly to the human eye.

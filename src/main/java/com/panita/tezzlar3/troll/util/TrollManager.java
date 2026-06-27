@@ -86,7 +86,7 @@ public class TrollManager {
             // The first one is the parasite
             if (i == 0) {
                 sf.getPersistentDataContainer().set(parasiteKey, PersistentDataType.BYTE, (byte) 1);
-                EntityUtils.setCustomName(sf, "&cLepisma Parásito");
+                EntityUtils.setCustomName(sf, "<#F03C57>Lepisma Parásito</#F03C57>");
                 
                 Bukkit.getScheduler().runTask(Tezzlar.getInstance(), () -> {
                     if (!sf.isValid() || sf.isDead()) return;

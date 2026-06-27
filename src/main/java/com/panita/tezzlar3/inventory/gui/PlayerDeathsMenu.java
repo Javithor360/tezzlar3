@@ -65,6 +65,10 @@ public class PlayerDeathsMenu extends PaginatedMenu {
             int y = data.getInt("y", 0);
             int z = data.getInt("z", 0);
             String deathCause = data.getString("deathCause", "Causa desconocida");
+            String graveId = entry.getKey();
+
+            boolean isActivated = !GravesDataManager.getActiveGraves().containsKey(graveId);
+            String status = isActivated ? "<green>Tumba activada</green>" : "<yellow>A la espera</yellow>";
 
             ItemBuilder barrel = new ItemBuilder(Material.BARREL)
                     .name("<gold><bold>Muerte:</bold> " + date)
@@ -72,6 +76,7 @@ public class PlayerDeathsMenu extends PaginatedMenu {
                             "<gray>Mundo: <white>" + dimension,
                             "<gray>Ubicación: <red>X: " + x + " Y: " + y + " Z: " + z + "</red>",
                             "<gray>Causa: <white>" + deathCause,
+                            "<gray>Estado: " + status,
                             "",
                             "<yellow>► Clic para ver inventario"
                     );

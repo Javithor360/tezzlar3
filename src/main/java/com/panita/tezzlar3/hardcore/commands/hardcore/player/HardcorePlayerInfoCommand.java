@@ -71,9 +71,9 @@ public class HardcorePlayerInfoCommand implements AdvancedCommand, TabSuggesting
         }
 
         Messenger.prefixedSend(sender, "&6--- Información de &e" + target.getName() + " &6---");
-        Messenger.send(sender, "&8> &7Vidas: &a" + lives + "&8/&a" + maxLives);
-        Messenger.send(sender, "&8> &7Muertes: &c" + deaths);
-        Messenger.send(sender, "&8> &7Tiempo de juego: &b" + playtimeStr);
+        Messenger.send(sender, "&3> &7Vidas: &a" + lives + "&8/&a" + maxLives);
+        Messenger.send(sender, "&3> &7Muertes: &c" + deaths);
+        Messenger.send(sender, "&3> &7Tiempo de juego: &b" + playtimeStr);
         Messenger.send(sender, "&3> &7Última conexión: " + lastPlayedStr);
     }
     
