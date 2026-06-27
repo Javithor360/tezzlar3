@@ -15,6 +15,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
+import org.bukkit.Location;
 
 import java.util.Random;
 
@@ -26,6 +29,35 @@ public class InfraredSkeletonMechanic extends DifficultyMechanic {
     public InfraredSkeletonMechanic(JavaPlugin plugin) {
         super(plugin, 4);
         INFRARED_KEY = new NamespacedKey(plugin, "is_infrared");
+        CustomMobManager.register(CustomMobType.INFRARED_SKELETON, this::spawnManual);
+    }
+
+    public void spawnManual(Location loc) {
+        Skeleton skeleton = loc.getWorld().spawn(loc, Skeleton.class);
+        transform(skeleton);
+    }
+
+    private void transform(Skeleton skeleton) {
+        skeleton.getPersistentDataContainer().set(INFRARED_KEY, PersistentDataType.BYTE, (byte) 1);
+        EntityUtils.setCustomName(skeleton, "&cEsqueleto Infrarrojo");
+        
+        // Armor
+        ItemStack head = new ItemStack(Material.RED_STAINED_GLASS);
+        ItemStack chestplate = ItemUtils.createColoredLeather(Material.LEATHER_CHESTPLATE, Color.NAVY);
+        ItemStack leggings = ItemUtils.createColoredLeather(Material.LEATHER_LEGGINGS, Color.NAVY);
+        ItemStack boots = ItemUtils.createColoredLeather(Material.LEATHER_BOOTS, Color.NAVY);
+        
+        EntityUtils.equipArmor(skeleton, head, chestplate, leggings, boots, 0.0f);
+        
+        // Weapon
+        ItemStack bow = new ItemStack(Material.BOW);
+        ItemUtils.enchantItem(bow, Enchantment.FLAME, 1);
+        ItemUtils.enchantItem(bow, Enchantment.POWER, 3);
+        
+        if (skeleton.getEquipment() != null) {
+            skeleton.getEquipment().setItemInMainHand(bow);
+            skeleton.getEquipment().setItemInMainHandDropChance(0.0f);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -34,30 +66,9 @@ public class InfraredSkeletonMechanic extends DifficultyMechanic {
         
         if (event.getEntity() instanceof Skeleton skeleton) {
             if (EntityUtils.isValidNaturalSpawn(event.getSpawnReason())) {
-                
                 // 10% chance to become an infrared skeleton
                 if (random.nextDouble() < 0.10) {
-                    skeleton.getPersistentDataContainer().set(INFRARED_KEY, PersistentDataType.BYTE, (byte) 1);
-                    
-                    EntityUtils.setCustomName(skeleton, "&cEsqueleto Infrarrojo");
-                    
-                    // Armor
-                    ItemStack head = new ItemStack(Material.RED_STAINED_GLASS);
-                    ItemStack chestplate = ItemUtils.createColoredLeather(Material.LEATHER_CHESTPLATE, Color.NAVY);
-                    ItemStack leggings = ItemUtils.createColoredLeather(Material.LEATHER_LEGGINGS, Color.NAVY);
-                    ItemStack boots = ItemUtils.createColoredLeather(Material.LEATHER_BOOTS, Color.NAVY);
-                    
-                    EntityUtils.equipArmor(skeleton, head, chestplate, leggings, boots, 0.0f);
-                    
-                    // Weapon
-                    ItemStack bow = new ItemStack(Material.BOW);
-                    ItemUtils.enchantItem(bow, Enchantment.FLAME, 1);
-                    ItemUtils.enchantItem(bow, Enchantment.POWER, 3);
-                    
-                    if (skeleton.getEquipment() != null) {
-                        skeleton.getEquipment().setItemInMainHand(bow);
-                        skeleton.getEquipment().setItemInMainHandDropChance(0.0f);
-                    }
+                    transform(skeleton);
                 }
             }
         }

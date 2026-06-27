@@ -21,6 +21,9 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
+import org.bukkit.Location;
 
 import java.util.Random;
 
@@ -32,6 +35,13 @@ public class ShinyPiglinMechanic extends DifficultyMechanic {
     public ShinyPiglinMechanic(JavaPlugin plugin) {
         super(plugin, 7);
         this.SHINY_KEY = new NamespacedKey(plugin, "is_shiny");
+        CustomMobManager.register(CustomMobType.SHINY_PIGLIN, this::spawnManual);
+    }
+
+    public void spawnManual(Location loc) {
+        Piglin piglin = loc.getWorld().spawn(loc, Piglin.class);
+        piglin.setAdult(); 
+        makeShiny(piglin);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -53,15 +63,9 @@ public class ShinyPiglinMechanic extends DifficultyMechanic {
 
         // 3% chance to become a Shiny Piglin
         if (random.nextDouble() < 0.01) {
-            // Cancel the original spawn (e.g. Enderman or Zombified Piglin)
+            // Cancel the original spawn
             event.setCancelled(true);
-            
-            // Spawn an ACTUAL Piglin in its place and apply the shiny attributes
-            entity.getWorld().spawn(entity.getLocation(), Piglin.class, piglin -> {
-                makeShiny(piglin);
-                // Piglins spawned via code might need their adult state forced, though they are adults by default
-                piglin.setAdult(); 
-            });
+            spawnManual(entity.getLocation());
         }
     }
 

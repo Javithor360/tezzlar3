@@ -22,6 +22,9 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
+import org.bukkit.Location;
 
 import java.util.Random;
 
@@ -35,6 +38,7 @@ public class ParasiticSilverfishMechanic extends DifficultyMechanic {
         super(plugin, 6);
         PARASITE_KEY = new NamespacedKey(plugin, "is_parasite");
         ATTACH_TIME_KEY = new NamespacedKey(plugin, "attach_time");
+        CustomMobManager.register(CustomMobType.PARASITE_SILVERFISH, this::spawnManual);
 
         // Repetitive task every 1.5 seconds (30 ticks) for the parasite damage
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
@@ -63,6 +67,11 @@ public class ParasiticSilverfishMechanic extends DifficultyMechanic {
             }
         }, 30L, 30L);
     }
+    
+    public void spawnManual(Location loc) {
+        Silverfish silverfish = loc.getWorld().spawn(loc, Silverfish.class);
+        makeParasite(silverfish);
+    }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onMonsterSpawn(CreatureSpawnEvent event) {
@@ -80,7 +89,8 @@ public class ParasiticSilverfishMechanic extends DifficultyMechanic {
             if (isCave || isNether) {
                 // 3% chance
                 if (random.nextDouble() < 0.03) {
-                    world.spawn(entity.getLocation(), Silverfish.class, this::makeParasite);
+                    event.setCancelled(true);
+                    spawnManual(entity.getLocation());
                 }
             }
         }

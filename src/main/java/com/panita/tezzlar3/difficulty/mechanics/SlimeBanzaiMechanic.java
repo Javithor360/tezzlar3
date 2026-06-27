@@ -13,6 +13,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
+import org.bukkit.Location;
 
 import java.util.Random;
 
@@ -24,6 +27,26 @@ public class SlimeBanzaiMechanic extends DifficultyMechanic {
     public SlimeBanzaiMechanic(JavaPlugin plugin) {
         super(plugin, 12);
         BANZAI_KEY = new NamespacedKey(plugin, "is_banzai");
+        CustomMobManager.register(CustomMobType.SLIME_BANZAI, this::spawnManual);
+    }
+
+    public void spawnManual(Location loc) {
+        Slime slime = loc.getWorld().spawn(loc, Slime.class);
+        transform(slime);
+    }
+
+    private void transform(Slime slime) {
+        slime.setSize(4);
+        slime.getPersistentDataContainer().set(BANZAI_KEY, PersistentDataType.BYTE, (byte) 1);
+        EntityUtils.setCustomName(slime, "<#7EF7B6>Slime Banzai</#7EF7B6>");
+        
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (!slime.isValid() || slime.isDead()) return;
+            
+            EntityUtils.trySetAttribute(slime, Attribute.BOUNCINESS, 40.0);
+            EntityUtils.trySetAttribute(slime, Attribute.JUMP_STRENGTH, 3.0);
+            EntityUtils.trySetAttribute(slime, Attribute.SAFE_FALL_DISTANCE, 40.0);
+        });
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -43,20 +66,8 @@ public class SlimeBanzaiMechanic extends DifficultyMechanic {
                 
                 // 1% chance to replace any monster with a Slime Banzai
                 if (random.nextDouble() < 0.01) {
-                    entity.getWorld().spawn(entity.getLocation(), Slime.class, slime -> {
-                        slime.setSize(4);
-                        slime.getPersistentDataContainer().set(BANZAI_KEY, PersistentDataType.BYTE, (byte) 1);
-                        EntityUtils.setCustomName(slime, "<#7EF7B6>Slime Banzai</#7EF7B6>");
-                        
-                        Bukkit.getScheduler().runTask(plugin, () -> {
-                            if (!slime.isValid() || slime.isDead()) return;
-                            
-                            EntityUtils.trySetAttribute(slime, Attribute.BOUNCINESS, 40.0);
-                            EntityUtils.trySetAttribute(slime, Attribute.JUMP_STRENGTH, 3.0);
-                            EntityUtils.trySetAttribute(slime, Attribute.SAFE_FALL_DISTANCE, 40.0);
-                        });
-                    });
                     event.setCancelled(true);
+                    spawnManual(entity.getLocation());
                 }
             }
         }

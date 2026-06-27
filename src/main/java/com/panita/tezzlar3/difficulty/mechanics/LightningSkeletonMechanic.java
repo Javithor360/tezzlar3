@@ -18,6 +18,8 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
 
 import java.util.Random;
 
@@ -29,6 +31,8 @@ public class LightningSkeletonMechanic extends DifficultyMechanic {
     public LightningSkeletonMechanic(JavaPlugin plugin) {
         super(plugin, 8); // Day 8
         LIGHTNING_KEY = new NamespacedKey(plugin, "is_lightning");
+        CustomMobManager.register(CustomMobType.LIGHTNING_SKELETON, this::spawnManual);
+
         
         // Passive lightning strike every 120 seconds (2400 ticks)
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
@@ -45,18 +49,12 @@ public class LightningSkeletonMechanic extends DifficultyMechanic {
         }, 60L, 2400L);
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onSkeletonSpawn(CreatureSpawnEvent event) {
-        if (!isActive()) return;
-        if (event.getEntityType() != EntityType.SKELETON) return;
-        if (!EntityUtils.isValidNaturalSpawn(event.getSpawnReason())) return;
-        if (EntityUtils.isCustomMob(event.getEntity())) return;
-        
-        // 10% spawn chance
-        if (random.nextInt(100) >= 10) return;
-        
-        Skeleton skeleton = (Skeleton) event.getEntity();
-        
+    public void spawnManual(Location loc) {
+        Skeleton skeleton = loc.getWorld().spawn(loc, Skeleton.class);
+        transform(skeleton);
+    }
+    
+    private void transform(Skeleton skeleton) {
         skeleton.getPersistentDataContainer().set(LIGHTNING_KEY, PersistentDataType.BYTE, (byte) 1);
         EntityUtils.setCustomName(skeleton, "<color:#894B0A>Esqueleto Relámpago</color>");
         
@@ -84,6 +82,20 @@ public class LightningSkeletonMechanic extends DifficultyMechanic {
             skeleton.getEquipment().setItemInMainHand(bow);
             skeleton.getEquipment().setItemInMainHandDropChance(0.0f);
         });
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onSkeletonSpawn(CreatureSpawnEvent event) {
+        if (!isActive()) return;
+        if (event.getEntityType() != EntityType.SKELETON) return;
+        if (!EntityUtils.isValidNaturalSpawn(event.getSpawnReason())) return;
+        if (EntityUtils.isCustomMob(event.getEntity())) return;
+        
+        // 10% spawn chance
+        if (random.nextInt(100) >= 10) return;
+        
+        Skeleton skeleton = (Skeleton) event.getEntity();
+        transform(skeleton);
     }
 
     @EventHandler(priority = EventPriority.HIGH)

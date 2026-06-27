@@ -2,6 +2,7 @@ package com.panita.tezzlar3.rebalance;
 
 import com.panita.tezzlar3.core.modules.PluginModule;
 import com.panita.tezzlar3.rebalance.listeners.StackSizeInterceptor;
+import com.panita.tezzlar3.rebalance.listeners.FoodBuffMechanic;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,6 +25,7 @@ public class RebalanceModule implements PluginModule {
     public void onEnable(JavaPlugin plugin) {
         StackSizeInterceptor interceptor = new StackSizeInterceptor(plugin);
         plugin.getServer().getPluginManager().registerEvents(interceptor, plugin);
+        plugin.getServer().getPluginManager().registerEvents(new FoodBuffMechanic(plugin), plugin);
         
         // Background sweep task to catch /give and other silent inventory updates (every 40 ticks = 2.0s)
         plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {

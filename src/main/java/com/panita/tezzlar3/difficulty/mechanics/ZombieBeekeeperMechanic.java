@@ -20,6 +20,9 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
+import org.bukkit.Location;
 import com.panita.tezzlar3.core.util.ItemUtils;
 
 import java.util.Random;
@@ -32,6 +35,45 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
     public ZombieBeekeeperMechanic(JavaPlugin plugin) {
         super(plugin, 3);
         BEEKEEPER_KEY = new NamespacedKey(plugin, "is_beekeeper");
+        CustomMobManager.register(CustomMobType.ZOMBIE_BEEKEEPER, this::spawnManual);
+    }
+
+    public void spawnManual(Location loc) {
+        Zombie zombie = loc.getWorld().spawn(loc, Zombie.class);
+        transform(zombie);
+    }
+
+    private void transform(Zombie zombie) {
+        zombie.getPersistentDataContainer().set(BEEKEEPER_KEY, PersistentDataType.BYTE, (byte) 1);
+        
+        // Set Custom Name
+        EntityUtils.setCustomName(zombie, "&eZombi Apicultor");
+        
+        // Health (30 HP)
+        AttributeInstance healthAttr = zombie.getAttribute(Attribute.MAX_HEALTH);
+        if (healthAttr != null) {
+            healthAttr.setBaseValue(30.0);
+            zombie.setHealth(30.0);
+        }
+        
+        // Double Attack Damage
+        AttributeInstance damageAttr = zombie.getAttribute(Attribute.ATTACK_DAMAGE);
+        if (damageAttr != null) {
+            damageAttr.setBaseValue(damageAttr.getBaseValue() * 2.0);
+        }
+        
+        EntityUtils.equipArmor(zombie, 
+            new ItemStack(Material.BEE_NEST), 
+            new ItemStack(Material.GOLDEN_CHESTPLATE), 
+            new ItemStack(Material.GOLDEN_LEGGINGS), 
+            new ItemStack(Material.GOLDEN_BOOTS), 
+            0.0f);
+            
+        EntityEquipment eq = zombie.getEquipment();
+        if (eq != null) {
+            eq.setItemInMainHand(new ItemStack(Material.GOLDEN_SWORD));
+            eq.setItemInMainHandDropChance(0.0f);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -44,36 +86,7 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
                 
                 // 10% chance to become a beekeeper
                 if (random.nextDouble() < 0.10) {
-                    zombie.getPersistentDataContainer().set(BEEKEEPER_KEY, PersistentDataType.BYTE, (byte) 1);
-                    
-                    // Set Custom Name
-                    EntityUtils.setCustomName(zombie, "&eZombi Apicultor");
-                    
-                    // Health (30 HP)
-                    AttributeInstance healthAttr = zombie.getAttribute(Attribute.MAX_HEALTH);
-                    if (healthAttr != null) {
-                        healthAttr.setBaseValue(30.0);
-                        zombie.setHealth(30.0);
-                    }
-                    
-                    // Double Attack Damage
-                    AttributeInstance damageAttr = zombie.getAttribute(Attribute.ATTACK_DAMAGE);
-                    if (damageAttr != null) {
-                        damageAttr.setBaseValue(damageAttr.getBaseValue() * 2.0);
-                    }
-                    
-                    EntityUtils.equipArmor(zombie, 
-                        new ItemStack(Material.BEE_NEST), 
-                        new ItemStack(Material.GOLDEN_CHESTPLATE), 
-                        new ItemStack(Material.GOLDEN_LEGGINGS), 
-                        new ItemStack(Material.GOLDEN_BOOTS), 
-                        0.0f);
-                        
-                    EntityEquipment eq = zombie.getEquipment();
-                    if (eq != null) {
-                        eq.setItemInMainHand(new ItemStack(Material.GOLDEN_SWORD));
-                        eq.setItemInMainHandDropChance(0.0f);
-                    }
+                    transform(zombie);
                 }
             }
         }

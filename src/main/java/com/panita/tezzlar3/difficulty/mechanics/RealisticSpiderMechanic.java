@@ -12,6 +12,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
+import org.bukkit.Location;
 
 import java.util.Random;
 
@@ -23,6 +26,22 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
     public RealisticSpiderMechanic(JavaPlugin plugin) {
         super(plugin, 5);
         REALISTIC_KEY = new NamespacedKey(plugin, "is_realistic");
+        CustomMobManager.register(CustomMobType.REALISTIC_SPIDER, this::spawnManual);
+    }
+
+    public void spawnManual(Location loc) {
+        Spider spider = loc.getWorld().spawn(loc, Spider.class);
+        transformGroup(spider);
+    }
+    
+    private void transformGroup(Spider spider) {
+        makeRealistic(spider);
+        int extraSpiders = random.nextInt(6) + 4; 
+        for (int i = 0; i < extraSpiders; i++) {
+            spider.getWorld().spawn(spider.getLocation(), Spider.class, newSpider -> {
+                makeRealistic(newSpider);
+            });
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -38,23 +57,11 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
             }
             
             if (EntityUtils.isValidNaturalSpawn(event.getSpawnReason())) {
-                
                 // Only 10% of natural spiders become Realistic Spiders
                 if (random.nextDouble() > 0.10) {
                     return;
                 }
-                
-                // Modify the original spider
-                makeRealistic(spider);
-                
-                // Spawn 4 to 9 additional spiders to make groups of 5 to 10
-                int extraSpiders = random.nextInt(6) + 4; 
-                
-                for (int i = 0; i < extraSpiders; i++) {
-                    spider.getWorld().spawn(spider.getLocation(), Spider.class, newSpider -> {
-                        makeRealistic(newSpider);
-                    });
-                }
+                transformGroup(spider);
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.panita.tezzlar3.difficulty;
 
 import com.panita.tezzlar3.core.modules.PluginModule;
+import com.panita.tezzlar3.core.commands.CommandRegistry;
 import com.panita.tezzlar3.difficulty.mechanics.AngryWolfMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SuffocationImmunityMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.AnimalOneShotMechanic;
@@ -46,6 +47,10 @@ import com.panita.tezzlar3.difficulty.mechanics.EternalFireMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.StrayFreezeMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.GlobalVariantsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.WitherSkeletonEliteGearMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ToxicMeatMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.MutatedSpiderMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.EternalNightMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ZombieRatatouilleMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -138,6 +143,12 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new StrayFreezeMechanic(plugin));
         mechanics.add(new GlobalVariantsMechanic(plugin));
         mechanics.add(new WitherSkeletonEliteGearMechanic(plugin));
+        
+        // Day 15
+        mechanics.add(new ToxicMeatMechanic(plugin));
+        mechanics.add(new MutatedSpiderMechanic(plugin));
+        mechanics.add(new EternalNightMechanic(plugin));
+        mechanics.add(new ZombieRatatouilleMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);

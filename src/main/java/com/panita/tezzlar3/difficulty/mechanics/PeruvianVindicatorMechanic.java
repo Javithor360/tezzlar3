@@ -17,6 +17,9 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
+import org.bukkit.Location;
 
 import java.util.Random;
 
@@ -35,6 +38,36 @@ public class PeruvianVindicatorMechanic extends DifficultyMechanic {
     public PeruvianVindicatorMechanic(JavaPlugin plugin) {
         super(plugin, 13);
         PERUVIAN_KEY = new NamespacedKey(plugin, "is_peruvian");
+        CustomMobManager.register(CustomMobType.PERUVIAN_VINDICATOR, this::spawnManual);
+    }
+    
+    public void spawnManual(Location loc) {
+        Llama llama = loc.getWorld().spawn(loc, Llama.class);
+        transform(llama);
+    }
+    
+    private void transform(Llama llama) {
+        llama.getPersistentDataContainer().set(PERUVIAN_KEY, PersistentDataType.BYTE, (byte) 1);
+        llama.setAdult();
+        llama.setTamed(true);
+        llama.getInventory().setDecor(new ItemStack(getRandomCarpet()));
+        
+        // Spawn Vindicator passenger
+        llama.getWorld().spawn(llama.getLocation(), Vindicator.class, vindicator -> {
+            vindicator.getPersistentDataContainer().set(PERUVIAN_KEY, PersistentDataType.BYTE, (byte) 1);
+            EntityUtils.setCustomName(vindicator, "<gradient:#E43434:#FFFFFF>Vindi</gradient><gradient:#FFFFFF:#FFFFFF>cator Pe</gradient><gradient:#FFFFFF:#E43434>ruano</gradient>");
+            
+            ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
+            axe.addUnsafeEnchantment(Enchantment.SHARPNESS, 6);
+            vindicator.getEquipment().setItemInMainHand(axe);
+            vindicator.getEquipment().setItemInMainHandDropChance(0.3f);
+            
+            llama.addPassenger(vindicator);
+            
+            EntityUtils.trySetAttribute(vindicator, Attribute.MAX_HEALTH, 35.0);
+            EntityUtils.trySetAttribute(vindicator, Attribute.FOLLOW_RANGE, 32.0); // Double follow range
+            vindicator.setHealth(35.0);
+        });
     }
 
     private Material getRandomCarpet() {
@@ -60,32 +93,8 @@ public class PeruvianVindicatorMechanic extends DifficultyMechanic {
                 
                 // 2% chance to spawn
                 if (random.nextDouble() < 0.02) {
-                    entity.getWorld().spawn(entity.getLocation(), Llama.class, llama -> {
-                        // Decorate and prepare llama
-                        llama.getPersistentDataContainer().set(PERUVIAN_KEY, PersistentDataType.BYTE, (byte) 1);
-                        llama.setAdult();
-                        llama.setTamed(true);
-                        llama.getInventory().setDecor(new ItemStack(getRandomCarpet()));
-                        
-                        // Spawn Vindicator passenger
-                        llama.getWorld().spawn(llama.getLocation(), Vindicator.class, vindicator -> {
-                            vindicator.getPersistentDataContainer().set(PERUVIAN_KEY, PersistentDataType.BYTE, (byte) 1);
-                            EntityUtils.setCustomName(vindicator, "<gradient:#E43434:#FFFFFF>Vindi</gradient><gradient:#FFFFFF:#FFFFFF>cator Pe</gradient><gradient:#FFFFFF:#E43434>ruano</gradient>");
-                            
-                            ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
-                            axe.addUnsafeEnchantment(Enchantment.SHARPNESS, 6);
-                            vindicator.getEquipment().setItemInMainHand(axe);
-                            vindicator.getEquipment().setItemInMainHandDropChance(0.3f);
-                            
-                            llama.addPassenger(vindicator);
-                            
-                            EntityUtils.trySetAttribute(vindicator, Attribute.MAX_HEALTH, 35.0);
-                            EntityUtils.trySetAttribute(vindicator, Attribute.FOLLOW_RANGE, 32.0); // Double follow range
-                            vindicator.setHealth(35.0);
-                        });
-                    });
-                    
                     event.setCancelled(true);
+                    spawnManual(entity.getLocation());
                 }
             }
         }

@@ -24,6 +24,8 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.SlimeSplitEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +50,7 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
         BOSS_KEY = new NamespacedKey(plugin, "giga_magma_cube");
         BLAZE_KEY = new NamespacedKey(plugin, "giga_blaze");
         MINION_KEY = new NamespacedKey(plugin, "giga_minion");
+        CustomMobManager.register(CustomMobType.GIGA_MAGMA_CUBE, this::spawnManual);
         
         // Scan for existing bosses that were loaded when the plugin started or chunk loaded
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
@@ -63,6 +66,16 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
                 }
             }
         }, 100L, 100L);
+    }
+    
+    public void spawnManual(Location loc) {
+        MagmaCube boss = (MagmaCube) loc.getWorld().spawnEntity(loc, EntityType.MAGMA_CUBE);
+        transform(boss);
+    }
+
+    private void transform(MagmaCube boss) {
+        boss.getPersistentDataContainer().set(BOSS_KEY, PersistentDataType.BYTE, (byte) 1);
+        activeBosses.put(boss.getUniqueId(), new GigaMagmaCubeBoss(boss, plugin, true));
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -92,12 +105,7 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
         }
         
         event.setCancelled(true);
-        
-        // Spawn the boss
-        MagmaCube boss = (MagmaCube) event.getLocation().getWorld().spawnEntity(event.getLocation(), EntityType.MAGMA_CUBE);
-        boss.getPersistentDataContainer().set(BOSS_KEY, PersistentDataType.BYTE, (byte) 1);
-        
-        activeBosses.put(boss.getUniqueId(), new GigaMagmaCubeBoss(boss, plugin, true));
+        spawnManual(event.getLocation());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
