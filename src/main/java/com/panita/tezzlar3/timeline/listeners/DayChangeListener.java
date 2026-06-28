@@ -6,6 +6,8 @@ import com.panita.tezzlar3.timeline.events.DayChangeEvent;
 import com.panita.tezzlar3.timeline.util.TimelineConfigDefaults;
 import com.panita.tezzlar3.missions.MissionsModule;
 import com.panita.tezzlar3.missions.data.PlayerMissionData;
+import com.panita.tezzlar3.minievents.MiniEventsModule;
+import com.panita.tezzlar3.minievents.MiniEventManager;
 import com.panita.tezzlar3.core.util.SoundUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

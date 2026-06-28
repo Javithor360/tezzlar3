@@ -2,6 +2,7 @@ package com.panita.tezzlar3.minievents;
 
 import com.panita.tezzlar3.core.modules.PluginModule;
 import com.panita.tezzlar3.minievents.impl.*;
+import com.panita.tezzlar3.Tezzlar;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MiniEventsModule implements PluginModule {
@@ -48,7 +49,9 @@ public class MiniEventsModule implements PluginModule {
         manager.registerEvent(new PositionSwapEvent());
         manager.registerEvent(new SpecialDropMobEvent());
         manager.registerEvent(new BloodMoonEvent());
-        
+        manager.registerEvent(new GlobalAcidRainEvent());
+        manager.registerEvent(new WrongToolDamageEvent());
+
         manager.init();
         enabled = true;
     }

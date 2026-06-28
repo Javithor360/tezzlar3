@@ -19,6 +19,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.NamespacedKey;
 import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
+import org.bukkit.Location;
 
 public class ChargedZombieMechanic extends DifficultyMechanic {
 
@@ -41,6 +44,28 @@ public class ChargedZombieMechanic extends DifficultyMechanic {
                 }
             }
         }, 10L, 10L); // Twice per second
+        
+        CustomMobManager.register(CustomMobType.CHARGED_ZOMBIE, this::spawnManual);
+    }
+
+    public void spawnManual(Location loc) {
+        Zombie zombie = loc.getWorld().spawn(loc, Zombie.class);
+        transform(zombie);
+    }
+
+    private void transform(Zombie zombie) {
+        // Set custom stats
+        EntityUtils.trySetAttribute(zombie, Attribute.MAX_HEALTH, 40.0);
+        zombie.setHealth(40.0);
+        EntityUtils.trySetAttribute(zombie, Attribute.ARMOR, 12.0);
+        EntityUtils.trySetAttribute(zombie, Attribute.ATTACK_DAMAGE, 8.0);
+        
+        // Set visuals
+        zombie.setInvisible(true);
+        EntityUtils.equipArmor(zombie, new ItemStack(Material.DIAMOND_HELMET), null, null, null, 0.0f);
+        
+        // Add custom identifier
+        zombie.getPersistentDataContainer().set(CHARGED_KEY, PersistentDataType.BYTE, (byte) 1);
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -55,19 +80,7 @@ public class ChargedZombieMechanic extends DifficultyMechanic {
             // 3% probability
             if (Math.random() < 0.03) {
                 Zombie zombie = (Zombie) event.getEntity();
-                
-                // Set custom stats
-                EntityUtils.trySetAttribute(zombie, Attribute.MAX_HEALTH, 40.0);
-                zombie.setHealth(40.0);
-                EntityUtils.trySetAttribute(zombie, Attribute.ARMOR, 12.0);
-                EntityUtils.trySetAttribute(zombie, Attribute.ATTACK_DAMAGE, 8.0);
-                
-                // Set visuals
-                zombie.setInvisible(true);
-                EntityUtils.equipArmor(zombie, new ItemStack(Material.DIAMOND_HELMET), null, null, null, 0.0f);
-                
-                // Add custom identifier
-                zombie.getPersistentDataContainer().set(CHARGED_KEY, PersistentDataType.BYTE, (byte) 1);
+                transform(zombie);
             }
         }
     }

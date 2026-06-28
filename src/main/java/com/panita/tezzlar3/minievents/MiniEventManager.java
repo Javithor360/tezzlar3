@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import com.panita.tezzlar3.core.util.Global;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class MiniEventManager {
@@ -96,9 +97,11 @@ public class MiniEventManager {
                     nextRouletteTicks = 72000L; // Reset to 1 hour
                     saveData(); // Save reset state
                     
-                    int probability = Tezzlar.getConfigManager().getInt("mini-events.probability", 10);
-                    if (random.nextInt(100) < probability) {
-                        startRoulette(null);
+                    if (TimeManager.getCurrentDay() >= 19) {
+                        int probability = Tezzlar.getConfigManager().getInt("mini-events.probability", 10);
+                        if (random.nextInt(100) < probability) {
+                            startRoulette(null);
+                        }
                     }
                 }
             }
