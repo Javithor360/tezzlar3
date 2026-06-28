@@ -57,6 +57,9 @@ import com.panita.tezzlar3.difficulty.mechanics.BabyMobRiderMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ChargedZombieMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.TeleportingSpawnsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.BabyKillCurseMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.VehicleDismountMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.DoubleDamageMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ApocalypticZombieMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -168,6 +171,11 @@ public class DifficultyModule implements PluginModule {
         
         // Day 18
         mechanics.add(new BabyKillCurseMechanic(plugin));
+        mechanics.add(new VehicleDismountMechanic(plugin));
+        
+        // Day 19
+        mechanics.add(new DoubleDamageMechanic(plugin));
+        mechanics.add(new ApocalypticZombieMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);

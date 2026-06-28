@@ -22,7 +22,8 @@ public class ZombieCavalryMechanic extends DifficultyMechanic {
     private final Random random = new Random();
     private final EntityType[] MOUNTS = {
             EntityType.HORSE, EntityType.ZOMBIE_HORSE, EntityType.SKELETON_HORSE, 
-            EntityType.LLAMA, EntityType.MULE, EntityType.DONKEY
+            EntityType.LLAMA, EntityType.MULE, EntityType.DONKEY, EntityType.CAMEL,
+            EntityType.CAMEL_HUSK
     };
 
     public ZombieCavalryMechanic(JavaPlugin plugin) {

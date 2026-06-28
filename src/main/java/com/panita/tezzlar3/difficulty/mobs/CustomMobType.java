@@ -13,7 +13,8 @@ public enum CustomMobType {
     SLIME_BANZAI(Material.SLIME_BALL, "<#7EF7B6>Slime Banzai</#7EF7B6>", 20.0, "Una variante muy resbalosa"),
     PERUVIAN_VINDICATOR(Material.VINDICATOR_SPAWN_EGG, "<gradient:#E43434:#FFFFFF>Vindi</gradient><gradient:#FFFFFF:#FFFFFF>cator Pe</gradient><gradient:#FFFFFF:#E43434>ruano</gradient>", 35.0, "- Montado en una llama<newline>- Con arma letal"),
     ZOMBIE_RATATOUILLE(Material.ZOMBIE_HEAD, "<#FFA35C>Zombie Ratatouille</#FFA35C>", 20.0, "Controlado por un conejo que lo hace inmune."),
-    CHARGED_ZOMBIE(Material.CREEPER_HEAD, "<#00FFFF>Zombie Cargado</#00FFFF>", 40.0, "- Aura azul y Casco de Diamante<newline>- Otorga Lentitud IV al golpear");
+    CHARGED_ZOMBIE(Material.CREEPER_HEAD, "<#00FFFF>Zombie Cargado</#00FFFF>", 40.0, "- Aura azul y Casco de Diamante<newline>- Otorga Lentitud IV al golpear"),
+    APOCALYPTIC_ZOMBIE(Material.BLACK_BANNER, "<gradient:#DB7A56:#F84E49>Zombie Apocalíptico</gradient>", 20.0, "- Fuerza II permanente<newline>- Invoca horda al acercarse");
 
     private final Material icon;
     private final String customName;

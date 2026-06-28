@@ -9,6 +9,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.core.chat.Messenger;
 
 public class TeleportingSpawnsMechanic extends DifficultyMechanic {
 
@@ -25,8 +26,8 @@ public class TeleportingSpawnsMechanic extends DifficultyMechanic {
         if (!EntityUtils.isValidNaturalSpawn(event.getSpawnReason())) return;
         
         if (event.getEntity() instanceof Monster) {
-            // 0.03% probability (0.0003)
-            if (Math.random() < 0.0003) {
+            // 0.5% probability (0.005)
+            if (Math.random() < 0.005) {
                 
                 // Execute teleport 1 tick later to guarantee
                 // that all spawn processes and attribute modifications (riders, armor, tags) are completed.
@@ -40,6 +41,7 @@ public class TeleportingSpawnsMechanic extends DifficultyMechanic {
                         // Subtle visual and sound effect to warn the player of the jump scare
                         nearest.getWorld().playSound(nearest.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
                         nearest.getWorld().spawnParticle(Particle.PORTAL, nearest.getLocation(), 30, 0.5, 1.0, 0.5, 0.1);
+                        Messenger.prefixedSend(nearest, "<red>Un " + event.getEntity().getType().name() + " se ha teletransportado a tu ubicación</red>");
                     }
                 });
             }
