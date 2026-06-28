@@ -32,7 +32,7 @@ public class DayChangeListener implements Listener {
         for (Player player : Bukkit.getOnlinePlayers()) {
             Messenger.showTitle(player, title, subtitle, Duration.ofSeconds(1), Duration.ofSeconds(4), Duration.ofSeconds(1));
             
-            PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player.getUniqueId());
+            PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player);
             if (data != null) {
                 data.setDayChangeAcknowledged(event.getNewDay());
             }

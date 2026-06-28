@@ -57,6 +57,8 @@ import com.panita.tezzlar3.difficulty.mechanics.NetherRoofWitherMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.BabyMobRiderMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ChargedZombieMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.TeleportingSpawnsMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.BabyKillCurseMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.LightLevelSevenSpawnsMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -161,10 +163,14 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new ExplosiveTotemMechanic(plugin));
         mechanics.add(new NetherRoofWitherMechanic(plugin));
         
-        // Día 17
+        // Day 17
         mechanics.add(new BabyMobRiderMechanic(plugin));
         mechanics.add(new ChargedZombieMechanic(plugin));
         mechanics.add(new TeleportingSpawnsMechanic(plugin));
+        
+        // Day 18
+        mechanics.add(new BabyKillCurseMechanic(plugin));
+        mechanics.add(new LightLevelSevenSpawnsMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);

@@ -13,6 +13,7 @@ import com.panita.tezzlar3.rebalance.RebalanceModule;
 import com.panita.tezzlar3.difficulty.DifficultyModule;
 import com.panita.tezzlar3.timeline.TimelineModule;
 import com.panita.tezzlar3.troll.TrollModule;
+import com.panita.tezzlar3.minievents.MiniEventsModule;
 import com.panita.tezzlar3.core.listeners.MenuListener;
 import com.panita.tezzlar3.core.papi.TezzlarPlaceholderExpansion;
 import org.bukkit.Bukkit;
@@ -50,6 +51,7 @@ public class Tezzlar extends JavaPlugin {
         moduleManager.register(new RebalanceModule());
         moduleManager.register(new DifficultyModule());
         moduleManager.register(new TrollModule());
+        moduleManager.register(new MiniEventsModule(this));
         
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new TezzlarPlaceholderExpansion().register();

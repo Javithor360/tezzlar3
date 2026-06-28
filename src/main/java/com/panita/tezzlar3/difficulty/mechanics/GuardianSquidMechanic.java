@@ -22,6 +22,7 @@ public class GuardianSquidMechanic extends DifficultyMechanic {
             if (Math.random() < 0.50) {
                 event.setCancelled(true);
                 Entity guardian = event.getLocation().getWorld().spawnEntity(event.getLocation(), EntityType.GUARDIAN);
+                guardian.setSilent(true);
                 NamespacedKey key = new NamespacedKey(plugin, "is_guardian_squid");
                 guardian.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
             }

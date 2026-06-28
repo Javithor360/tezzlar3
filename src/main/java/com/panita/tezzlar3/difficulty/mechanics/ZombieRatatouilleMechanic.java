@@ -3,6 +3,7 @@ package com.panita.tezzlar3.difficulty.mechanics;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Rabbit;
@@ -70,8 +71,8 @@ public class ZombieRatatouilleMechanic extends DifficultyMechanic {
         if (event.getEntity() instanceof Zombie zombie) {
             if (zombie.getPersistentDataContainer().has(RATATOUILLE_KEY, PersistentDataType.BYTE)) {
                 // If it still has the rabbit passenger, cancel damage
-                if (!zombie.getPassengers().isEmpty()) {
-                    for (org.bukkit.entity.Entity passenger : zombie.getPassengers()) {
+                if (zombie.getPassengers().size() > 0) {
+                    for (Entity passenger : zombie.getPassengers()) {
                         if (passenger instanceof Rabbit rabbit && rabbit.getPersistentDataContainer().has(RATATOUILLE_KEY, PersistentDataType.BYTE)) {
                             event.setCancelled(true);
                             return;

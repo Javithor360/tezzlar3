@@ -105,3 +105,10 @@ missions:
     HOSTILE_IRON_GOLEMS: "Los Gólems de Hierro te atacarán naturalmente."
     REGENERATION_TO_WITHER: "Recibes Wither II en lugar de Regeneración."
     WITHER_SKELETON_SPAWN_ON_DAMAGE: "Posibilidad de invocar Esqueletos Wither al recibir daño en el Nether."
+
+# Mini Events Module
+mini-events:
+  probability: 10
+  messages:
+    event_start: "<newline><yellow><b>¡EL MINI EVENTO HA COMENZADO!</b></yellow><newline>%event_name%<newline>"
+    event_end: "<newline><red><b>¡EL MINI EVENTO HA TERMINADO!</b></red><newline>%event_name%<newline>"

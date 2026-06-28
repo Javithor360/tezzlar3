@@ -4,6 +4,7 @@ import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.commands.dynamic.AdvancedCommand;
 import com.panita.tezzlar3.core.commands.dynamic.TabSuggestingCommand;
 import com.panita.tezzlar3.core.commands.identifiers.SubCommandSpec;
+import com.panita.tezzlar3.core.commands.identifiers.CommandMeta;
 import com.panita.tezzlar3.qol.util.CoordinatesManager;
 import org.bukkit.command.CommandSender;
 
@@ -48,7 +49,7 @@ public class CoordinatesInfo implements AdvancedCommand, TabSuggestingCommand {
     }
 
     @Override
-    public void applySuggestions(com.panita.tezzlar3.core.commands.identifiers.CommandMeta meta) {
+    public void applySuggestions(CommandMeta meta) {
         meta.setArgumentSuggestion(0, context -> CoordinatesManager.getAllNames().stream()
                 .filter(name -> name.toLowerCase().startsWith(context.getCurrentArg().toLowerCase()))
                 .toList());
