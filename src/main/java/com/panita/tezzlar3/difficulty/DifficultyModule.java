@@ -51,6 +51,9 @@ import com.panita.tezzlar3.difficulty.mechanics.ToxicMeatMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.MutatedSpiderMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EternalNightMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ZombieRatatouilleMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.GuardianSquidMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ExplosiveTotemMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.NetherRoofWitherMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -149,6 +152,11 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new MutatedSpiderMechanic(plugin));
         mechanics.add(new EternalNightMechanic(plugin));
         mechanics.add(new ZombieRatatouilleMechanic(plugin));
+        
+        // Day 16
+        mechanics.add(new GuardianSquidMechanic(plugin));
+        mechanics.add(new ExplosiveTotemMechanic(plugin));
+        mechanics.add(new NetherRoofWitherMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);
