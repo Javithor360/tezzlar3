@@ -245,7 +245,7 @@ public class Messenger {
         activeBars.clear();
     }
 
-    // ---> Titles <----
+    // ---> Titles & ActionBars <----
 
     /**
      * Shows a title and subtitle to a player with specified timings.
@@ -282,6 +282,26 @@ public class Messenger {
      */
     public static void clearTitle(Player player) {
         player.clearTitle();
+    }
+
+    /**
+     * Sends an action bar message to a player.
+     * @param player The player to send the action bar to.
+     * @param raw The raw message to send.
+     */
+    public static void sendActionBar(Player player, String raw) {
+        String parsed = applyPlaceholders(player, raw);
+        player.sendActionBar(mini(parsed));
+    }
+
+    /**
+     * Broadcasts an action bar message to all players.
+     * @param raw The raw message to send.
+     */
+    public static void broadcastActionBar(String raw) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            sendActionBar(player, raw);
+        }
     }
 
     // ---> Extra <----

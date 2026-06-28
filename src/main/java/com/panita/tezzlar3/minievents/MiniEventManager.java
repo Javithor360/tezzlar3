@@ -13,8 +13,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import net.kyori.adventure.bossbar.BossBar;
 import com.panita.tezzlar3.core.util.Global;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class MiniEventManager {
 
@@ -77,13 +77,11 @@ public class MiniEventManager {
                 if (activeEventRemainingTicks > 0) {
                     activeEventRemainingTicks -= 20; // 1 second passed
                     
-                    float progress = (float) activeEventRemainingTicks / activeEvent.getDurationTicks();
-                    progress = Math.max(0.0f, Math.min(1.0f, progress));
                     String timeStr = Global.formatTimeTicks(activeEventRemainingTicks);
-                    String barTitle = activeEvent.getDisplayName() + " <gray>(" + timeStr + ")</gray>";
-                    for (Player p : Bukkit.getOnlinePlayers()) {
-                        Messenger.showBossBar(p, "minievent_bar", barTitle, BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS, progress);
-                    }
+                    String cleanName = MiniMessage.miniMessage().stripTags(activeEvent.getDisplayName());
+                    String actionBarMsg = "<gray>" + cleanName + " (" + timeStr + ")</gray>";
+                    
+                    Messenger.broadcastActionBar(actionBarMsg);
                     
                     if (activeEventRemainingTicks <= 0) {
                         stopActiveEvent();
@@ -193,12 +191,6 @@ public class MiniEventManager {
             startMsg = startMsg.replace("%event_name%", event.getDisplayName());
             Messenger.broadcast(startMsg);
             Messenger.broadcast(event.getDescription());
-            
-            String timeStr = Global.formatTimeTicks(event.getDurationTicks());
-            String barTitle = event.getDisplayName() + " <gray>(" + timeStr + ")</gray>";
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                Messenger.showBossBar(p, "minievent_bar", barTitle, BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS, 1.0f);
-            }
         }
     }
     
@@ -211,10 +203,6 @@ public class MiniEventManager {
             activeEvent.stop(plugin);
             activeEvent = null;
             activeEventRemainingTicks = 0;
-            
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                Messenger.hideBossBar(p, "minievent_bar");
-            }
             
             saveData();
         }
@@ -246,13 +234,6 @@ public class MiniEventManager {
                                 event.loadExtraData(finalExtra);
                             }
                             event.start(plugin);
-                            
-                            float progress = (float) remaining / event.getDurationTicks();
-                            String timeStr = Global.formatTimeTicks(remaining);
-                            String barTitle = event.getDisplayName() + " <gray>(" + timeStr + ")</gray>";
-                            for (Player p : Bukkit.getOnlinePlayers()) {
-                                Messenger.showBossBar(p, "minievent_bar", barTitle, BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS, progress);
-                            }
                             break;
                         }
                     }
