@@ -37,6 +37,14 @@ public interface MiniEvent {
     }
 
     /**
+     * Checks if this event meets the conditions to be executed naturally by the roulette.
+     * @return true if it can execute, false otherwise.
+     */
+    default boolean canExecute() {
+        return true;
+    }
+
+    /**
      * Gets the description of the event for chat broadcasting (supports MiniMessage).
      */
     String getDescription();

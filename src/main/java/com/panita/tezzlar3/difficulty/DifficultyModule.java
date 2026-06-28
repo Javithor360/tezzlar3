@@ -1,7 +1,6 @@
 package com.panita.tezzlar3.difficulty;
 
 import com.panita.tezzlar3.core.modules.PluginModule;
-import com.panita.tezzlar3.core.commands.CommandRegistry;
 import com.panita.tezzlar3.difficulty.mechanics.AngryWolfMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SuffocationImmunityMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.AnimalOneShotMechanic;
@@ -58,7 +57,6 @@ import com.panita.tezzlar3.difficulty.mechanics.BabyMobRiderMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ChargedZombieMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.TeleportingSpawnsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.BabyKillCurseMechanic;
-import com.panita.tezzlar3.difficulty.mechanics.LightLevelSevenSpawnsMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -170,7 +168,6 @@ public class DifficultyModule implements PluginModule {
         
         // Day 18
         mechanics.add(new BabyKillCurseMechanic(plugin));
-        mechanics.add(new LightLevelSevenSpawnsMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);

@@ -14,6 +14,12 @@ import java.util.List;
 public class PositionSwapEvent implements MiniEvent {
 
     @Override
+    public boolean canExecute() {
+        long validPlayers = Bukkit.getOnlinePlayers().stream().filter(PlayerUtils::isSurvival).count();
+        return validPlayers >= 2;
+    }
+
+    @Override
     public void start(JavaPlugin plugin) {
         List<Player> players = new ArrayList<>();
         for (Player p : Bukkit.getOnlinePlayers()) {

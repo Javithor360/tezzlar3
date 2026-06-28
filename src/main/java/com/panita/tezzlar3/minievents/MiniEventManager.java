@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import net.kyori.adventure.bossbar.BossBar;
+import com.panita.tezzlar3.core.util.Global;
 
 public class MiniEventManager {
 
@@ -78,8 +79,10 @@ public class MiniEventManager {
                     
                     float progress = (float) activeEventRemainingTicks / activeEvent.getDurationTicks();
                     progress = Math.max(0.0f, Math.min(1.0f, progress));
+                    String timeStr = Global.formatTimeTicks(activeEventRemainingTicks);
+                    String barTitle = activeEvent.getDisplayName() + " <gray>(" + timeStr + ")</gray>";
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        Messenger.showBossBar(p, "minievent_bar", activeEvent.getDisplayName(), BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS, progress);
+                        Messenger.showBossBar(p, "minievent_bar", barTitle, BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS, progress);
                     }
                     
                     if (activeEventRemainingTicks <= 0) {
@@ -95,11 +98,9 @@ public class MiniEventManager {
                     nextRouletteTicks = 72000L; // Reset to 1 hour
                     saveData(); // Save reset state
                     
-                    if (TimeManager.getCurrentDay() >= 18) {
-                        int probability = Tezzlar.getConfigManager().getInt("mini-events.probability", 10);
-                        if (random.nextInt(100) < probability) {
-                            startRoulette(null);
-                        }
+                    int probability = Tezzlar.getConfigManager().getInt("mini-events.probability", 10);
+                    if (random.nextInt(100) < probability) {
+                        startRoulette(null);
                     }
                 }
             }
@@ -116,10 +117,20 @@ public class MiniEventManager {
     private void startRoulette(MiniEvent forcedTarget) {
         isRouletteSpinning = true;
         
-        final List<MiniEvent> pool = new ArrayList<>(registeredEvents);
+        List<MiniEvent> pool = new ArrayList<>();
+        for (MiniEvent e : registeredEvents) {
+            if (e.canExecute()) {
+                pool.add(e);
+            }
+        }
+        
         if (pool.isEmpty()) {
-            isRouletteSpinning = false;
-            return;
+            if (forcedTarget == null) {
+                isRouletteSpinning = false;
+                return;
+            } else {
+                pool = new ArrayList<>(registeredEvents); // Fallback for visual roulette
+            }
         }
         
         final MiniEvent targetEvent = (forcedTarget != null) ? forcedTarget : pool.get(random.nextInt(pool.size()));
@@ -183,8 +194,10 @@ public class MiniEventManager {
             Messenger.broadcast(startMsg);
             Messenger.broadcast(event.getDescription());
             
+            String timeStr = Global.formatTimeTicks(event.getDurationTicks());
+            String barTitle = event.getDisplayName() + " <gray>(" + timeStr + ")</gray>";
             for (Player p : Bukkit.getOnlinePlayers()) {
-                Messenger.showBossBar(p, "minievent_bar", event.getDisplayName(), BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS, 1.0f);
+                Messenger.showBossBar(p, "minievent_bar", barTitle, BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS, 1.0f);
             }
         }
     }
@@ -235,8 +248,10 @@ public class MiniEventManager {
                             event.start(plugin);
                             
                             float progress = (float) remaining / event.getDurationTicks();
+                            String timeStr = Global.formatTimeTicks(remaining);
+                            String barTitle = event.getDisplayName() + " <gray>(" + timeStr + ")</gray>";
                             for (Player p : Bukkit.getOnlinePlayers()) {
-                                Messenger.showBossBar(p, "minievent_bar", event.getDisplayName(), BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS, progress);
+                                Messenger.showBossBar(p, "minievent_bar", barTitle, BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS, progress);
                             }
                             break;
                         }
