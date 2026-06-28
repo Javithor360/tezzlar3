@@ -5,7 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.panita.tezzlar3.core.chat.Messenger;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 
 public class DoubleFallDamageMechanic extends DifficultyMechanic {
 
@@ -18,7 +18,11 @@ public class DoubleFallDamageMechanic extends DifficultyMechanic {
         if (!isActive()) return;
         
         if (event.getEntity() instanceof Player player && event.getCause() == EntityDamageEvent.DamageCause.FALL) {
-            event.setDamage(event.getDamage() * 2.0);
+            if (TimeManager.getCurrentDay() >= 17) {
+                event.setDamage(event.getDamage() * 3.0);
+            } else {
+                event.setDamage(event.getDamage() * 2.0);
+            }
         }
     }
 }
