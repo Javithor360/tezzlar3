@@ -13,10 +13,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import org.bukkit.boss.BossBar;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import com.panita.tezzlar3.core.util.ColorUtils;
+import net.kyori.adventure.bossbar.BossBar;
 
 public class MiniEventManager {
 
@@ -32,7 +29,6 @@ public class MiniEventManager {
     
     private final Random random = new Random();
     private int taskTaskId = -1;
-    private BossBar activeBossBar = null;
 
     public MiniEventManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -80,12 +76,10 @@ public class MiniEventManager {
                 if (activeEventRemainingTicks > 0) {
                     activeEventRemainingTicks -= 20; // 1 second passed
                     
-                    if (activeBossBar != null) {
-                        double progress = (double) activeEventRemainingTicks / activeEvent.getDurationTicks();
-                        activeBossBar.setProgress(Math.max(0.0, Math.min(1.0, progress)));
-                        for (Player p : Bukkit.getOnlinePlayers()) {
-                            activeBossBar.addPlayer(p);
-                        }
+                    float progress = (float) activeEventRemainingTicks / activeEvent.getDurationTicks();
+                    progress = Math.max(0.0f, Math.min(1.0f, progress));
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        Messenger.showBossBar(p, "minievent_bar", activeEvent.getDisplayName(), BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS, progress);
                     }
                     
                     if (activeEventRemainingTicks <= 0) {
@@ -189,15 +183,8 @@ public class MiniEventManager {
             Messenger.broadcast(startMsg);
             Messenger.broadcast(event.getDescription());
             
-            // Create BossBar
-            activeBossBar = Bukkit.createBossBar(
-                ColorUtils.translate(event.getDisplayName()),
-                BarColor.PURPLE,
-                BarStyle.SOLID
-            );
-            activeBossBar.setProgress(1.0);
             for (Player p : Bukkit.getOnlinePlayers()) {
-                activeBossBar.addPlayer(p);
+                Messenger.showBossBar(p, "minievent_bar", event.getDisplayName(), BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS, 1.0f);
             }
         }
     }
@@ -212,9 +199,8 @@ public class MiniEventManager {
             activeEvent = null;
             activeEventRemainingTicks = 0;
             
-            if (activeBossBar != null) {
-                activeBossBar.removeAll();
-                activeBossBar = null;
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                Messenger.hideBossBar(p, "minievent_bar");
             }
             
             saveData();
@@ -248,14 +234,9 @@ public class MiniEventManager {
                             }
                             event.start(plugin);
                             
-                            activeBossBar = Bukkit.createBossBar(
-                                ColorUtils.translate(event.getDisplayName()),
-                                BarColor.PURPLE,
-                                BarStyle.SOLID
-                            );
-                            activeBossBar.setProgress((double) remaining / event.getDurationTicks());
+                            float progress = (float) remaining / event.getDurationTicks();
                             for (Player p : Bukkit.getOnlinePlayers()) {
-                                activeBossBar.addPlayer(p);
+                                Messenger.showBossBar(p, "minievent_bar", event.getDisplayName(), BossBar.Color.PURPLE, BossBar.Overlay.PROGRESS, progress);
                             }
                             break;
                         }
