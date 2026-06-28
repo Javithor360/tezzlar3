@@ -26,7 +26,7 @@ public class MiniEventSummonMenu extends Menu {
 
     @Override
     public int getSlots() {
-        return 27; // 3 rows
+        return 45; // 5 rows
     }
 
     @Override
@@ -43,10 +43,11 @@ public class MiniEventSummonMenu extends Menu {
         MiniEventManager manager = MiniEventsModule.getManager();
         if (manager != null) {
             List<MiniEvent> events = manager.getRegisteredEvents();
-            int slot = 11;
+            int[] validSlots = {11, 12, 13, 14, 15, 16, 20, 21, 22, 23, 24, 25, 29, 30, 31, 32, 33, 34};
+            int i = 0;
             
             for (MiniEvent event : events) {
-                if (slot > 16) break; // prevent overflowing the row
+                if (i >= validSlots.length) break; // prevent overflowing the GUI
                 
                 Material icon = Material.PAPER;
                 switch (event.getId()) {
@@ -55,6 +56,8 @@ public class MiniEventSummonMenu extends Menu {
                     case "position_swap" -> icon = Material.ENDER_PEARL;
                     case "special_drop_mob" -> icon = Material.GOLD_BLOCK;
                     case "blood_moon" -> icon = Material.JACK_O_LANTERN;
+                    case "acid_rain_global" -> icon = Material.SLIME_BALL;
+                    case "wrong_tool_damage" -> icon = Material.WOODEN_PICKAXE;
                 }
                 
                 ItemStack eventItem = new ItemBuilder(icon)
@@ -62,8 +65,8 @@ public class MiniEventSummonMenu extends Menu {
                         .lore("<gray>Haz click para forzar</gray>", "<gray>este evento específico.</gray>", "", "<dark_gray>ID: " + event.getId() + "</dark_gray>")
                         .build();
                         
-                inventory.setItem(slot, eventItem);
-                slot++;
+                inventory.setItem(validSlots[i], eventItem);
+                i++;
             }
         }
     }
@@ -93,14 +96,23 @@ public class MiniEventSummonMenu extends Menu {
             // Random
             manager.forceRoulette(null);
             Messenger.prefixedSend(player, "<green>Forzando Ruleta (Aleatorio)...</green>");
-        } else if (slot >= 11 && slot <= 16) {
-            // Specific event
-            List<MiniEvent> events = manager.getRegisteredEvents();
-            int index = slot - 11;
-            if (index < events.size()) {
-                MiniEvent target = events.get(index);
-                manager.forceRoulette(target);
-                Messenger.prefixedSend(player, "<green>Forzando Ruleta (Destino: " + target.getDisplayName() + "<green>)...</green>");
+        } else {
+            int[] validSlots = {11, 12, 13, 14, 15, 16, 20, 21, 22, 23, 24, 25, 29, 30, 31, 32, 33, 34};
+            int index = -1;
+            for (int i = 0; i < validSlots.length; i++) {
+                if (validSlots[i] == slot) {
+                    index = i;
+                    break;
+                }
+            }
+            
+            if (index != -1) {
+                List<MiniEvent> events = manager.getRegisteredEvents();
+                if (index < events.size()) {
+                    MiniEvent target = events.get(index);
+                    manager.forceRoulette(target);
+                    Messenger.prefixedSend(player, "<green>Forzando Ruleta (Destino: " + target.getDisplayName() + "<green>)...</green>");
+                }
             }
         }
     }
