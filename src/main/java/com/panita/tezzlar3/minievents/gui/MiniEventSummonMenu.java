@@ -43,7 +43,7 @@ public class MiniEventSummonMenu extends Menu {
         MiniEventManager manager = MiniEventsModule.getManager();
         if (manager != null) {
             List<MiniEvent> events = manager.getRegisteredEvents();
-            int[] validSlots = {11, 12, 13, 14, 15, 16, 20, 21, 22, 23, 24, 25, 29, 30, 31, 32, 33, 34};
+            int[] validSlots = {11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34};
             int i = 0;
             
             for (MiniEvent event : events) {
@@ -97,7 +97,7 @@ public class MiniEventSummonMenu extends Menu {
             manager.forceRoulette(null);
             Messenger.prefixedSend(player, "<green>Forzando Ruleta (Aleatorio)...</green>");
         } else {
-            int[] validSlots = {11, 12, 13, 14, 15, 16, 20, 21, 22, 23, 24, 25, 29, 30, 31, 32, 33, 34};
+            int[] validSlots = {11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34};
             int index = -1;
             for (int i = 0; i < validSlots.length; i++) {
                 if (validSlots[i] == slot) {

@@ -92,7 +92,7 @@ public class PeruvianVindicatorMechanic extends DifficultyMechanic {
             if (env == World.Environment.NORMAL || env == World.Environment.THE_END) {
                 
                 // 2% chance to spawn
-                if (random.nextDouble() < 0.02) {
+                if (random.nextDouble() < 0.002) {
                     event.setCancelled(true);
                     spawnManual(entity.getLocation());
                 }
