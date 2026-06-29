@@ -73,8 +73,6 @@ public class MiniEventManager {
 
     private void startTask() {
         taskTaskId = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-            if (TimeManager.getCurrentDay() < 18) return;
-            
             // Handle active event timer
             if (activeEvent != null) {
                 if (activeEventRemainingTicks > 0) {

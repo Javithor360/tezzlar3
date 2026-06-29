@@ -71,14 +71,14 @@ public class FoodBuffMechanic implements Listener {
             if (day >= 2) {
                 if (type == Material.CARROT) {
                     if (CustomItemManager.isCustomItem(event.getItem(), "copper_carrot")) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 60, 0));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 60, 0, false, true, true));
                     }
                 } else if (type == Material.RABBIT_STEW) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 20 * 60, 1));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 20 * 60, 1, false, true, true));
                 } else if (type == Material.PUMPKIN_PIE) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 60, 0));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 60, 0, false, true, true));
                 } else if (type == Material.COOKIE) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 60, 1));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 60, 1, false, true, true));
                 } else if (type == Material.GLOW_BERRIES) {
                     EntityUtils.setColoredGlowing(player, NamedTextColor.GREEN);
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -87,9 +87,9 @@ public class FoodBuffMechanic implements Listener {
                         }
                     }, 20 * 60);
                 } else if (type == Material.SWEET_BERRIES) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, 1, 0));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, 1, 0, false, true, true));
                 } else if (type == Material.DRIED_KELP) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 30, 0));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 30, 0, false, true, true));
                 }
             }
         });
