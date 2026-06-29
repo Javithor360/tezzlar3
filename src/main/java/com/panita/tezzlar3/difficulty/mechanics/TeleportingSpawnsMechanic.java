@@ -41,7 +41,7 @@ public class TeleportingSpawnsMechanic extends DifficultyMechanic {
                         // Subtle visual and sound effect to warn the player of the jump scare
                         nearest.getWorld().playSound(nearest.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
                         nearest.getWorld().spawnParticle(Particle.PORTAL, nearest.getLocation(), 30, 0.5, 1.0, 0.5, 0.1);
-                        Messenger.prefixedSend(nearest, "<red>Un " + event.getEntity().getType().name() + " se ha teletransportado a tu ubicación</red>");
+                        Messenger.prefixedSend(nearest, "<red>Un mob se ha teletransportado a tu ubicación</red>");
                     }
                 });
             }

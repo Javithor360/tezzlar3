@@ -1,6 +1,8 @@
 package com.panita.tezzlar3.difficulty.commands;
 
 import com.panita.tezzlar3.core.commands.dynamic.AdvancedCommand;
+import com.panita.tezzlar3.core.commands.dynamic.TabSuggestingCommand;
+import com.panita.tezzlar3.core.commands.identifiers.CommandMeta;
 import com.panita.tezzlar3.core.commands.identifiers.CommandSpec;
 import com.panita.tezzlar3.core.chat.Messenger;
 import org.bukkit.World;
@@ -10,7 +12,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.SpawnCategory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
 @CommandSpec(
     name = "mobcap", 
@@ -19,8 +23,7 @@ import java.util.Map;
     syntax = "/mobcap", 
     playerOnly = true
 )
-public class MobcapCommand implements AdvancedCommand {
-
+public class MobcapCommand implements AdvancedCommand, TabSuggestingCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
         Player player = (Player) sender;
@@ -60,5 +63,10 @@ public class MobcapCommand implements AdvancedCommand {
         
         Messenger.send(player, "<dark_gray>----------------------------------------</dark_gray>");
         Messenger.send(player, "");
+    }
+
+    @Override
+    public void applySuggestions(CommandMeta meta) {
+        meta.setArgumentSuggestion(0, context -> Collections.singletonList("top"));
     }
 }

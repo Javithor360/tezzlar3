@@ -37,12 +37,12 @@ public class MutatedSpiderMechanic extends DifficultyMechanic {
             int amountOfEffects = random.nextInt(3) + 1; // 1 to 3
             
             List<PotionEffect> pool = new ArrayList<>();
-            pool.add(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 2)); // Strength 3
-            pool.add(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1)); // Speed 2
-            pool.add(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0)); // Invisibility
-            pool.add(new PotionEffect(PotionEffectType.REGENERATION, Integer.MAX_VALUE, 2)); // Regeneration 3
-            pool.add(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 0)); // Fire Resistance
-            pool.add(new PotionEffect(PotionEffectType.RESISTANCE, Integer.MAX_VALUE, 2)); // Resistance 3
+            pool.add(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 2, false, true, false)); // Strength 3
+            pool.add(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1, false, true, false)); // Speed 2
+            pool.add(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, true, false)); // Invisibility
+            pool.add(new PotionEffect(PotionEffectType.REGENERATION, Integer.MAX_VALUE, 2, false, true, false)); // Regeneration 3
+            pool.add(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 0, false, true, false)); // Fire Resistance
+            pool.add(new PotionEffect(PotionEffectType.RESISTANCE, Integer.MAX_VALUE, 2, false, true, false)); // Resistance 3
             
             Collections.shuffle(pool);
             
