@@ -40,7 +40,7 @@ public class BloodMoonEvent implements MiniEvent, Listener {
 
     @Override
     public String getDescription() {
-        return "&7Durante las próximas &b2 horas&7, los mobs hostiles portarán cabeza de calabaza. El poder de la luna les otorga:<newline>&3- &7Salud aumentada al triple.<newline>&3- &7Daño de ataque triple.<newline>&3- &7Efectos de poción para combate.<newline>&7Por lo tanto, no se recomienda permanecer en solitario.";
+        return "\n&7Durante las próximas &b2 horas&7, los mobs hostiles portarán cabeza de calabaza. El poder de la luna les otorga:\n\n&3- &7Salud aumentada al triple.\n&3- &7Daño de ataque triple.\n&3- &7Efectos de poción para combate.\n\n&7Por lo tanto, no se recomienda permanecer en solitario.";
     }
 
     @Override

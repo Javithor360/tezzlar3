@@ -58,7 +58,7 @@ public class  RandomPotionEvent implements MiniEvent {
 
     @Override
     public String getDescription() {
-        return "&7Todos los jugadores han recibido un efecto de poción al azar durante 10 minutos.";
+        return "\n&7Todos los jugadores han recibido un efecto de poción al azar durante 10 minutos.";
     }
 
     @Override

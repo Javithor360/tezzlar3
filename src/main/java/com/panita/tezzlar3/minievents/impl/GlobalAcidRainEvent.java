@@ -18,7 +18,7 @@ public class GlobalAcidRainEvent implements MiniEvent {
 
     @Override
     public String getDescription() {
-        return "&7Durante las próximas &b2 horas&7, un fenómeno climatológico altamente peligroso invadirá el terreno del Overworld.<newline>  &3- &7Permanecer bajo la lluvia te resta salud periódicamente.<newline>&7Por lo tanto, no se recomienda permanecer en la superficie durante periodos de tiempo extendidos.";
+        return "\n&7Durante las próximas &b2 horas&7, un fenómeno climatológico altamente peligroso invadirá el terreno del Overworld.\n\n&3- &7Permanecer bajo la lluvia te resta salud periódicamente.\n\n&7Por lo tanto, no se recomienda permanecer en la superficie durante periodos de tiempo extendidos.";
     }
 
     @Override

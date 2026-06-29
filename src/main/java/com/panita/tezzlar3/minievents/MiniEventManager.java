@@ -2,6 +2,7 @@ package com.panita.tezzlar3.minievents;
 
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.config.CustomConfig;
+import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.timeline.util.TimeManager;
 import com.panita.tezzlar3.Tezzlar;
 import org.bukkit.Bukkit;
@@ -168,7 +169,7 @@ public class MiniEventManager {
         }
         
         for (Player p : Bukkit.getOnlinePlayers()) {
-            Messenger.showTitle(p, "<obf><dark_gray>;;</obf> <b><gradient:#005155:#448367>¡Momento</gradient><gradient:#448367:#00566B> Pan</gradient><gradient:#00566B:#00566B>a!</gradient></b> <obf><dark_gray>;;", "<#FF69E2>→</#FF69E2>" + current.getDisplayName(), Duration.ZERO, Duration.ofMillis(delays[index] * 50L + 100L), Duration.ofMillis(100));
+            Messenger.showTitle(p, "<obf><dark_gray>;;</obf> <b><gradient:#005155:#448367>¡Momento</gradient><gradient:#448367:#00566B> Pan</gradient><gradient:#00566B:#00566B>a!</gradient></b> <obf><dark_gray>;;", "<#FF69E2>→</#FF69E2> " + current.getDisplayName(), Duration.ZERO, Duration.ofMillis(delays[index] * 50L + 100L), Duration.ofMillis(100));
         }
         
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -206,6 +207,7 @@ public class MiniEventManager {
             String endMsg = Tezzlar.getConfigManager().getString("mini-events.messages.event_end", "<red><b>¡EL MINI EVENTO HA TERMINADO!</b></red><newline>%event_name%<newline>");
             endMsg = endMsg.replace("%event_name%", activeEvent.getDisplayName());
             Messenger.prefixedBroadcast(endMsg);
+            SoundUtils.playGlobal("block.amethyst_cluster.break", 10, 0.0f);
             
             activeEvent.stop(plugin);
             activeEvent = null;

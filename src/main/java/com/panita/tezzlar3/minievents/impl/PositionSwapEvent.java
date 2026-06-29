@@ -60,7 +60,7 @@ public class PositionSwapEvent implements MiniEvent {
 
     @Override
     public String getDescription() {
-        return "&7Las posiciones de todos los jugadores conectados han sido revueltas al azar.";
+        return "\n\n&7Las posiciones de todos los jugadores conectados han sido revueltas al azar.";
     }
 
     @Override

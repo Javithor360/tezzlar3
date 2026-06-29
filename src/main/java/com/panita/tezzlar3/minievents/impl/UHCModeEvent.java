@@ -32,7 +32,7 @@ public class UHCModeEvent implements MiniEvent, Listener {
 
     @Override
     public String getDescription() {
-        return "&7Durante las próximas &b2 horas&7, el modo ultra hardcore estará activo.<newline>&3- &7No se podrá regenerar vida naturalmente.<newline>&3- &7Para curarte debes utilizar pociones.<newline>&7Por lo tanto, se recomienda andar con extremo cuidado.";
+        return "\n&7Durante las próximas &b2 horas&7, el modo ultra hardcore estará activo.\n\n&3- &7No se podrá regenerar vida naturalmente.\n&3- &7Para curarte debes utilizar pociones.\n\n&7Por lo tanto, se recomienda andar con extremo cuidado.";
     }
 
     @Override

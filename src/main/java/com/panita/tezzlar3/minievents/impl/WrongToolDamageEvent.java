@@ -32,7 +32,7 @@ public class WrongToolDamageEvent implements MiniEvent, Listener {
 
     @Override
     public String getDescription() {
-        return "&7Se nos informa que durante las próximas &b4 horas&7, hay una condición especial activada.<newline>&3- &7Romper bloques con la herramienta equivocada te provocará daño severo.<newline>&7Por lo tanto, se recomienda fijarse antes de romper cualquier bloque.";
+        return "\n&7Se nos informa que durante las próximas &b4 horas&7, hay una condición especial activada.\n\n&3- &7Romper bloques con la &bherramienta equivocada &7te provocará daño severo.\n\n&7Por lo tanto, se recomienda fijarse antes de romper cualquier bloque.";
     }
 
     @Override

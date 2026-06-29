@@ -55,9 +55,9 @@ public class SpecialDropMobEvent implements MiniEvent, Listener {
 
     @Override
     public String getDescription() {
-        String base = "Se ha reportado que durante los próximos &b30 minutos&7, los " + activeProfile.mobDisplayName() + "s &7tienen altas probabilidades de soltar ítems únicos al morir.\n";
+        String base = "\n&7Se ha reportado la aparición de un drop único durante los próximos &b30 minutos&7.\n\n";
         String prob = activeProfile.descriptionFragment();
-        return base + prob + "\n&7<i>* Tener en cuenta que el encantamiento de &bLooting &7incrementa aún más las probabilidades de obtener drops.</i></dark_gray>";
+        return base + prob + "\n\n&7<i>* Tener en cuenta que el encantamiento de &bLooting &7incrementa aún más las probabilidades de obtener drops.</i>";
     }
 
     @Override
