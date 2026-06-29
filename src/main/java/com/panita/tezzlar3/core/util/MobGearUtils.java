@@ -75,7 +75,8 @@ public class MobGearUtils {
     private static final Material[] OFFHAND_ITEMS = {
             Material.SHIELD, Material.TOTEM_OF_UNDYING, Material.GOAT_HORN, Material.ENDER_PEARL, Material.SPYGLASS, Material.COMPASS, 
             Material.WIND_CHARGE, Material.EGG, Material.BROWN_EGG, Material.BLUE_EGG, Material.MAP, Material.FILLED_MAP, Material.BRUSH,
-            Material.FLINT_AND_STEEL, Material.SNOWBALL, Material.BUNDLE
+            Material.FLINT_AND_STEEL, Material.SNOWBALL, Material.BUNDLE, Material.TORCH, Material.LANTERN, Material.SOUL_TORCH, Material.SOUL_LANTERN,
+            Material.COPPER_TORCH, Material.OXIDIZED_COPPER_LANTERN, Material.LEAD
     };
 
     public static boolean isValidMobTarget(LivingEntity entity) {

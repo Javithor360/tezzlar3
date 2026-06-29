@@ -1,5 +1,7 @@
 package com.panita.tezzlar3.rebalance.listeners;
 
+import com.panita.tezzlar3.qol.util.CustomItemManager;
+
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.timeline.util.TimeManager;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -27,7 +29,6 @@ public class FoodBuffMechanic implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onConsume(PlayerItemConsumeEvent event) {
-        if (TimeManager.getCurrentDay() < 15) return;
         
         Material type = event.getItem().getType();
         Player player = event.getPlayer();
@@ -58,14 +59,20 @@ public class FoodBuffMechanic implements Listener {
 
         // Schedule the overwrite 1 tick later to erase vanilla healing
         Bukkit.getScheduler().runTask(plugin, () -> {
-            player.setFoodLevel(Math.min(20, currentFood + finalAddedFood));
-            player.setSaturation(Math.min(player.getFoodLevel(), currentSat + finalAddedSat));
-            
-            // Apply special effects
             int day = TimeManager.getCurrentDay();
+            
+            // Food and saturation changes apply from day 15 onwards
+            if (day >= 15 && finalAddedFood > 0) {
+                player.setFoodLevel(Math.min(20, currentFood + finalAddedFood));
+                player.setSaturation(Math.min(player.getFoodLevel(), currentSat + finalAddedSat));
+            }
+            
+            // Extra effects apply from day 2 onwards
             if (day >= 2) {
                 if (type == Material.CARROT) {
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 60, 0));
+                    if (CustomItemManager.isCustomItem(event.getItem(), "copper_carrot")) {
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 60, 0));
+                    }
                 } else if (type == Material.RABBIT_STEW) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 20 * 60, 1));
                 } else if (type == Material.PUMPKIN_PIE) {

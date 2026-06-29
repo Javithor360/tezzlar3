@@ -15,6 +15,7 @@ import com.panita.tezzlar3.timeline.TimelineModule;
 import com.panita.tezzlar3.troll.TrollModule;
 import com.panita.tezzlar3.minievents.MiniEventsModule;
 import com.panita.tezzlar3.core.listeners.MenuListener;
+import com.panita.tezzlar3.core.listeners.RiderDismountListener;
 import com.panita.tezzlar3.core.papi.TezzlarPlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -40,6 +41,7 @@ public class Tezzlar extends JavaPlugin {
         
         // Register core listeners
         getServer().getPluginManager().registerEvents(new MenuListener(), this);
+        getServer().getPluginManager().registerEvents(new RiderDismountListener(), this);
         
         // Register Modules
         moduleManager = new ModuleManager(this);
