@@ -63,6 +63,7 @@ import com.panita.tezzlar3.difficulty.mechanics.DoubleDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ApocalypticZombieMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.OverworldToxicityMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.SpawnerMobBuffMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.OverworldToxicityMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -169,6 +170,7 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new ElderGuardianMechanic(plugin));
         mechanics.add(new ExplosiveTotemMechanic(plugin));
         mechanics.add(new NetherRoofWitherMechanic(plugin));
+        mechanics.add(new SpawnerMobBuffMechanic(plugin));
         
         // Day 17
         mechanics.add(new BabyMobRiderMechanic(plugin));

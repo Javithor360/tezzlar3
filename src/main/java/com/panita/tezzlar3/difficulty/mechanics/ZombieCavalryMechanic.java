@@ -15,6 +15,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 
 import java.util.Random;
 
@@ -37,6 +39,12 @@ public class ZombieCavalryMechanic extends DifficultyMechanic {
         if (!isActive()) return;
         
         LivingEntity entity = event.getEntity();
+        
+        if (event.getSpawnReason() == SpawnReason.SPAWNER) {
+            int day = TimeManager.getCurrentDay();
+            if (day >= 16 && day <= 18) return;
+        }
+        
         EntityType type = entity.getType();
         
         // Verify if it belongs to the Zombie family

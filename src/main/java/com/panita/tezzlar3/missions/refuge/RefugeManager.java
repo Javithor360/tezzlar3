@@ -17,6 +17,7 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
@@ -31,6 +32,7 @@ public class RefugeManager implements Listener {
     
     private final JavaPlugin plugin;
     private final NamespacedKey TNT_KEY;
+    private final NamespacedKey DOOMED_KEY;
     private BukkitTask timerTask;
     private int timeLeft;
     private boolean active = false;
@@ -41,6 +43,7 @@ public class RefugeManager implements Listener {
     public RefugeManager(JavaPlugin plugin) {
         this.plugin = plugin;
         this.TNT_KEY = new NamespacedKey(plugin, "refuge_tnt");
+        this.DOOMED_KEY = new NamespacedKey(plugin, "refuge_doomed");
     }
     
     public boolean isActive() {
@@ -51,6 +54,19 @@ public class RefugeManager implements Listener {
     public void onTntExplode(EntityExplodeEvent event) {
         if (event.getEntity() != null && event.getEntity().getPersistentDataContainer().has(TNT_KEY, PersistentDataType.BYTE)) {
             event.blockList().clear();
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        if (player.getPersistentDataContainer().has(DOOMED_KEY, PersistentDataType.BYTE)) {
+            player.getPersistentDataContainer().remove(DOOMED_KEY);
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                if (player.isOnline() && !player.isDead()) {
+                    player.setHealth(0.0); // Kills the player for evading the refuge death
+                }
+            }, 20L); // Wait 1 second after connecting
         }
     }
     
@@ -151,6 +167,8 @@ public class RefugeManager implements Listener {
             } else {
                 Messenger.prefixedBroadcast("&c" + player.getName() + " &7no llegó al refugio y sufrirá las consecuencias.");
                 
+                player.getPersistentDataContainer().set(DOOMED_KEY, PersistentDataType.BYTE, (byte) 1);
+                
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 999999, 255, false, false));
                 player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 999999, 200, false, false));
                 EntityUtils.setColoredGlowing(player, NamedTextColor.AQUA);
@@ -162,12 +180,16 @@ public class RefugeManager implements Listener {
                     @Override
                     public void run() {
                         if (!player.isOnline() || player.isDead()) {
+                            if (player.isDead()) {
+                                player.getPersistentDataContainer().remove(DOOMED_KEY);
+                            }
                             EntityUtils.removeColoredGlowing(player);
                             cancel();
                             return;
                         }
                         
                         if (ticks >= deathDelaySecs * 20) {
+                            player.getPersistentDataContainer().remove(DOOMED_KEY);
                             player.setHealth(0.0);
                             EntityUtils.removeColoredGlowing(player);
                             cancel();

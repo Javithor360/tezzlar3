@@ -9,6 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import com.panita.tezzlar3.core.chat.Messenger;
+import com.panita.tezzlar3.core.util.PlayerUtils;
 import com.panita.tezzlar3.timeline.util.TimeManager;
 
 public class OverworldToxicityMechanic extends DifficultyMechanic {
@@ -25,6 +26,8 @@ public class OverworldToxicityMechanic extends DifficultyMechanic {
             if (!isActive()) return;
             
             for (Player player : Bukkit.getOnlinePlayers()) {
+                if (!PlayerUtils.isSurvival(player)) continue;
+                
                 if (player.getWorld().getEnvironment() == World.Environment.NORMAL) {
                     int seconds = player.getPersistentDataContainer().getOrDefault(TOXICITY_KEY, PersistentDataType.INTEGER, 0);
                     seconds++;

@@ -7,7 +7,9 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 
 public class RandomMobGearMechanic extends DifficultyMechanic {
 
@@ -21,6 +23,11 @@ public class RandomMobGearMechanic extends DifficultyMechanic {
         if (!isActive()) return;
         
         LivingEntity entity = event.getEntity();
+        
+        if (event.getSpawnReason() == SpawnReason.SPAWNER) {
+            int day = TimeManager.getCurrentDay();
+            if (day >= 16 && day <= 18) return;
+        }
         
         if (!EntityUtils.isValidNaturalSpawn(event.getSpawnReason())) return;
         

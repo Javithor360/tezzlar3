@@ -20,6 +20,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.entity.Entity;
 import net.kyori.adventure.text.format.NamedTextColor;
+import com.panita.tezzlar3.core.util.PlayerUtils;
 
 import java.util.Base64;
 import java.util.UUID;
@@ -40,6 +41,8 @@ public class EntityUtils {
 
         for (Player player : world.getPlayers()) {
             if (!player.getWorld().equals(world)) continue;
+            
+            if (!PlayerUtils.isSurvival(player)) continue;
 
             double dist = player.getLocation().distanceSquared(loc);
             if (dist <= closest) {

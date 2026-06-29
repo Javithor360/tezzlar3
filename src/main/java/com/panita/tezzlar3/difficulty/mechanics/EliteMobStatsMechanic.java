@@ -11,6 +11,8 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.timeline.util.TimeManager;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
 public class EliteMobStatsMechanic extends DifficultyMechanic {
 
@@ -27,6 +29,14 @@ public class EliteMobStatsMechanic extends DifficultyMechanic {
         
         LivingEntity entity = event.getEntity();
         if (entity instanceof Player) return; // Never apply to players
+        
+        // Skip spawner mobs on days 16-18 because SpawnerMobBuffMechanic handles them with x3/x3/x4
+        if (event.getSpawnReason() == SpawnReason.SPAWNER) {
+            int currentDay = TimeManager.getCurrentDay();
+            if (currentDay >= 16 && currentDay <= 18) {
+                return;
+            }
+        }
         
         // Prevent infinite duplications (e.g. slimes splitting)
         if (entity.getPersistentDataContainer().has(ELITE_KEY, PersistentDataType.BYTE)) return;
