@@ -61,6 +61,10 @@ import com.panita.tezzlar3.difficulty.mechanics.BabyKillCurseMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.VehicleDismountMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubleDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ApocalypticZombieMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.OverworldToxicityMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.OverworldToxicityMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -178,6 +182,10 @@ public class DifficultyModule implements PluginModule {
         // Day 19
         mechanics.add(new DoubleDamageMechanic(plugin));
         mechanics.add(new ApocalypticZombieMechanic(plugin));
+        
+        // Day 20
+        mechanics.add(new OverworldToxicityMechanic(plugin));
+        mechanics.add(new EnderGuardianMechanic(plugin));
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);

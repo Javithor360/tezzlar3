@@ -5,6 +5,8 @@ import com.panita.tezzlar3.core.config.CustomConfig;
 import com.panita.tezzlar3.timeline.util.TimeManager;
 import com.panita.tezzlar3.Tezzlar;
 import org.bukkit.Bukkit;
+import com.panita.tezzlar3.difficulty.mechanics.BabyKillCurseMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.OverworldToxicityMechanic;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import com.panita.tezzlar3.core.util.Global;
-import com.panita.tezzlar3.timeline.util.TimeManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 public class MiniEventManager {
@@ -81,8 +82,11 @@ public class MiniEventManager {
                     String timeStr = Global.formatTimeTicks(activeEventRemainingTicks);
                     String cleanName = MiniMessage.miniMessage().stripTags(activeEvent.getDisplayName());
                     String actionBarMsg = "<gray>" + cleanName + " (" + timeStr + ")</gray>";
-                    
-                    Messenger.broadcastActionBar(actionBarMsg);
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        if (OverworldToxicityMechanic.isToxic(player)) continue;
+                        if (BabyKillCurseMechanic.isCursed(player)) continue;
+                        Messenger.sendActionBar(player, actionBarMsg);
+                    }
                     
                     if (activeEventRemainingTicks <= 0) {
                         stopActiveEvent();

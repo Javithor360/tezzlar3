@@ -13,13 +13,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import com.panita.tezzlar3.core.chat.Messenger;
 
 public class BabyKillCurseMechanic extends DifficultyMechanic {
 
     private final Map<UUID, Long> cursedPlayers = new HashMap<>();
+    private static BabyKillCurseMechanic instance;
 
     public BabyKillCurseMechanic(JavaPlugin plugin) {
         super(plugin, 18);
+        instance = this;
         
         // Timer to restore scale
         plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
@@ -36,10 +39,24 @@ public class BabyKillCurseMechanic extends DifficultyMechanic {
                         }
                     }
                     return true;
+                } else {
+                    Player player = plugin.getServer().getPlayer(entry.getKey());
+                    if (player != null && player.isOnline()) {
+                        if (!OverworldToxicityMechanic.isToxic(player)) {
+                            int remaining = (int) ((entry.getValue() - now) / 1000);
+                            String timeStr = String.format("%02d:%02d", remaining / 60, remaining % 60);
+                            Messenger.sendActionBar(player, "<gray>Tamaño reducido (" + timeStr + ")</gray>");
+                        }
+                    }
                 }
                 return false;
             });
         }, 20L, 20L); // check every second
+    }
+
+    public static boolean isCursed(Player player) {
+        if (instance == null || !instance.isActive()) return false;
+        return instance.cursedPlayers.containsKey(player.getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)

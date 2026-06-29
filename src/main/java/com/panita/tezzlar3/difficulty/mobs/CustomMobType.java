@@ -14,7 +14,8 @@ public enum CustomMobType {
     PERUVIAN_VINDICATOR(Material.VINDICATOR_SPAWN_EGG, "<gradient:#E43434:#FFFFFF>Vindi</gradient><gradient:#FFFFFF:#FFFFFF>cator Pe</gradient><gradient:#FFFFFF:#E43434>ruano</gradient>", 35.0, "- Montado en una llama<newline>- Con arma letal"),
     ZOMBIE_RATATOUILLE(Material.ZOMBIE_HEAD, "<#FFA35C>Zombie Ratatouille</#FFA35C>", 20.0, "Controlado por un conejo que lo hace inmune."),
     CHARGED_ZOMBIE(Material.CREEPER_HEAD, "<#00FFFF>Zombie Cargado</#00FFFF>", 40.0, "- Aura azul y Casco de Diamante<newline>- Otorga Lentitud IV al golpear"),
-    APOCALYPTIC_ZOMBIE(Material.BLACK_BANNER, "<gradient:#DB7A56:#F84E49>Zombie Apocalíptico</gradient>", 20.0, "- Fuerza II permanente<newline>- Invoca horda al acercarse");
+    APOCALYPTIC_ZOMBIE(Material.BLACK_BANNER, "<gradient:#DB7A56:#F84E49>Zombie Apocalíptico</gradient>", 20.0, "- Fuerza II permanente<newline>- Invoca horda al acercarse"),
+    ENDER_GUARDIAN(Material.ENDERMAN_SPAWN_EGG, "<#6b54ff>EnderGuardian</#6b54ff>", 40.0, "- Enderman con un Guardián montado<newline>- El guardián se teletransporta con él");
 
     private final Material icon;
     private final String customName;
