@@ -1,5 +1,6 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.core.util.SoundUtils;
@@ -214,7 +215,7 @@ public class GigaMagmaCubeBoss {
     
     private void alertPlayers(List<Player> players, String attackName) {
         for (Player p : players) {
-            Messenger.prefixedSend(p, "<#FF5252>⚠ ¡El Giga Magma Cube se prepara para <b>" + attackName + "</b>!</#FF5252>");
+            Messenger.prefixedSend(p, "<#FF5252>¡El Giga Magma Cube se prepara para <#FFF200>" + attackName + "</#FFF200>!</#FF5252>");
             SoundUtils.play(p, "entity.wither.ambient", 1, 0.5f);
         }
     }
@@ -271,7 +272,7 @@ public class GigaMagmaCubeBoss {
             int amount = 1 + random.nextInt(3); // 1 to 3
             for (int i = 0; i < amount; i++) {
                 Location loc = p.getLocation().add(random.nextInt(5) - 2, 1, random.nextInt(5) - 2);
-                MagmaCube minion = (MagmaCube) p.getWorld().spawnEntity(loc, EntityType.MAGMA_CUBE);
+                MagmaCube minion = (MagmaCube) EntityUtils.spawnNatural(loc, EntityType.MAGMA_CUBE);
                 EntityUtils.setCustomName(minion, "<#FFCA28>Magma Cube Secuaz</#FFCA28>");
                 minion.getPersistentDataContainer().set(GigaMagmaCubeMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
                 try {
@@ -333,7 +334,7 @@ public class GigaMagmaCubeBoss {
         int amount = 3 + random.nextInt(8); // 3 to 10
         for (int i = 0; i < amount; i++) {
             Location loc = boss.getLocation().add(random.nextInt(20) - 10, 15 + random.nextInt(10), random.nextInt(20) - 10);
-            Ghast ghast = (Ghast) boss.getWorld().spawnEntity(loc, EntityType.GHAST);
+            Ghast ghast = (Ghast) EntityUtils.spawnNatural(loc, EntityType.GHAST);
             EntityUtils.setCustomName(ghast, "<#FFCA28>Ghast Secuaz</#FFCA28>");
             try {
                 if (ghast.getAttribute(Attribute.FOLLOW_RANGE) != null) ghast.getAttribute(Attribute.FOLLOW_RANGE).setBaseValue(100.0);
@@ -345,7 +346,7 @@ public class GigaMagmaCubeBoss {
         alertPlayers(players, "una Invocación Tormentosa");
         for (Player p : players) {
             Location loc = p.getLocation().add(random.nextInt(10) - 5, 5, random.nextInt(10) - 5);
-            Blaze blaze = (Blaze) p.getWorld().spawnEntity(loc, EntityType.BLAZE);
+            Blaze blaze = (Blaze) EntityUtils.spawnNatural(loc, EntityType.BLAZE);
             EntityUtils.setCustomName(blaze, "<#FFCA28>Blaze Secuaz</#FFCA28>");
             blaze.getPersistentDataContainer().set(GigaMagmaCubeMechanic.BLAZE_KEY, PersistentDataType.BYTE, (byte) 1);
             try {

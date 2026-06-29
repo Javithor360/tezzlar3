@@ -1,4 +1,5 @@
 package com.panita.tezzlar3.difficulty.mechanics;
+import com.panita.tezzlar3.core.util.EntityUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
@@ -60,7 +61,7 @@ public class ZombieCavalryMechanic extends DifficultyMechanic {
                     if (mainHand != null && mainHand.getType().name().contains("SPEAR")) {
                         
                         EntityType mountType = MOUNTS[random.nextInt(MOUNTS.length)];
-                        LivingEntity mount = (LivingEntity) entity.getWorld().spawnEntity(entity.getLocation(), mountType);
+                        LivingEntity mount = (LivingEntity) EntityUtils.spawnNatural(entity.getLocation(), mountType);
                         
                         // Double the speed of the mount
                         AttributeInstance speed = mount.getAttribute(Attribute.MOVEMENT_SPEED);

@@ -1,5 +1,7 @@
 package com.panita.tezzlar3.missions.handlers.punishments;
+import com.panita.tezzlar3.core.util.EntityUtils;
 
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.missions.MissionsModule;
 import com.panita.tezzlar3.missions.data.PlayerMissionData;
@@ -42,7 +44,7 @@ public class WitherSkeletonSpawnPunishmentHandler implements PunishmentHandler, 
                 PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player);
                 if (data != null && data.hasPunishment(getId())) {
                     if (Math.random() <= spawnChance) {
-                        WitherSkeleton skeleton = (WitherSkeleton) player.getWorld().spawnEntity(player.getLocation(), EntityType.WITHER_SKELETON);
+                        WitherSkeleton skeleton = (WitherSkeleton) EntityUtils.spawnNatural(player.getLocation(), EntityType.WITHER_SKELETON);
                         
                         // Prevent drops
                         if (skeleton.getEquipment() != null) {

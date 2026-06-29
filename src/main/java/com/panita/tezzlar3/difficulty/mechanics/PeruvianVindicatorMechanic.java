@@ -1,16 +1,12 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
 import com.panita.tezzlar3.core.util.EntityUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Llama;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Vindicator;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -42,7 +38,7 @@ public class PeruvianVindicatorMechanic extends DifficultyMechanic {
     }
     
     public void spawnManual(Location loc) {
-        Llama llama = loc.getWorld().spawn(loc, Llama.class);
+        Llama llama = (Llama) EntityUtils.spawnNatural(loc, EntityType.LLAMA);
         transform(llama);
     }
     
@@ -61,7 +57,7 @@ public class PeruvianVindicatorMechanic extends DifficultyMechanic {
             axe.addUnsafeEnchantment(Enchantment.SHARPNESS, 6);
             vindicator.getEquipment().setItemInMainHand(axe);
             vindicator.getEquipment().setItemInMainHandDropChance(0.3f);
-            
+
             llama.addPassenger(vindicator);
             
             EntityUtils.trySetAttribute(vindicator, Attribute.MAX_HEALTH, 35.0);

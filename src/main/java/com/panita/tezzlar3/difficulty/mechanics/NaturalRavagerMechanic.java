@@ -43,8 +43,7 @@ public class NaturalRavagerMechanic extends DifficultyMechanic {
         
         event.setCancelled(true);
         
-        event.getLocation().getWorld().spawn(event.getLocation(), Ravager.class, ravager -> {
-            ravager.getPersistentDataContainer().set(RAVAGER_KEY, PersistentDataType.BYTE, (byte) 1);
-        });
+        Ravager ravager = (Ravager) EntityUtils.spawnNatural(event.getLocation(), EntityType.RAVAGER);
+        ravager.getPersistentDataContainer().set(RAVAGER_KEY, PersistentDataType.BYTE, (byte) 1);
     }
 }

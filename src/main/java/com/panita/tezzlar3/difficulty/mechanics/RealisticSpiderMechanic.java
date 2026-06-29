@@ -1,11 +1,11 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
-import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.CaveSpider;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Spider;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -15,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
 import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
 import org.bukkit.Location;
+import org.bukkit.util.Vector;
 
 import java.util.Random;
 
@@ -30,7 +31,7 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
     }
 
     public void spawnManual(Location loc) {
-        Spider spider = loc.getWorld().spawn(loc, Spider.class);
+        Spider spider = (Spider) EntityUtils.spawnNatural(loc, EntityType.SPIDER);
         transformGroup(spider);
     }
     
@@ -38,9 +39,10 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
         makeRealistic(spider);
         int extraSpiders = random.nextInt(6) + 4; 
         for (int i = 0; i < extraSpiders; i++) {
-            spider.getWorld().spawn(spider.getLocation(), Spider.class, newSpider -> {
-                makeRealistic(newSpider);
-            });
+            Spider newSpider = (Spider) EntityUtils.spawnNatural(spider.getLocation(), EntityType.SPIDER);
+            makeRealistic(newSpider);
+            // Apply a small velocity outwards
+            newSpider.setVelocity(new Vector((random.nextDouble() - 0.5) * 0.5, 0.3, (random.nextDouble() - 0.5) * 0.5));
         }
     }
 

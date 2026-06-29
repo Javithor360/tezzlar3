@@ -1,18 +1,17 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
-import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.core.util.ItemUtils;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
@@ -33,7 +32,7 @@ public class InfraredSkeletonMechanic extends DifficultyMechanic {
     }
 
     public void spawnManual(Location loc) {
-        Skeleton skeleton = loc.getWorld().spawn(loc, Skeleton.class);
+        Skeleton skeleton = (Skeleton) EntityUtils.spawnNatural(loc, EntityType.SKELETON);
         transform(skeleton);
     }
 

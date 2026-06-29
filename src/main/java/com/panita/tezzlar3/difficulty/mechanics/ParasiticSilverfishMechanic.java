@@ -7,11 +7,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Silverfish;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -69,7 +65,7 @@ public class ParasiticSilverfishMechanic extends DifficultyMechanic {
     }
     
     public void spawnManual(Location loc) {
-        Silverfish silverfish = loc.getWorld().spawn(loc, Silverfish.class);
+        Silverfish silverfish = (Silverfish) EntityUtils.spawnNatural(loc, EntityType.SILVERFISH);
         makeParasite(silverfish);
     }
 
@@ -104,7 +100,8 @@ public class ParasiticSilverfishMechanic extends DifficultyMechanic {
             
             // 15% chance to clone on hit
             if (random.nextDouble() < 0.25) {
-                parasite.getWorld().spawn(parasite.getLocation(), Silverfish.class, this::makeParasite);
+                Silverfish newParasite = (Silverfish) EntityUtils.spawnNatural(parasite.getLocation(), EntityType.SILVERFISH);
+                makeParasite(newParasite);
             }
             
             // If attacking player, attempt to mount

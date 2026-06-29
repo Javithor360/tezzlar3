@@ -50,7 +50,7 @@ public class LightningSkeletonMechanic extends DifficultyMechanic {
     }
 
     public void spawnManual(Location loc) {
-        Skeleton skeleton = loc.getWorld().spawn(loc, Skeleton.class);
+        Skeleton skeleton = (Skeleton) EntityUtils.spawnNatural(loc, EntityType.SKELETON);
         transform(skeleton);
     }
     

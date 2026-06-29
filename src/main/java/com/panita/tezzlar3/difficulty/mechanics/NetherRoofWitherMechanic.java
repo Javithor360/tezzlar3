@@ -1,4 +1,5 @@
 package com.panita.tezzlar3.difficulty.mechanics;
+import com.panita.tezzlar3.core.util.EntityUtils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -25,7 +26,7 @@ public class NetherRoofWitherMechanic extends DifficultyMechanic {
                         // Check if standing on bedrock
                         if (player.getLocation().getBlock().getRelative(0, -1, 0).getType() == Material.BEDROCK) {
                             if (Math.random() < 0.10) {
-                                Entity wither = player.getWorld().spawnEntity(player.getLocation().add(0, 1, 0), EntityType.WITHER);
+                                Entity wither = EntityUtils.spawnNatural(player.getLocation().add(0, 1, 0), EntityType.WITHER);
                                 // Mark the Wither so it doesn't drop a nether star
                                 wither.addScoreboardTag("roof_wither");
                             }

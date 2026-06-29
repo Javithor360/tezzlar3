@@ -49,7 +49,7 @@ public class ChargedZombieMechanic extends DifficultyMechanic {
     }
 
     public void spawnManual(Location loc) {
-        Zombie zombie = loc.getWorld().spawn(loc, Zombie.class);
+        Zombie zombie = (Zombie) EntityUtils.spawnNatural(loc, EntityType.ZOMBIE);
         transform(zombie);
     }
 

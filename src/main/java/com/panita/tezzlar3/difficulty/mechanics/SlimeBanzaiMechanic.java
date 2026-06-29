@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Slime;
@@ -31,7 +32,7 @@ public class SlimeBanzaiMechanic extends DifficultyMechanic {
     }
 
     public void spawnManual(Location loc) {
-        Slime slime = loc.getWorld().spawn(loc, Slime.class);
+        Slime slime = (Slime) EntityUtils.spawnNatural(loc, EntityType.SLIME);
         transform(slime);
     }
 

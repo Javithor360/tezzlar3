@@ -69,7 +69,7 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
     }
     
     public void spawnManual(Location loc) {
-        MagmaCube boss = (MagmaCube) loc.getWorld().spawnEntity(loc, EntityType.MAGMA_CUBE);
+        MagmaCube boss = (MagmaCube) EntityUtils.spawnNatural(loc, EntityType.MAGMA_CUBE);
         transform(boss);
     }
 
@@ -154,7 +154,7 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
             if (event.getEntity() instanceof Player p) {
                 if (random.nextInt(100) < 10) {
                     Location loc = p.getLocation().add(random.nextInt(5) - 2, 1, random.nextInt(5) - 2);
-                    MagmaCube newMinion = (MagmaCube) p.getWorld().spawnEntity(loc, EntityType.MAGMA_CUBE);
+                    MagmaCube newMinion = (MagmaCube) EntityUtils.spawnNatural(loc, EntityType.MAGMA_CUBE);
                     EntityUtils.setCustomName(newMinion, "<#FFCA28>Magma Cube Secuaz</#FFCA28>");
                     newMinion.getPersistentDataContainer().set(MINION_KEY, PersistentDataType.BYTE, (byte) 1);
                 }

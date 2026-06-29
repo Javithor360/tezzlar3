@@ -1,6 +1,7 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
 import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.core.util.PlayerUtils;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -24,6 +25,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.Location;
+import com.panita.tezzlar3.core.util.PlayerUtils;
 import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
 import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
 
@@ -88,11 +90,11 @@ public class ApocalypticZombieMechanic extends DifficultyMechanic {
 
                 if (!spawnedReinforcements) {
                     Player nearest = EntityUtils.getNearestPlayer(entity.getLocation(), 5.0);
-                    if (nearest != null) {
+                    if (nearest != null && PlayerUtils.isSurvival(nearest)) {
                         spawnedReinforcements = true;
                         int count = 5 + (int) (Math.random() * 6); // 5 to 10
                         for (int i = 0; i < count; i++) {
-                            entity.getWorld().spawnEntity(entity.getLocation(), EntityType.ZOMBIE, CreatureSpawnEvent.SpawnReason.NATURAL);
+                            EntityUtils.spawnNatural(entity.getLocation(), EntityType.ZOMBIE);
                         }
                         nearest.getWorld().playSound(entity.getLocation(), Sound.ENTITY_ZOMBIE_AMBIENT, 2.0f, 0.5f);
                     }

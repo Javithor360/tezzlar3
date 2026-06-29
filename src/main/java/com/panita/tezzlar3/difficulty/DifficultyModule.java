@@ -50,7 +50,8 @@ import com.panita.tezzlar3.difficulty.mechanics.ToxicMeatMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.MutatedSpiderMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EternalNightMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ZombieRatatouilleMechanic;
-import com.panita.tezzlar3.difficulty.mechanics.GuardianSquidMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.IllagerGuardianMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ElderGuardianMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ExplosiveTotemMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.NetherRoofWitherMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.BabyMobRiderMechanic;
@@ -160,7 +161,8 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new ZombieRatatouilleMechanic(plugin));
         
         // Day 16
-        mechanics.add(new GuardianSquidMechanic(plugin));
+        mechanics.add(new IllagerGuardianMechanic(plugin));
+        mechanics.add(new ElderGuardianMechanic(plugin));
         mechanics.add(new ExplosiveTotemMechanic(plugin));
         mechanics.add(new NetherRoofWitherMechanic(plugin));
         

@@ -39,7 +39,7 @@ public class ShinyPiglinMechanic extends DifficultyMechanic {
     }
 
     public void spawnManual(Location loc) {
-        Piglin piglin = loc.getWorld().spawn(loc, Piglin.class);
+        Piglin piglin = (Piglin) EntityUtils.spawnNatural(loc, EntityType.PIGLIN);
         piglin.setAdult(); 
         makeShiny(piglin);
     }

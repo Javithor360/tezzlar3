@@ -32,7 +32,7 @@ public class ZombieRatatouilleMechanic extends DifficultyMechanic {
     }
     
     public void spawnManual(Location loc) {
-        Zombie zombie = loc.getWorld().spawn(loc, Zombie.class);
+        Zombie zombie = (Zombie) EntityUtils.spawnNatural(loc, EntityType.ZOMBIE);
         transform(zombie);
     }
     
@@ -40,7 +40,7 @@ public class ZombieRatatouilleMechanic extends DifficultyMechanic {
         zombie.getPersistentDataContainer().set(RATATOUILLE_KEY, PersistentDataType.BYTE, (byte) 1);
         EntityUtils.setCustomName(zombie, "<#FFA35C>Zombie Ratatouille</#FFA35C>");
         
-        Rabbit rabbit = (Rabbit) zombie.getWorld().spawnEntity(zombie.getLocation(), EntityType.RABBIT);
+        Rabbit rabbit = (Rabbit) EntityUtils.spawnNatural(zombie.getLocation(), EntityType.RABBIT);
         rabbit.getPersistentDataContainer().set(RATATOUILLE_KEY, PersistentDataType.BYTE, (byte) 1);
         
         EntityUtils.trySetAttribute(rabbit, Attribute.MAX_HEALTH, 5.0);

@@ -5,10 +5,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Bee;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Zombie;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -39,7 +36,7 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
     }
 
     public void spawnManual(Location loc) {
-        Zombie zombie = loc.getWorld().spawn(loc, Zombie.class);
+        Zombie zombie = (Zombie) EntityUtils.spawnNatural(loc, EntityType.ZOMBIE);
         transform(zombie);
     }
 
@@ -124,7 +121,7 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
                 }
 
                 // Spawn angry bee
-                Bee bee = zombie.getWorld().spawn(zombie.getLocation().add(0, 1.5, 0), Bee.class);
+                Bee bee = (Bee) EntityUtils.spawnNatural(zombie.getLocation().add(0, 1.5, 0), EntityType.BEE);
                 
                 // Double bee health
                 AttributeInstance beeHealthAttr = bee.getAttribute(Attribute.MAX_HEALTH);

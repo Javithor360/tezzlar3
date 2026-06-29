@@ -1,5 +1,6 @@
 package com.panita.tezzlar3.troll.util;
 
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.troll.listeners.TrollListener;
@@ -55,7 +56,7 @@ public class TrollManager {
 
     public static void executeFakeCreeper(Player target) {
         Location loc = target.getLocation().subtract(target.getLocation().getDirection().normalize().multiply(1.5));
-        Creeper creeper = (Creeper) target.getWorld().spawnEntity(loc, EntityType.CREEPER);
+        Creeper creeper = (Creeper) EntityUtils.spawnNatural(loc, EntityType.CREEPER);
         creeper.setPowered(true);
         creeper.setExplosionRadius(0);
         creeper.setTarget(target);
@@ -80,7 +81,7 @@ public class TrollManager {
         NamespacedKey parasiteKey = new NamespacedKey(Tezzlar.getInstance(), "is_parasite");
         
         for (int i = 0; i < 5; i++) {
-            Silverfish sf = (Silverfish) loc.getWorld().spawnEntity(loc, EntityType.SILVERFISH);
+            Silverfish sf = (Silverfish) EntityUtils.spawnNatural(loc, EntityType.SILVERFISH);
             sf.setTarget(target);
             
             // The first one is the parasite

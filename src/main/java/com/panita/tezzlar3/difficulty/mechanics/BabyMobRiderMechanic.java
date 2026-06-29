@@ -26,7 +26,7 @@ public class BabyMobRiderMechanic extends DifficultyMechanic {
             if (event.getEntity() instanceof WaterMob || event.getEntityType() == EntityType.TURTLE) return;
             
             // Spawn zombie rider
-            Zombie zombie = (Zombie) event.getLocation().getWorld().spawnEntity(event.getLocation(), EntityType.ZOMBIE);
+            Zombie zombie = (Zombie) EntityUtils.spawnNatural(event.getLocation(), EntityType.ZOMBIE);
             ageable.addPassenger(zombie);
         }
     }

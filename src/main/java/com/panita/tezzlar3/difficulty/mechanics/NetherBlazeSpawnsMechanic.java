@@ -2,6 +2,7 @@ package com.panita.tezzlar3.difficulty.mechanics;
 
 import org.bukkit.World;
 import org.bukkit.entity.Blaze;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Monster;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -32,7 +33,7 @@ public class NetherBlazeSpawnsMechanic extends DifficultyMechanic {
                     event.setCancelled(true);
                     int amount = random.nextInt(4) + 1; // 1 to 4 blazes
                     for (int i = 0; i < amount; i++) {
-                        event.getEntity().getWorld().spawn(event.getLocation(), Blaze.class);
+                        EntityUtils.spawnNatural(event.getLocation(), EntityType.BLAZE);
                     }
                 }
             }

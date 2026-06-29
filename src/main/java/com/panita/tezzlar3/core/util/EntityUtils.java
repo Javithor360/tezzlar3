@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -92,14 +93,31 @@ public class EntityUtils {
         return skull;
     }
 
+    public static boolean isPluginSpawning = false;
+
     /**
      * Checks if a spawn reason is considered natural or valid for applying difficulty mechanics.
      * Allowed: NATURAL, SPAWNER, SPAWNER_EGG
      */
     public static boolean isValidNaturalSpawn(SpawnReason reason) {
+        if (isPluginSpawning) return false;
         return reason == SpawnReason.NATURAL || 
                reason == SpawnReason.SPAWNER ||
                reason == SpawnReason.SPAWNER_EGG;
+    }
+
+    /**
+     * Spawns an entity using SpawnReason.NATURAL, but suppresses Tezzlar custom mechanics
+     * from triggering recursively on this specific spawn.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends Entity> T spawnNatural(Location loc, EntityType type) {
+        isPluginSpawning = true;
+        try {
+            return (T) loc.getWorld().spawnEntity(loc, type, SpawnReason.NATURAL);
+        } finally {
+            isPluginSpawning = false;
+        }
     }
 
     /**

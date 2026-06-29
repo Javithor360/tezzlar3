@@ -29,7 +29,7 @@ public class GlobalVariantsMechanic extends DifficultyMechanic {
         if (type == EntityType.ZOMBIE) {
             // Husk conversion 25% chance in any biome
             if (random.nextDouble() < 0.25) {
-                event.getLocation().getWorld().spawnEntity(event.getLocation(), EntityType.HUSK);
+                EntityUtils.spawnNatural(event.getLocation(), EntityType.HUSK);
                 event.setCancelled(true);
             }
         } else if (type == EntityType.SKELETON) {
@@ -41,7 +41,7 @@ public class GlobalVariantsMechanic extends DifficultyMechanic {
                 else if (r == 1) variant = EntityType.BOGGED;
                 else variant = EntityType.PARCHED;
                 
-                event.getLocation().getWorld().spawnEntity(event.getLocation(), variant);
+                EntityUtils.spawnNatural(event.getLocation(), variant);
                 event.setCancelled(true);
             }
         }
