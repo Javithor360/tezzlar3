@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import com.panita.tezzlar3.core.chat.Messenger;
+import com.panita.tezzlar3.core.util.PlayerUtils;
 
 public class BabyKillCurseMechanic extends DifficultyMechanic {
 
@@ -41,7 +42,7 @@ public class BabyKillCurseMechanic extends DifficultyMechanic {
                     return true;
                 } else {
                     Player player = plugin.getServer().getPlayer(entry.getKey());
-                    if (player != null && player.isOnline()) {
+                    if (player != null && player.isOnline() && PlayerUtils.isSurvival(player)) {
                         if (!OverworldToxicityMechanic.isToxic(player)) {
                             int remaining = (int) ((entry.getValue() - now) / 1000);
                             String timeStr = String.format("%02d:%02d", remaining / 60, remaining % 60);
@@ -56,6 +57,7 @@ public class BabyKillCurseMechanic extends DifficultyMechanic {
 
     public static boolean isCursed(Player player) {
         if (instance == null || !instance.isActive()) return false;
+        if (!PlayerUtils.isSurvival(player)) return false;
         return instance.cursedPlayers.containsKey(player.getUniqueId());
     }
 
@@ -65,6 +67,8 @@ public class BabyKillCurseMechanic extends DifficultyMechanic {
         
         if (event.getEntity().getKiller() != null && event.getEntity() instanceof Ageable ageable && !ageable.isAdult()) {
             Player killer = event.getEntity().getKiller();
+            
+            if (!PlayerUtils.isSurvival(killer)) return;
             
             AttributeInstance scale = killer.getAttribute(Attribute.SCALE);
             if (scale != null) {

@@ -55,6 +55,7 @@ public class OverworldToxicityMechanic extends DifficultyMechanic {
 
     public static boolean isToxic(Player player) {
         if (instance == null || !instance.isActive()) return false;
+        if (!PlayerUtils.isSurvival(player)) return false;
         return player.getWorld().getEnvironment() == World.Environment.NORMAL;
     }
 
