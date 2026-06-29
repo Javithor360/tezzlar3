@@ -45,19 +45,19 @@ public class SpecialDropMobEvent implements MiniEvent, Listener {
 
     @Override
     public String getDisplayName() {
-        return "<#B8FA82><b>Fiebre de " + activeProfile.prizeDisplayName() + "</b></#B8FA82>";
+        return "<#5E62F2>Fiebre de " + activeProfile.prizeDisplayName() + "</#5E62F2>";
     }
 
     @Override
     public String getGenericName() {
-        return "<#B8FA82><b>Fiebre de ítems</b></#B8FA82>";
+        return "<#5E62F2>Fiebre de ítems</#5E62F2>";
     }
 
     @Override
     public String getDescription() {
-        String base = "<gray>¡Mata " + activeProfile.mobDisplayName() + "s para conseguir " + activeProfile.prizeDisplayName() + "!</gray>\n";
+        String base = "Se ha reportado que durante los próximos &b30 minutos&7, los " + activeProfile.mobDisplayName() + "s &7tienen altas probabilidades de soltar ítems únicos al morir.\n";
         String prob = activeProfile.descriptionFragment();
-        return base + prob + "\n<dark_gray><i>* El encantamiento de Botín (Looting) mejora los resultados.</i></dark_gray>";
+        return base + prob + "\n&7<i>* Tener en cuenta que el encantamiento de &bLooting &7incrementa aún más las probabilidades de obtener drops.</i></dark_gray>";
     }
 
     @Override

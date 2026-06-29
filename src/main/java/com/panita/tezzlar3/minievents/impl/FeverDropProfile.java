@@ -25,57 +25,57 @@ public record FeverDropProfile(
             new FeverDropProfile(
                     "zombie_gapple",
                     EntityType.ZOMBIE,
-                    "Zombi",
-                    "<#F5E727>Manzanas Doradas</#F5E727>",
+                    "Zombies",
+                    "<#F2F05E>Manzanas Doradas</#F2F05E>",
                     Material.GOLDEN_APPLE,
                     0,
                     0.08,
                     0.02,
                     1,
-                    2,
-                    "<yellow>Probabilidad: 8% | Cantidad: 1-2</yellow>"
+                    3,
+                    "&3- &7Los &bZombies &7tienen una probabilidad del &b8% &7de soltar <#F2F05E>Manzanas Doradas</#F2F05E> &7al morir."
             ),
 
             new FeverDropProfile(
                     "creeper_totem",
                     EntityType.CREEPER,
                     "Creeper",
-                    "<#FADC82>Tótems</#FADC82>",
+                    "<#FAC650>Tótems</#FAC650>",
                     Material.TOTEM_OF_UNDYING,
                     0,
                     0.03,
-                    0.01,
+                    0.05,
                     1,
                     1,
-                    "<yellow>Probabilidad: 3% | Cantidad: 1</yellow>"
+                    "&3- &7Los &bCrepers &7tienen una probabilidad del &b5% &7de soltar <#FAC650>Tótems de la Inmortalidad</#FAC650> &7al morir."
             ),
 
             new FeverDropProfile(
                     "skeleton_gold",
                     EntityType.SKELETON,
                     "Esqueleto",
-                    "<#F7B52D>Oro</#F7B52D>",
-                    Material.GOLD_BLOCK,
+                    "<#F7A31E>Oro</#F7A31E>",
+                    Material.RAW_GOLD,
                     0,
-                    0.15,
+                    0.25,
                     0.05,
-                    2,
-                    5,
-                    "<yellow>Probabilidad: 15% | Cantidad: 2-5</yellow>"
+                    1,
+                    10,
+                    "&3- &7Los &bEsqueletos &7tienen una probabilidad del &b25% &7de soltar <#FAC650>Oro Crudo</#FAC650> &7al morir."
             ),
 
             new FeverDropProfile(
                     "spider_exp",
                     EntityType.SPIDER,
                     "Araña",
-                    "<#1C9C23>Experiencia</#1C9C23>",
+                    "&aExperiencia",
                     null,
-                    10.0,
-                    0.10,
+                    4,
+                    1,
                     0.03,
                     0,
                     0,
-                    "<yellow>Probabilidad: 10% | Multiplicador de XP: x10</yellow>"
+                    "&3- &7Las &bArañas &7sueltan &bx4 de experiencia &7al morir."
             )
     );
 }

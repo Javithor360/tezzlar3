@@ -55,12 +55,12 @@ public class PositionSwapEvent implements MiniEvent {
 
     @Override
     public String getDisplayName() {
-        return "<aqua><b>¡Intercambio de Posiciones!</b></aqua>";
+        return "<aqua>Intercambio de Posiciones</aqua>";
     }
 
     @Override
     public String getDescription() {
-        return "<gray>Las posiciones de todos los jugadores conectados han sido revueltas.</gray>";
+        return "&7Las posiciones de todos los jugadores conectados han sido revueltas al azar.";
     }
 
     @Override

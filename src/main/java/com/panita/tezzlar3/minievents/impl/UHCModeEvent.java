@@ -27,12 +27,12 @@ public class UHCModeEvent implements MiniEvent, Listener {
 
     @Override
     public String getDisplayName() {
-        return "<dark_red><b>Modo UHC</b></dark_red>";
+        return "<#F0162E>Modo UHC</#F0162E>";
     }
 
     @Override
     public String getDescription() {
-        return "<gray>La regeneración natural ha sido bloqueada. Sólo pociones o manzanas doradas curarán a los jugadores.</gray>";
+        return "&7Durante las próximas &b2 horas&7, el modo ultra hardcore estará activo.<newline>&3- &7No se podrá regenerar vida naturalmente.<newline>&3- &7Para curarte debes utilizar pociones.<newline>&7Por lo tanto, se recomienda andar con extremo cuidado.";
     }
 
     @Override

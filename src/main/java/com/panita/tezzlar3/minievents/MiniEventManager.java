@@ -168,7 +168,7 @@ public class MiniEventManager {
         }
         
         for (Player p : Bukkit.getOnlinePlayers()) {
-            Messenger.showTitle(p, "<dark_purple><b>Ruleta de Eventos</b></dark_purple>", current.getDisplayName(), Duration.ZERO, Duration.ofMillis(delays[index] * 50L + 100L), Duration.ofMillis(100));
+            Messenger.showTitle(p, "<obf><dark_gray>;;</obf> <b><gradient:#005155:#448367>¡Momento</gradient><gradient:#448367:#00566B> Pan</gradient><gradient:#00566B:#00566B>a!</gradient></b> <obf><dark_gray>;;", "<#FF69E2>→</#FF69E2>" + current.getDisplayName(), Duration.ZERO, Duration.ofMillis(delays[index] * 50L + 100L), Duration.ofMillis(100));
         }
         
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -194,7 +194,7 @@ public class MiniEventManager {
             stopActiveEvent();
         } else {
             saveData();
-            String startMsg = Tezzlar.getConfigManager().getString("mini-events.messages.event_start", "<newline><yellow><b>¡EL MINI EVENTO HA COMENZADO!</b></yellow><newline>%event_name%<newline>");
+            String startMsg = Tezzlar.getConfigManager().getString("mini-events.messages.event_start", "<yellow><b>¡EL MINI EVENTO HA COMENZADO!</b></yellow><newline>%event_name%<newline>");
             startMsg = startMsg.replace("%event_name%", event.getDisplayName());
             Messenger.broadcast(startMsg);
             Messenger.broadcast(event.getDescription());
@@ -203,7 +203,7 @@ public class MiniEventManager {
     
     public void stopActiveEvent() {
         if (activeEvent != null) {
-            String endMsg = Tezzlar.getConfigManager().getString("mini-events.messages.event_end", "<newline><red><b>¡EL MINI EVENTO HA TERMINADO!</b></red><newline>%event_name%<newline>");
+            String endMsg = Tezzlar.getConfigManager().getString("mini-events.messages.event_end", "<red><b>¡EL MINI EVENTO HA TERMINADO!</b></red><newline>%event_name%<newline>");
             endMsg = endMsg.replace("%event_name%", activeEvent.getDisplayName());
             Messenger.prefixedBroadcast(endMsg);
             

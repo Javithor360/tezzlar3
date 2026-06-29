@@ -13,12 +13,12 @@ public class GlobalAcidRainEvent implements MiniEvent {
 
     @Override
     public String getDisplayName() {
-        return "<#81C784><b>Lluvia Ácida Prolongada</b></#81C784>";
+        return "<#81C784>Lluvia Ácida XL</#81C784>";
     }
 
     @Override
     public String getDescription() {
-        return "<gray>El evento natural del Día 19 que durará por muchas horas.</gray>";
+        return "&7Durante las próximas &b2 horas&7, un fenómeno climatológico altamente peligroso invadirá el terreno del Overworld.<newline>  &3- &7Permanecer bajo la lluvia te resta salud periódicamente.<newline>&7Por lo tanto, no se recomienda permanecer en la superficie durante periodos de tiempo extendidos.";
     }
 
     @Override

@@ -110,5 +110,5 @@ missions:
 mini-events:
   probability: 10
   messages:
-    event_start: "<newline><yellow><b>¡EL MINI EVENTO HA COMENZADO!</b></yellow><newline>%event_name%<newline>"
-    event_end: "<newline><red><b>¡EL MINI EVENTO HA TERMINADO!</b></red><newline>%event_name%<newline>"
+    event_start: "&a¡Ha dado inicio el evento de &4%event_name%!"
+    event_end: "&e¡El evento de &a%event_name% &eha concluido!"

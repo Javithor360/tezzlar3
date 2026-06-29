@@ -14,6 +14,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.Random;
+
 public class BloodMoonEvent implements MiniEvent, Listener {
 
     @Override
@@ -33,12 +35,12 @@ public class BloodMoonEvent implements MiniEvent, Listener {
 
     @Override
     public String getDisplayName() {
-        return "<dark_red><b>Luna de Sangre</b></dark_red>";
+        return "<#821008>Luna de Sangre</#821008>";
     }
 
     @Override
     public String getDescription() {
-        return "<gray>Los monstruos aparecerán con cabeza de calabaza, vida y daño x3, junto a poderosas pociones permanentes.</gray>";
+        return "&7Durante las próximas &b2 horas&7, los mobs hostiles portarán cabeza de calabaza. El poder de la luna les otorga:<newline>&3- &7Salud aumentada al triple.<newline>&3- &7Daño de ataque triple.<newline>&3- &7Efectos de poción para combate.<newline>&7Por lo tanto, no se recomienda permanecer en solitario.";
     }
 
     @Override
@@ -81,7 +83,7 @@ public class BloodMoonEvent implements MiniEvent, Listener {
                 PotionEffectType.OOZING, PotionEffectType.WEAVING, PotionEffectType.INFESTED
             };
             
-            java.util.Random rnd = new java.util.Random();
+            Random rnd = new Random();
             PotionEffectType chosenNormal = normalEffects[rnd.nextInt(normalEffects.length)];
             PotionEffectType chosenSpecial = specialEffects[rnd.nextInt(specialEffects.length)];
             
