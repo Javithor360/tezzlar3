@@ -1,5 +1,6 @@
 package com.panita.tezzlar3.minievents.impl;
 
+import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.minievents.MiniEvent;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -75,20 +76,18 @@ public class BloodMoonEvent implements MiniEvent, Listener {
                 damage.setBaseValue(damage.getBaseValue() * 3.0);
             }
             
-            // Random Potion Effect (1 of each list)
+            // Random Normal Potion Effect
             PotionEffectType[] normalEffects = {
                 PotionEffectType.SPEED, PotionEffectType.RESISTANCE, PotionEffectType.FIRE_RESISTANCE, PotionEffectType.REGENERATION
-            };
-            PotionEffectType[] specialEffects = {
-                PotionEffectType.OOZING, PotionEffectType.WEAVING, PotionEffectType.INFESTED
             };
             
             Random rnd = new Random();
             PotionEffectType chosenNormal = normalEffects[rnd.nextInt(normalEffects.length)];
-            PotionEffectType chosenSpecial = specialEffects[rnd.nextInt(specialEffects.length)];
             
             monster.addPotionEffect(new PotionEffect(chosenNormal, Integer.MAX_VALUE, 0));
-            monster.addPotionEffect(new PotionEffect(chosenSpecial, Integer.MAX_VALUE, 0));
+            
+            // Random Annoying Effect
+            EntityUtils.applyAnnoyingSpecialEffect(monster);
         }
     }
 }

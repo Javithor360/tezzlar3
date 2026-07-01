@@ -24,6 +24,9 @@ import com.panita.tezzlar3.core.util.PlayerUtils;
 
 import java.util.Base64;
 import java.util.UUID;
+import java.util.Random;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class EntityUtils {
     /**
@@ -94,6 +97,23 @@ public class EntityUtils {
         skull.setItemMeta(skullMeta);
 
         return skull;
+    }
+
+    /**
+     * Applies a random annoying 1.21 special effect to a living entity.
+     * @param entity The living entity to apply the effect to.
+     */
+    public static void applyAnnoyingSpecialEffect(LivingEntity entity) {
+        PotionEffectType[] specialEffects = {
+            PotionEffectType.OOZING, 
+            PotionEffectType.WEAVING, 
+            PotionEffectType.INFESTED, 
+            PotionEffectType.WIND_CHARGED
+        };
+        
+        Random rnd = new Random();
+        PotionEffectType chosen = specialEffects[rnd.nextInt(specialEffects.length)];
+        entity.addPotionEffect(new PotionEffect(chosen, Integer.MAX_VALUE, 0));
     }
 
     public static boolean isPluginSpawning = false;

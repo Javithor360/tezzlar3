@@ -64,6 +64,12 @@ public class AcidRainMechanic extends DifficultyMechanic {
         if (!isActive()) return;
 
         if (event.toWeatherState()) {
+            // Check if DeathTrain is active, if so, prevent acid rain
+            if (DeathTrainMechanic.getInstance() != null && DeathTrainMechanic.getInstance().isActive() && DeathTrainMechanic.getInstance().getRemainingSeconds() > 0) {
+                isAcidRain = false;
+                return;
+            }
+            
             isAcidRain = random.nextInt(100) < 40;
             if (isAcidRain) {
                 Messenger.prefixedBroadcast("<#64B5F6>Se informa a todos los supervivientes que una <#81C784>lluvia ácida</#81C784> está a punto de comenzar, se recomienda buscar refugio.</#64B5F6>");

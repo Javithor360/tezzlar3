@@ -11,6 +11,8 @@ import org.bukkit.OfflinePlayer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Global {
     public static String RAW_PREFIX = "";
@@ -120,7 +122,7 @@ public class Global {
         }
         
         long totalMillis = 0;
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("(\\d+)(w|d|h|m|s)").matcher(input.toLowerCase());
+        Matcher matcher = Pattern.compile("(\\d+)(w|d|h|m|s)").matcher(input.toLowerCase());
         while (matcher.find()) {
             long value = Long.parseLong(matcher.group(1));
             String unit = matcher.group(2);

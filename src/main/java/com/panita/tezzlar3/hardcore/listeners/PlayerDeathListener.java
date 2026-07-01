@@ -220,7 +220,7 @@ public class PlayerDeathListener implements Listener {
         }
         
         if (DeathTrainMechanic.getInstance() != null) {
-            DeathTrainMechanic.getInstance().addDeathTrainTime();
+            DeathTrainMechanic.getInstance().addDeathTrainTime(player);
         }
     }
     
