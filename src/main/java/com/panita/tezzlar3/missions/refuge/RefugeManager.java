@@ -142,6 +142,7 @@ public class RefugeManager implements Listener {
                     String title = "<red><b>Alerta:</b> Tienes " + timeStr + " para llegar al refugio.</red>";
                     
                     for (Player player : Bukkit.getOnlinePlayers()) {
+                        if (!PlayerUtils.isSurvival(player)) continue;
                         Messenger.sendActionBar(player, title);
                     }
                     
@@ -157,6 +158,7 @@ public class RefugeManager implements Listener {
                     String title = "<red><b>Alerta:</b> Sobrevive en el refugio " + timeStr + "</red>";
                     
                     for (Player player : Bukkit.getOnlinePlayers()) {
+                        if (!PlayerUtils.isSurvival(player)) continue;
                         if (player.getPersistentDataContainer().has(SURVIVOR_KEY, PersistentDataType.BYTE)) {
                             boolean isSafe = isPlayerSafe(player);
                             
@@ -222,6 +224,7 @@ public class RefugeManager implements Listener {
         Messenger.prefixedBroadcast("&c¡El tiempo de llegada ha finalizado! Inicia la fase de asedio y supervivencia.");
         
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!PlayerUtils.isSurvival(player)) continue;
             if (player.getWorld().getEnvironment() == World.Environment.NORMAL && !player.isDead()) {
                 if (isPlayerSafe(player)) {
                     player.getPersistentDataContainer().set(SURVIVOR_KEY, PersistentDataType.BYTE, (byte) 1);
@@ -240,6 +243,7 @@ public class RefugeManager implements Listener {
         abandonCounters.clear();
         
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!PlayerUtils.isSurvival(player)) continue;
             if (player.getPersistentDataContainer().has(SURVIVOR_KEY, PersistentDataType.BYTE)) {
                 player.getPersistentDataContainer().remove(SURVIVOR_KEY);
                 
