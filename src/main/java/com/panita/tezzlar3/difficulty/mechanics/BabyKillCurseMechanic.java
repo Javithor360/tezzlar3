@@ -1,5 +1,6 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
+import com.panita.tezzlar3.missions.MissionsModule;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Ageable;
@@ -46,7 +47,9 @@ public class BabyKillCurseMechanic extends DifficultyMechanic {
                         if (!OverworldToxicityMechanic.isToxic(player)) {
                             int remaining = (int) ((entry.getValue() - now) / 1000);
                             String timeStr = String.format("%02d:%02d", remaining / 60, remaining % 60);
-                            Messenger.sendActionBar(player, "<gray>Tamaño reducido (" + timeStr + ")</gray>");
+                            if (MissionsModule.getRefugeManager() == null || !MissionsModule.getRefugeManager().isActive()) {
+                                Messenger.sendActionBar(player, "<gray>Tamaño reducido (" + timeStr + ")</gray>");
+                            }
                         }
                     }
                 }

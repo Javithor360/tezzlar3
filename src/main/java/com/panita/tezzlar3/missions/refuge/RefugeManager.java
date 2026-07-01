@@ -3,7 +3,7 @@ package com.panita.tezzlar3.missions.refuge;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.core.util.SoundUtils;
-import net.kyori.adventure.bossbar.BossBar;
+import com.panita.tezzlar3.difficulty.mechanics.AcidRainMechanic;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -38,7 +38,8 @@ public class RefugeManager implements Listener {
     private boolean active = false;
     
     private Location refugeLocation;
-    private double safeRadius;
+    private double safeWidth;
+    private double safeLength;
     
     public RefugeManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -77,7 +78,8 @@ public class RefugeManager implements Listener {
         int x = plugin.getConfig().getInt("missions.refuge.x", 1000);
         int y = plugin.getConfig().getInt("missions.refuge.y", 64);
         int z = plugin.getConfig().getInt("missions.refuge.z", 1000);
-        this.safeRadius = plugin.getConfig().getDouble("missions.refuge.radius", 30.0);
+        this.safeWidth = plugin.getConfig().getDouble("missions.refuge.width", 102.0);
+        this.safeLength = plugin.getConfig().getDouble("missions.refuge.length", 55.0);
         this.timeLeft = plugin.getConfig().getInt("missions.refuge.duration", 300);
         
         this.refugeLocation = new Location(overworld, x, y, z);
@@ -91,9 +93,11 @@ public class RefugeManager implements Listener {
 
         SoundUtils.playGlobal("event.raid.horn", 100, 1.0f);
         Messenger.prefixedBroadcast("&c¡Un evento de Refugio ha comenzado!");
-        Messenger.prefixedBroadcast("&7Debes llegar a las coordenadas &c" + x + " " + y + " " + z + " &7(Overworld) en el tiempo requerido.");
+        Messenger.prefixedBroadcast("&7Debes llegar a las coordenadas &c" + x + " " + y + " " + z + " &7(Overworld) en el tiempo requerido y mantenerte bajo techo.");
 
         active = true;
+        
+        AcidRainMechanic.getInstance().forceAcidRain();
         
         timerTask = new BukkitRunnable() {
             @Override
@@ -107,12 +111,8 @@ public class RefugeManager implements Listener {
                 String timeStr = formatTime(timeLeft);
                 String title = "<red><b>Alerta:</b> Tienes " + timeStr + " para llegar al refugio.</red>";
                 
-                float progress = (float) timeLeft / plugin.getConfig().getInt("missions.refuge.duration", 300);
-                if (progress < 0.0f) progress = 0.0f;
-                if (progress > 1.0f) progress = 1.0f;
-                
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    Messenger.showBossBar(player, "refuge_event", title, BossBar.Color.RED, BossBar.Overlay.NOTCHED_10, progress);
+                    Messenger.sendActionBar(player, title);
                 }
                 
                 timeLeft--;
@@ -125,9 +125,7 @@ public class RefugeManager implements Listener {
         active = false;
         if (timerTask != null) timerTask.cancel();
         
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            Messenger.hideBossBar(player, "refuge_event");
-        }
+        AcidRainMechanic.getInstance().stopForcedAcidRain();
         
         Messenger.prefixedBroadcast("&aEl evento de Refugio ha sido cancelado manualmente.");
     }
@@ -135,9 +133,7 @@ public class RefugeManager implements Listener {
     private void endEvent() {
         active = false;
         
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            Messenger.hideBossBar(player, "refuge_event");
-        }
+        AcidRainMechanic.getInstance().stopForcedAcidRain();
         
         Random random = new Random();
         
@@ -145,8 +141,13 @@ public class RefugeManager implements Listener {
             boolean isSafe = false;
             
             if (player.getWorld().getEnvironment() == World.Environment.NORMAL) {
-                if (player.getLocation().distanceSquared(refugeLocation) <= (safeRadius * safeRadius)) {
-                    isSafe = true;
+                double dx = Math.abs(player.getLocation().getX() - refugeLocation.getX());
+                double dz = Math.abs(player.getLocation().getZ() - refugeLocation.getZ());
+                if (dx <= (safeWidth / 2.0) && dz <= (safeLength / 2.0)) {
+                    int highestY = player.getWorld().getHighestBlockYAt(player.getLocation());
+                    if (highestY > player.getLocation().getY()) {
+                        isSafe = true;
+                    }
                 }
             }
             

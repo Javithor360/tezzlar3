@@ -1,5 +1,6 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
+import com.panita.tezzlar3.missions.MissionsModule;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
@@ -40,9 +41,13 @@ public class OverworldToxicityMechanic extends DifficultyMechanic {
                         if (remaining <= 60) color = "<#FF5252>"; // Red
                         
                         String timeStr = formatTime(remaining);
-                        Messenger.sendActionBar(player, "<gray>Contaminación en </gray>" + color + timeStr + "</" + color.substring(1,8) + ">");
+                        if (MissionsModule.getRefugeManager() == null || !MissionsModule.getRefugeManager().isActive()) {
+                            Messenger.sendActionBar(player, "<gray>Contaminación en </gray>" + color + timeStr + "</" + color.substring(1,8) + ">");
+                        }
                     } else {
-                        Messenger.sendActionBar(player, "<#FF5252><b>¡NIVELES DE CONTAMINACIÓN CRÍTICOS!</b></#FF5252>");
+                        if (MissionsModule.getRefugeManager() == null || !MissionsModule.getRefugeManager().isActive()) {
+                            Messenger.sendActionBar(player, "<#FF5252><b>¡NIVELES DE CONTAMINACIÓN CRÍTICOS!</b></#FF5252>");
+                        }
                         applyToxicEffects(player);
                     }
                 } else {

@@ -3,6 +3,7 @@ package com.panita.tezzlar3.minievents;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.config.CustomConfig;
 import com.panita.tezzlar3.core.util.SoundUtils;
+import com.panita.tezzlar3.missions.MissionsModule;
 import com.panita.tezzlar3.timeline.util.TimeManager;
 import com.panita.tezzlar3.Tezzlar;
 import org.bukkit.Bukkit;
@@ -82,6 +83,7 @@ public class MiniEventManager {
                     String cleanName = MiniMessage.miniMessage().stripTags(activeEvent.getDisplayName());
                     String actionBarMsg = "<gray>" + cleanName + " (" + timeStr + ")</gray>";
                     for (Player player : Bukkit.getOnlinePlayers()) {
+                        if (MissionsModule.getRefugeManager() != null && MissionsModule.getRefugeManager().isActive()) continue;
                         if (OverworldToxicityMechanic.isToxic(player)) continue;
                         if (BabyKillCurseMechanic.isCursed(player)) continue;
                         Messenger.sendActionBar(player, actionBarMsg);
