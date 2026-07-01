@@ -33,6 +33,8 @@ public class GoatHornParalyzeMechanic extends DifficultyMechanic {
         if (!isActive()) return;
         
         if (event.getAction().isRightClick() && event.getItem() != null && event.getItem().getType() == Material.GOAT_HORN) {
+            if (com.panita.tezzlar3.qol.util.CustomItemManager.isCustomItem(event.getItem(), "amethyst_horn")) return;
+            
             Player player = event.getPlayer();
             
             long now = System.currentTimeMillis();

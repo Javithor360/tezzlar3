@@ -69,11 +69,7 @@ public class FoodBuffMechanic implements Listener {
             
             // Extra effects apply from day 2 onwards
             if (day >= 2) {
-                if (type == Material.CARROT) {
-                    if (CustomItemManager.isCustomItem(event.getItem(), "copper_carrot")) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 60, 0, false, true, true));
-                    }
-                } else if (type == Material.RABBIT_STEW) {
+                if (type == Material.RABBIT_STEW) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 20 * 60, 1, false, true, true));
                 } else if (type == Material.PUMPKIN_PIE) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 20 * 60, 0, false, true, true));

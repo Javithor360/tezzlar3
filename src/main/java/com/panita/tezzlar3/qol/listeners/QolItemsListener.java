@@ -2,6 +2,7 @@ package com.panita.tezzlar3.qol.listeners;
 
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.qol.util.CustomItemManager;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -22,8 +23,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.inventory.meta.BundleMeta;
 import org.bukkit.util.Vector;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -59,6 +62,8 @@ public class QolItemsListener implements Listener {
                 player.setFoodLevel(20);
                 player.setSaturation(20f);
             });
+        } else if (CustomItemManager.isCustomItem(item, "copper_carrot")) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 60, 0, false, true, true));
         }
     }
 
@@ -129,17 +134,44 @@ public class QolItemsListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInfiniteBagClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        
         ItemStack current = event.getCurrentItem();
         ItemStack cursor = event.getCursor();
         
+        // Case 1: Click with an item (cursor) on the bundle (current)
         if (current != null && CustomItemManager.isCustomItem(current, "infinite_bag")) {
             if (cursor != null && !cursor.getType().isAir()) {
-                // If they have an item in the cursor and clicked the infinite bag, destroy the item
                 event.setCancelled(true);
-                event.getView().setCursor(null); // Emulate an infinite trash can
-                if (event.getWhoClicked() instanceof Player player) {
-                    player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.5f, 0.5f);
+                event.getView().setCursor(null); // Delete item from cursor
+                
+                SoundUtils.play(player, "entity.item.pickup", 0.5f, 0.5f);
+                Bukkit.getScheduler().runTask(Tezzlar.getInstance(), player::updateInventory);
+            }
+        }
+        // Case 2: Pass the bundle (cursor) over an item (current)
+        else if (cursor != null && CustomItemManager.isCustomItem(cursor, "infinite_bag")) {
+            if (current != null && !current.getType().isAir()) {
+                ItemStack bag = cursor.clone(); // Save a copy of the bundle
+                
+                // Clear any items that might have been visually stored in the bundle
+                if (bag.getItemMeta() instanceof BundleMeta meta) {
+                    meta.setItems(Collections.emptyList());
+                    bag.setItemMeta(meta);
                 }
+                
+                event.setCancelled(true);
+                
+                // Delete item from slot directly
+                if (event.getClickedInventory() != null) {
+                    event.getClickedInventory().setItem(event.getSlot(), null);
+                }
+                
+                // Force the bundle back to the cursor
+                event.getView().setCursor(bag);
+                
+                SoundUtils.play(player, "entity.item.pickup", 0.5f, 0.5f);
+                Bukkit.getScheduler().runTask(Tezzlar.getInstance(), player::updateInventory);
             }
         }
     }

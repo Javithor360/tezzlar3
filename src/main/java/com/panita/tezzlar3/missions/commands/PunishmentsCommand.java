@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 @CommandSpec(
         name = "punishments",
+        aliases = {"castigos"},
         description = "Shows active punishments for a player.",
         syntax = "/punishments [player]",
         permission = "tezzlar.command.punishments"
