@@ -9,6 +9,7 @@ import com.panita.tezzlar3.difficulty.mechanics.CreeperExplosionMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.GhastExplosionMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.NightRainMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DifficultyMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.DeathTrainMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubleMobCapMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubleFallDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EliteMobStatsMechanic;
@@ -91,6 +92,9 @@ public class DifficultyModule implements PluginModule {
         
         // Day 1
         mechanics.add(new PremiumArmorSetMechanic(plugin));
+        
+        // Day 2
+        mechanics.add(new DeathTrainMechanic(plugin));
         
         // Day 3
         mechanics.add(new DoubleFallDamageMechanic(plugin));

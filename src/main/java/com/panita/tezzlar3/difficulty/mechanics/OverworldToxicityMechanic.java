@@ -10,6 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import com.panita.tezzlar3.core.chat.Messenger;
+import com.panita.tezzlar3.core.util.Global;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 
 public class OverworldToxicityMechanic extends DifficultyMechanic {
@@ -39,7 +40,7 @@ public class OverworldToxicityMechanic extends DifficultyMechanic {
                         if (remaining <= 300) color = "<#FFCA28>"; // Yellow
                         if (remaining <= 60) color = "<#FF5252>"; // Red
                         
-                        String timeStr = formatTime(remaining);
+                        String timeStr = Global.formatTimeTicks(remaining * 20L);
                         if (MissionsModule.getRefugeManager() == null || !MissionsModule.getRefugeManager().isActive()) {
                             Messenger.sendActionBar(player, "<gray>Contaminación en </gray>" + color + timeStr + "</" + color.substring(1,8) + ">");
                         }
@@ -61,12 +62,6 @@ public class OverworldToxicityMechanic extends DifficultyMechanic {
         if (instance == null || !instance.isActive()) return false;
         if (!PlayerUtils.isSurvival(player)) return false;
         return player.getWorld().getEnvironment() == World.Environment.NORMAL;
-    }
-
-    private String formatTime(int seconds) {
-        int m = seconds / 60;
-        int s = seconds % 60;
-        return String.format("%02d:%02d", m, s);
     }
 
     private void applyToxicEffects(Player player) {

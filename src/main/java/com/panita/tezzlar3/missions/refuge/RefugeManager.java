@@ -2,6 +2,7 @@ package com.panita.tezzlar3.missions.refuge;
 
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.core.util.Global;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.difficulty.mechanics.AcidRainMechanic;
@@ -138,7 +139,7 @@ public class RefugeManager implements Listener {
                         return;
                     }
                     
-                    String timeStr = formatTime(timeLeft);
+                    String timeStr = Global.formatTimeTicks(timeLeft * 20L);
                     String title = "<red><b>Alerta:</b> Tienes " + timeStr + " para llegar al refugio.</red>";
                     
                     for (Player player : Bukkit.getOnlinePlayers()) {
@@ -154,7 +155,7 @@ public class RefugeManager implements Listener {
                         return;
                     }
                     
-                    String timeStr = formatTime(timeLeft);
+                    String timeStr = Global.formatTimeTicks(timeLeft * 20L);
                     String title = "<red><b>Alerta:</b> Sobrevive en el refugio " + timeStr + "</red>";
                     
                     for (Player player : Bukkit.getOnlinePlayers()) {
@@ -353,9 +354,4 @@ public class RefugeManager implements Listener {
         }.runTaskTimer(plugin, 0L, 5L);
     }
     
-    private String formatTime(int seconds) {
-        int m = seconds / 60;
-        int s = seconds % 60;
-        return String.format("%02d:%02d", m, s);
-    }
 }

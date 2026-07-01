@@ -15,6 +15,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import com.panita.tezzlar3.timeline.util.TimeManager;
+import com.panita.tezzlar3.difficulty.mechanics.DeathTrainMechanic;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -31,6 +35,20 @@ public class PlayerDeathListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+        Player killer = player.getKiller();
+        
+        if (killer != null && TimeManager.getCurrentDay() >= 2) {
+            killer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 1));
+            killer.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 100, 1));
+            killer.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 255));
+            Messenger.prefixedSend(killer, "&cEl karma te hará pagar por tus pecados...");
+            
+            Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+                if (killer.isOnline() && !killer.isDead()) {
+                    killer.setHealth(0.0);
+                }
+            }, 100L); // 5 seconds
+        }
         
         // 1. Get current state and update
         int lives = HardcoreDataManager.getLives(player.getUniqueId(), player.getName());
@@ -188,6 +206,10 @@ public class PlayerDeathListener implements Listener {
                 float pitch = parts.length > 2 ? Float.parseFloat(parts[2]) : 1.0f;
                 SoundUtils.playGlobal(soundName, volume, pitch);
             }
+        }
+        
+        if (DeathTrainMechanic.getInstance() != null) {
+            DeathTrainMechanic.getInstance().addDeathTrainTime();
         }
     }
 }
