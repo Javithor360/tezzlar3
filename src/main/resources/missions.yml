@@ -10,8 +10,11 @@ missions:
       amount: 4
     rewards:
       - id: "GIVE_EXP"
-        args: { levels: 15 }
-        description: "15 Niveles de Experiencia"
+        args: { levels: 25 }
+        description: "25 Niveles de Experiencia"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "golden_totem", amount: 1 }
+        description: "1x Tótem de Flor Dorada"
     punishments:
       - id: "DIAMOND_BAN"
       - id: "DAMAGE_MULTIPLIER"
@@ -28,12 +31,18 @@ missions:
       amount: 32
     rewards:
       - id: "GIVE_CUSTOM_ITEM"
-        args: { custom_id: "tactic_bow", amount: 1 }
-        description: "1x Arco Táctico"
+        args: { custom_id: "manzanium_apple", amount: 67 }
+        description: "67x Manzanas de Manzanium"
       - id: "GIVE_ITEM"
         args: { material: "ENCHANTED_GOLDEN_APPLE", amount: 3 }
         description: "3x Manzana Encantada"
-        
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "chicken_totem", amount: 1 }
+        description: "2x Tótem de Gallina"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "tactic_bow", amount: 1 }
+        description: "1x Arco Táctico"
+
   iron_golems:
     name: "Spawnear Gólems de Hierro"
     start_day: 7
@@ -45,11 +54,20 @@ missions:
       amount: 100
     rewards:
       - id: "GIVE_CUSTOM_ITEM"
-        args: { custom_id: "op_iron_armor_set", amount: 1 }
-        description: "1x Armadura de Hierro Mejorada"
+        args: { custom_id: "premium_iron_helmet", amount: 1 }
+        description: "1x Casco de Hierro Prémium"
       - id: "GIVE_CUSTOM_ITEM"
-        args: { custom_id: "op_iron_tools_set", amount: 1 }
-        description: "1x Herramientas de Hierro Mejoradas"
+        args: { custom_id: "premium_iron_chestplate", amount: 1 }
+        description: "1x Peto de Hierro Prémium"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "premium_iron_leggings", amount: 1 }
+        description: "1x Perneras de Hierro Prémium"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "premium_iron_boots", amount: 1 }
+        description: "1x Botas de Hierro Prémium"
+      - id: "GIVE_ITEM"
+        args: { material: "SHULKER_BOX", amount: 1 }
+        description: "1x Shulker Box"
     punishments:
       - id: "HOSTILE_IRON_GOLEMS"
 
@@ -67,6 +85,9 @@ missions:
       - id: "GIVE_EXP"
         args: { levels: 50 }
         description: "50 Niveles de Experiencia"
+      - id: "GIVE_ITEM"
+        args: { material: "BLACK_SHULKER_BOX", amount: 1 }
+        description: "1x Shulker Box Negra"
     punishments:
       - id: "REGENERATION_TO_WITHER"
       - id: "WITHER_SKELETON_SPAWN_ON_DAMAGE"
@@ -83,9 +104,12 @@ missions:
       location: "world,0,64,0"
       radius: 20
     rewards:
-      - id: "GIVE_EXP"
-        args: { levels: 100 }
-        description: "100 Niveles de Experiencia"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "sulfur_totem", amount: 3 }
+        description: "3x Tótem de Sulfuro"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "manzanium_apple", amount: 67 }
+        description: "67x Manzanas de Manzanium"
 
   dragon_respawn:
     name: "Revivir al Ender Dragon"
