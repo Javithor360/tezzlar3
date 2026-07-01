@@ -15,6 +15,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.NamespacedKey;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import com.panita.tezzlar3.timeline.util.TimeManager;
@@ -35,9 +38,17 @@ public class PlayerDeathListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
+        NamespacedKey KARMA_KEY = new NamespacedKey(Tezzlar.getInstance(), "pvp_karma_doomed");
+        
+        // If the player dies, the karma debt is considered paid
+        if (player.getPersistentDataContainer().has(KARMA_KEY, PersistentDataType.BYTE)) {
+            player.getPersistentDataContainer().remove(KARMA_KEY);
+        }
+        
         Player killer = player.getKiller();
         
         if (killer != null && TimeManager.getCurrentDay() >= 2) {
+            killer.getPersistentDataContainer().set(KARMA_KEY, PersistentDataType.BYTE, (byte) 1);
             killer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 1));
             killer.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 100, 1));
             killer.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 255));
@@ -210,6 +221,23 @@ public class PlayerDeathListener implements Listener {
         
         if (DeathTrainMechanic.getInstance() != null) {
             DeathTrainMechanic.getInstance().addDeathTrainTime();
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        NamespacedKey KARMA_KEY = new NamespacedKey(Tezzlar.getInstance(), "pvp_karma_doomed");
+        
+        if (player.getPersistentDataContainer().has(KARMA_KEY, PersistentDataType.BYTE)) {
+            // PvP Karma evasion: The player disconnected to avoid the 5s death.
+            // Consequence: Kill them upon rejoining.
+            
+            Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+                if (player.isOnline() && !player.isDead()) {
+                    player.setHealth(0.0);
+                }
+            }, 20L); // 1 second after joining to ensure systems load correctly
         }
     }
 }
