@@ -4,14 +4,10 @@ import com.panita.tezzlar3.core.config.CustomConfig;
 import com.panita.tezzlar3.missions.data.Mission;
 import com.panita.tezzlar3.missions.handlers.PunishmentHandler;
 import com.panita.tezzlar3.missions.handlers.RewardHandler;
-import com.panita.tezzlar3.missions.handlers.punishments.DamageMultiplierPunishmentHandler;
-import com.panita.tezzlar3.missions.handlers.punishments.DiamondBanPunishmentHandler;
+import com.panita.tezzlar3.missions.handlers.punishments.*;
 import com.panita.tezzlar3.missions.handlers.rewards.CustomItemRewardHandler;
 import com.panita.tezzlar3.missions.handlers.rewards.ExpRewardHandler;
 import com.panita.tezzlar3.missions.handlers.rewards.ItemRewardHandler;
-import com.panita.tezzlar3.missions.handlers.punishments.HostileIronGolemsPunishmentHandler;
-import com.panita.tezzlar3.missions.handlers.punishments.RegenerationToWitherPunishmentHandler;
-import com.panita.tezzlar3.missions.handlers.punishments.WitherSkeletonSpawnPunishmentHandler;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -66,6 +62,14 @@ public class MissionManager {
         
         HostileIronGolemsPunishmentHandler hostileGolems = new HostileIronGolemsPunishmentHandler(plugin);
         registerPunishmentHandler(hostileGolems);
+
+        BuffedIronGolemsPunishmentHandler buffedGolems = new BuffedIronGolemsPunishmentHandler(plugin);
+        registerPunishmentHandler(buffedGolems);
+        plugin.getServer().getPluginManager().registerEvents(buffedGolems, plugin);
+
+       WardenNightmarePunishmentHandler wardenNightmare = new WardenNightmarePunishmentHandler(plugin);
+        registerPunishmentHandler(wardenNightmare);
+        plugin.getServer().getPluginManager().registerEvents(wardenNightmare, plugin);
     }
 
     public void loadMissions() {

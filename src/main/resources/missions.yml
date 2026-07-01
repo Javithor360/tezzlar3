@@ -70,6 +70,7 @@ missions:
         description: "1x Shulker Box"
     punishments:
       - id: "HOSTILE_IRON_GOLEMS"
+      - id: "BUFFED_IRON_GOLEMS"
 
   wither_nether:
     name: "Derrotar al Wither en el Nether"
@@ -110,6 +111,8 @@ missions:
       - id: "GIVE_CUSTOM_ITEM"
         args: { custom_id: "manzanium_apple", amount: 67 }
         description: "67x Manzanas de Manzanium"
+    punishments:
+      - id: "WARDEN_NIGHTMARE"
 
   dragon_respawn:
     name: "Revivir al Ender Dragon"
