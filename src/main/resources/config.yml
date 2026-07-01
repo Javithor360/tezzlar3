@@ -90,8 +90,14 @@ missions:
     x: 1000
     y: 64
     z: 1000
-    radius: 30
+    width: 102
+    length: 55
     duration: 300
+    survival_duration: 300
+    rewards:
+      health: 2.0
+      damage: 4.0
+      armor: 0.0
   messages:
     punishment_warning: "&c[!] Tienes castigos activos. Usa /punishments para verlos."
     individual_completed: "&aEl jugador &e%player% &acompletó la misión: &6%mission%"

@@ -11,7 +11,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.PlayerUtils;
-import com.panita.tezzlar3.timeline.util.TimeManager;
 
 public class OverworldToxicityMechanic extends DifficultyMechanic {
 
