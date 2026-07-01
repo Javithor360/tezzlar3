@@ -10,11 +10,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 @SubCommandSpec(
-        parent = "Tezzlar coordinates",
+        parent = "tezzlar coordinates",
         name = "save",
         description = "Save your current location as a named site.",
         syntax = "/pc coordinates save <site_name>",
-        permission = "Tezzlar.command.coordinates.save",
+        permission = "tezzlar.command.coordinates.save",
         playerOnly = true
 )
 public class CoordinatesSave implements AdvancedCommand {

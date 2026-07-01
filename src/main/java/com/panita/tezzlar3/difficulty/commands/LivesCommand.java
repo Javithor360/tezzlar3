@@ -18,8 +18,7 @@ import java.util.stream.Collectors;
         name = "lives",
         aliases = {"vidas"},
         description = "Display the lives amount for a specific player",
-        syntax = "/lives [player]",
-        permission = ""
+        syntax = "/lives [player]"
 )
 public class LivesCommand implements AdvancedCommand, TabSuggestingCommand {
 

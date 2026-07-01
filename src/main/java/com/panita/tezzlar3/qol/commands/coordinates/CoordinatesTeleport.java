@@ -14,11 +14,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 @SubCommandSpec(
-        parent = "Tezzlar coordinates",
+        parent = "tezzlar coordinates",
         name = "teleport",
         description = "Teleport to a saved site.",
         syntax = "/pc coordinates teleport <site_name> [player]",
-        permission = "Tezzlar.command.coordinates.teleport",
+        permission = "tezzlar.command.coordinates.teleport",
         playerOnly = false
 )
 public class CoordinatesTeleport implements AdvancedCommand, TabSuggestingCommand {

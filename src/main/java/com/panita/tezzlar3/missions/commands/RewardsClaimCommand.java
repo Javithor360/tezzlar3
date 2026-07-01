@@ -3,7 +3,6 @@ package com.panita.tezzlar3.missions.commands;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.commands.dynamic.AdvancedCommand;
 import com.panita.tezzlar3.core.commands.identifiers.SubCommandSpec;
-import com.panita.tezzlar3.missions.MissionManager;
 import com.panita.tezzlar3.missions.MissionsModule;
 import com.panita.tezzlar3.missions.data.Mission;
 import com.panita.tezzlar3.missions.data.PlayerMissionData;
@@ -24,7 +23,6 @@ import java.util.Map;
         name = "claim",
         description = "Claim your completed mission rewards.",
         syntax = "/rewards claim",
-        permission = "tezzlar.command.rewards.claim",
         playerOnly = true
 )
 public class RewardsClaimCommand implements AdvancedCommand {

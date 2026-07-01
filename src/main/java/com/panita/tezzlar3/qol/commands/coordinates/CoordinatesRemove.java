@@ -10,11 +10,11 @@ import com.panita.tezzlar3.qol.util.CoordinatesManager;
 import org.bukkit.command.CommandSender;
 
 @SubCommandSpec(
-        parent = "Tezzlar coordinates",
+        parent = "tezzlar coordinates",
         name = "remove",
         description = "Remove a saved location by name.",
         syntax = "/pc coordinates remove <site_name>",
-        permission = "Tezzlar.command.coordinates.remove",
+        permission = "tezzlar.command.coordinates.remove",
         playerOnly = false
 )
 public class CoordinatesRemove implements AdvancedCommand, TabSuggestingCommand {

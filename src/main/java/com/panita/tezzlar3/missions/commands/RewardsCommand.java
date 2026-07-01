@@ -8,8 +8,7 @@ import org.bukkit.command.CommandSender;
 @CommandSpec(
         name = "rewards",
         description = "Rewards main command",
-        syntax = "/rewards <subcommand>",
-        permission = "tezzlar.command.rewards"
+        syntax = "/rewards <subcommand>"
 )
 public class RewardsCommand implements AdvancedCommand {
     @Override

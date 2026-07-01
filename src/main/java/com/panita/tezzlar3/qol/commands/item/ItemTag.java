@@ -13,8 +13,8 @@ import org.bukkit.inventory.ItemStack;
         parent = "tezzlar item",
         name = "tag",
         description = "Adds custom plugin metadata to the item in your hand without saving it.",
-        syntax = "/Tezzlar item tag <identifier>",
-        permission = "Tezzlar.command.item.tag",
+        syntax = "/tezzlar item tag <identifier>",
+        permission = "tezzlar.command.item.tag",
         playerOnly = true
 )
 public class ItemTag implements AdvancedCommand {

@@ -9,10 +9,10 @@ import com.panita.tezzlar3.difficulty.mechanics.DeathTrainMechanic;
 import org.bukkit.command.CommandSender;
 
 @SubCommandSpec(
-        parent = "tezzlar deathtrain",
+        parent = "deathtrain",
         name = "start",
         description = "Starts or extends the time for a death train event",
-        syntax = "/tezzlar deathtrain start <time>",
+        syntax = "/deathtrain start <time>",
         permission = "tezzlar.command.deathtrain.start"
 )
 public class DeathTrainStartCommand implements AdvancedCommand {

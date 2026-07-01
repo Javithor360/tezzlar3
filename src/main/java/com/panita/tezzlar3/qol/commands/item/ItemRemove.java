@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
         parent = "tezzlar item",
         name = "remove",
         description = "Removes a saved custom item from the JSON file.",
-        syntax = "/Tezzlar item remove <item_name>",
-        permission = "Tezzlar.command.item.remove",
+        syntax = "/tezzlar item remove <item_name>",
+        permission = "tezzlar.command.item.remove",
         playerOnly = false
 )
 public class ItemRemove implements AdvancedCommand, TabSuggestingCommand {

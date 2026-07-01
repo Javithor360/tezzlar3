@@ -13,8 +13,8 @@ import org.bukkit.inventory.ItemStack;
         parent = "tezzlar item",
         name = "save",
         description = "Save the item in your hand into the custom item collection.",
-        syntax = "/Tezzlar item save <item_name>",
-        permission = "Tezzlar.command.item.save",
+        syntax = "/tezzlar item save <item_name>",
+        permission = "tezzlar.command.item.save",
         playerOnly = true
 )
 public class ItemSave implements AdvancedCommand {

@@ -11,11 +11,11 @@ import org.bukkit.command.CommandSender;
 import java.util.Set;
 
 @SubCommandSpec(
-        parent = "Tezzlar coordinates",
+        parent = "tezzlar coordinates",
         name = "info",
         description = "View information about saved coordinates.",
         syntax = "/pc coordinates info [site_name]",
-        permission = "Tezzlar.command.coordinates.info",
+        permission = "tezzlar.command.coordinates.info",
         playerOnly = false
 )
 public class CoordinatesInfo implements AdvancedCommand, TabSuggestingCommand {

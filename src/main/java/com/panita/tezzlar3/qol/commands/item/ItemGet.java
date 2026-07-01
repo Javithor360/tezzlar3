@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
         parent = "tezzlar item",
         name = "get",
         description = "Get a custom saved item by name.",
-        syntax = "/Tezzlar item get <item_name>",
-        permission = "Tezzlar.command.item.get",
+        syntax = "/tezzlar item get <item_name>",
+        permission = "tezzlar.command.item.get",
         playerOnly = true
 )
 public class ItemGet implements AdvancedCommand, TabSuggestingCommand {

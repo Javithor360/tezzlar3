@@ -26,8 +26,7 @@ import java.util.stream.Collectors;
         name = "punishments",
         aliases = {"castigos"},
         description = "Shows active punishments for a player.",
-        syntax = "/punishments [player]",
-        permission = "tezzlar.command.punishments"
+        syntax = "/punishments [player]"
 )
 public class PunishmentsCommand implements AdvancedCommand, TabSuggestingCommand {
     @Override
