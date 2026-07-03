@@ -22,6 +22,12 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.time.Duration;
+
+import com.panita.tezzlar3.hardcore.util.HardcoreConfigDefaults;
+import com.panita.tezzlar3.hardcore.util.HardcoreMessageFormatter;
+import com.panita.tezzlar3.core.chat.Messenger;
+import org.bukkit.EntityEffect;
 
 public class TrollManager {
 
@@ -119,5 +125,88 @@ public class TrollManager {
     public static void executeStarve(Player target) {
         target.setFoodLevel(0);
         target.setSaturation(0.0f);
+    }
+
+    public static void executeObsidianBox(Player target) {
+        Location loc = target.getLocation().getBlock().getLocation();
+        for (int y = -1; y <= 2; y++) {
+            for (int x = -1; x <= 1; x++) {
+                for (int z = -1; z <= 1; z++) {
+                    if ((y == 0 || y == 1) && x == 0 && z == 0) continue;
+                    loc.clone().add(x, y, z).getBlock().setType(Material.OBSIDIAN);
+                }
+            }
+        }
+    }
+
+    public static void executeFakeDeath(Player target) {
+        String rawGeneric = Tezzlar.getConfigManager().getString(
+                "hardcore.messages.genericDeathMessage",
+                HardcoreConfigDefaults.HARDCORE_GENERICDEATHMESSAGE
+        );
+        String genericMsg = HardcoreMessageFormatter.processPlaceholders(rawGeneric, target, null);
+        
+        String fallbackDefault = HardcoreConfigDefaults.HARDCORE_DEATHMESSAGES.getOrDefault(
+                target.getName(), 
+                HardcoreConfigDefaults.HARDCORE_DEATHMESSAGES.get("default")
+        );
+        String defaultCustomConfig = Tezzlar.getConfigManager().getString(
+                "hardcore.messages.deathMessages.default", 
+                fallbackDefault
+        );
+        String rawCustom = Tezzlar.getConfigManager().getString(
+                "hardcore.messages.deathMessages." + target.getName(),
+                defaultCustomConfig
+        );
+        String customMsg = HardcoreMessageFormatter.processPlaceholders(rawCustom, target, null);
+        
+        String rawTitle = Tezzlar.getConfigManager().getString(
+                "hardcore.messages.deathTitle",
+                HardcoreConfigDefaults.HARDCORE_DEATHTITLE
+        );
+        String rawSubtitle = Tezzlar.getConfigManager().getString(
+                "hardcore.messages.deathSubtitle",
+                HardcoreConfigDefaults.HARDCORE_DEATHSUBTITLE
+        );
+        
+        String parsedTitle = HardcoreMessageFormatter.processPlaceholders(rawTitle, target, null);
+        String parsedSub = HardcoreMessageFormatter.processPlaceholders(rawSubtitle, target, null);
+        
+        List<String> sounds = Tezzlar.getConfigManager().getStringList("hardcore.deathSounds");
+        if (sounds == null || sounds.isEmpty()) {
+            sounds = HardcoreConfigDefaults.HARDCORE_DEATHSOUNDS;
+        }
+        
+        boolean showTitle = rawTitle != null && !rawTitle.trim().isEmpty() || rawSubtitle != null && !rawSubtitle.trim().isEmpty();
+        
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getWorld().equals(target.getWorld()) && p.getLocation().distance(target.getLocation()) <= 20) {
+                Messenger.send(p, genericMsg);
+                Messenger.send(p, customMsg);
+                if (showTitle) {
+                    Messenger.showTitle(
+                            p, 
+                            parsedTitle, 
+                            parsedSub, 
+                            Duration.ZERO, 
+                            Duration.ofSeconds(5), 
+                            Duration.ofMillis(1000)
+                    );
+                }
+                for (String soundStr : sounds) {
+                    String[] parts = soundStr.split(";");
+                    if (parts.length > 0) {
+                        String soundName = parts[0];
+                        float volume = parts.length > 1 ? Float.parseFloat(parts[1]) : 1.0f;
+                        float pitch = parts.length > 2 ? Float.parseFloat(parts[2]) : 1.0f;
+                        p.playSound(p.getLocation(), soundName, volume, pitch);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void executeFakeTotem(Player target) {
+        target.playEffect(EntityEffect.PROTECTED_FROM_DEATH);
     }
 }

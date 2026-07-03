@@ -94,6 +94,27 @@ public class TrollMenu extends Menu {
                 .lore("<gray>Vacia completamente la barra", "<gray>de comida y saturación.")
                 .build();
         inventory.setItem(20, starve);
+
+        // 10. Obsidian Box
+        ItemStack obsidianBox = new ItemBuilder(Material.OBSIDIAN)
+                .name("<color:#4a325e><bold>Caja de Obsidiana")
+                .lore("<gray>Encierra al jugador en", "<gray>una caja de obsidiana.")
+                .build();
+        inventory.setItem(21, obsidianBox);
+
+        // 11. Fake Death
+        ItemStack fakeDeath = new ItemBuilder(Material.SKELETON_SKULL)
+                .name("<red><bold>Muerte Falsa")
+                .lore("<gray>Simula una muerte hardcore", "<gray>solo visible cerca de él.")
+                .build();
+        inventory.setItem(22, fakeDeath);
+
+        // 12. Fake Totem
+        ItemStack fakeTotem = new ItemBuilder(Material.TOTEM_OF_UNDYING)
+                .name("<yellow><bold>Tótem Falso")
+                .lore("<gray>Finge la activación de", "<gray>un tótem de inmortalidad.")
+                .build();
+        inventory.setItem(23, fakeTotem);
     }
 
     @Override
@@ -147,9 +168,21 @@ public class TrollMenu extends Menu {
                 TrollManager.executeStarve(target);
                 Messenger.prefixedSend(player, "&aTrolleo &eHambruna &aaplicado a " + target.getName());
                 break;
+            case 21:
+                TrollManager.executeObsidianBox(target);
+                Messenger.prefixedSend(player, "&aTrolleo &eCaja de Obsidiana &aaplicado a " + target.getName());
+                break;
+            case 22:
+                TrollManager.executeFakeDeath(target);
+                Messenger.prefixedSend(player, "&aTrolleo &eMuerte Falsa &aaplicado a " + target.getName());
+                break;
+            case 23:
+                TrollManager.executeFakeTotem(target);
+                Messenger.prefixedSend(player, "&aTrolleo &eTótem Falso &aaplicado a " + target.getName());
+                break;
         }
         
-        if ((slot >= 10 && slot <= 16) || slot == 19 || slot == 20) {
+        if ((slot >= 10 && slot <= 16) || (slot >= 19 && slot <= 23)) {
             player.closeInventory();
         }
     }
