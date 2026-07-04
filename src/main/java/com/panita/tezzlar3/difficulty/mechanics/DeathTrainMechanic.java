@@ -9,6 +9,8 @@ import com.panita.tezzlar3.core.util.PlayerUtils;
 import com.panita.tezzlar3.minievents.MiniEventsModule;
 import com.panita.tezzlar3.missions.MissionsModule;
 import com.panita.tezzlar3.timeline.util.TimeManager;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarManager;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -30,7 +32,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 
-public class DeathTrainMechanic extends DifficultyMechanic implements Listener {
+public class DeathTrainMechanic extends DifficultyMechanic implements Listener, ActionBarProvider {
 
     private static DeathTrainMechanic instance;
     private static org.bukkit.scheduler.BukkitTask currentTask;
@@ -57,6 +59,10 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener {
         }
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        
+        if (ActionBarManager.getInstance() != null) {
+            ActionBarManager.getInstance().registerProvider(this);
+        }
 
         if (currentTask != null) {
             currentTask.cancel();
@@ -84,15 +90,8 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener {
                 if (remainingSeconds % 60 == 0 || remainingSeconds == 0) {
                     Tezzlar.getConfigManager().updateInt("difficulty.death_train_seconds", remainingSeconds, null);
                 }
-                
-                String timeStr = Global.formatTimeTicks(remainingSeconds * 20L);
-                String actionBarMsg = "<gray>DeathTrain activo por " + timeStr + "</gray>";
-                
+
                 for (Player player : Bukkit.getOnlinePlayers()) {
-                    if (OverworldToxicityMechanic.isToxic(player)) continue;
-                    if (BabyKillCurseMechanic.isCursed(player)) continue;
-                    
-                    Messenger.sendActionBar(player, actionBarMsg);
 
                     if (!PlayerUtils.isSurvival(player)) continue;
                     
@@ -119,6 +118,23 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener {
 
     public static DeathTrainMechanic getInstance() {
         return instance;
+    }
+    
+    @Override
+    public String getId() {
+        return "deathtrain";
+    }
+
+    @Override
+    public String getText(Player player) {
+        if (!isActive() || remainingSeconds <= 0) return null;
+        
+        // Prevent overlap with other mechanics by pausing the DeathTrain
+        if (MissionsModule.getRefugeManager() != null && MissionsModule.getRefugeManager().isActive()) return null;
+        if (MiniEventsModule.getManager() != null && MiniEventsModule.getManager().getActiveEvent() != null) return null;
+        
+        String timeStr = Global.formatTimeTicks(remainingSeconds * 20L);
+        return "<gray>DeathTrain activo por " + timeStr + "</gray>";
     }
 
     public int getRemainingSeconds() {

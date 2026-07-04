@@ -17,6 +17,7 @@ import com.panita.tezzlar3.minievents.MiniEventsModule;
 import com.panita.tezzlar3.core.listeners.MenuListener;
 import com.panita.tezzlar3.core.listeners.RiderDismountListener;
 import com.panita.tezzlar3.core.papi.TezzlarPlaceholderExpansion;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -43,6 +44,9 @@ public class Tezzlar extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new MenuListener(), this);
         getServer().getPluginManager().registerEvents(new RiderDismountListener(), this);
         
+        // Start ActionBar Manager
+        new ActionBarManager().start();
+        
         // Register Modules
         moduleManager = new ModuleManager(this);
         moduleManager.register(new QualityOfLifeModule());
@@ -68,6 +72,10 @@ public class Tezzlar extends JavaPlugin {
 
         // Clean up bossbars to prevent duplication on reload
         Messenger.hideAllBossBars();
+        
+        if (ActionBarManager.getInstance() != null) {
+            ActionBarManager.getInstance().stop();
+        }
 
         if (moduleManager != null) {
             moduleManager.disableAll();

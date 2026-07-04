@@ -1,7 +1,8 @@
 package com.panita.tezzlar3.minievents.impl;
 
-import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.PlayerUtils;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarManager;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarProvider;
 import com.panita.tezzlar3.minievents.MiniEvent;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -16,9 +17,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public class WrongToolDamageEvent implements MiniEvent, Listener {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+public class WrongToolDamageEvent implements MiniEvent, Listener, ActionBarProvider {
 
     private boolean active = false;
+    private final Map<UUID, Long> messageExpiry = new HashMap<>();
 
     @Override
     public String getId() {
@@ -44,12 +50,17 @@ public class WrongToolDamageEvent implements MiniEvent, Listener {
     public void start(JavaPlugin plugin) {
         active = true;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        
+        if (ActionBarManager.getInstance() != null) {
+            ActionBarManager.getInstance().registerProvider(this);
+        }
     }
 
     @Override
     public void stop(JavaPlugin plugin) {
         active = false;
         HandlerList.unregisterAll(this);
+        messageExpiry.clear();
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -67,7 +78,7 @@ public class WrongToolDamageEvent implements MiniEvent, Listener {
         if (!isOptimalTool(block.getType(), tool.getType())) {
             // Wrong tool! Apply Instant Damage IV (amplifier 3)
             player.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_DAMAGE, 1, 3));
-            Messenger.sendActionBar(player, "<red>¡Usa la herramienta correcta!</red>");
+            messageExpiry.put(player.getUniqueId(), System.currentTimeMillis() + 3000L);
         }
     }
 
@@ -135,5 +146,19 @@ public class WrongToolDamageEvent implements MiniEvent, Listener {
         
         // For anything else (like crops, cobweb, bed, etc), assume it's fine.
         return true;
+    }
+
+    @Override
+    public boolean isUrgent(Player player) {
+        if (!active || !PlayerUtils.isSurvival(player)) return false;
+        return messageExpiry.containsKey(player.getUniqueId()) && System.currentTimeMillis() < messageExpiry.get(player.getUniqueId());
+    }
+
+    @Override
+    public String getText(Player player) {
+        if (isUrgent(player)) {
+            return "<red>¡Usa la herramienta correcta!</red>";
+        }
+        return null;
     }
 }

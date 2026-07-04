@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.Random;
 import com.panita.tezzlar3.core.util.Global;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarManager;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarProvider;
 
-public class MiniEventManager {
+public class MiniEventManager implements ActionBarProvider {
 
     private final JavaPlugin plugin;
     private final List<MiniEvent> registeredEvents = new ArrayList<>();
@@ -38,8 +40,12 @@ public class MiniEventManager {
     public MiniEventManager(JavaPlugin plugin) {
         this.plugin = plugin;
         this.dataConfig = new CustomConfig(plugin, "", "mini-events-data.yml");
-        
+
         startTask();
+        
+        if (ActionBarManager.getInstance() != null) {
+            ActionBarManager.getInstance().registerProvider(this);
+        }
     }
     
     public void init() {
@@ -78,16 +84,6 @@ public class MiniEventManager {
             if (activeEvent != null) {
                 if (activeEventRemainingTicks > 0) {
                     activeEventRemainingTicks -= 20; // 1 second passed
-                    
-                    String timeStr = Global.formatTimeTicks(activeEventRemainingTicks);
-                    String cleanName = MiniMessage.miniMessage().stripTags(activeEvent.getDisplayName());
-                    String actionBarMsg = "<gray>" + cleanName + " (" + timeStr + ")</gray>";
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        if (MissionsModule.getRefugeManager() != null && MissionsModule.getRefugeManager().isActive()) continue;
-                        if (OverworldToxicityMechanic.isToxic(player)) continue;
-                        if (BabyKillCurseMechanic.isCursed(player)) continue;
-                        Messenger.sendActionBar(player, actionBarMsg);
-                    }
                     
                     if (activeEventRemainingTicks <= 0) {
                         stopActiveEvent();
@@ -272,5 +268,24 @@ public class MiniEventManager {
     
     public MiniEvent getActiveEvent() {
         return activeEvent;
+    }
+    
+    @Override
+    public String getId() {
+        return "mini_event";
+    }
+
+    @Override
+    public String getText(Player player) {
+        if (activeEvent != null && activeEventRemainingTicks > 0) {
+            if (MissionsModule.getRefugeManager() != null && MissionsModule.getRefugeManager().isActive()) return null;
+            if (OverworldToxicityMechanic.isToxic(player)) return null;
+            if (BabyKillCurseMechanic.isCursed(player)) return null;
+
+            String timeStr = Global.formatTimeTicks(activeEventRemainingTicks);
+            String cleanName = MiniMessage.miniMessage().stripTags(activeEvent.getDisplayName());
+            return "<gray>" + cleanName + " (" + timeStr + ")</gray>";
+        }
+        return null;
     }
 }

@@ -14,10 +14,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarManager;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarProvider;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 
-public class BabyKillCurseMechanic extends DifficultyMechanic {
+public class BabyKillCurseMechanic extends DifficultyMechanic implements ActionBarProvider {
 
     private final Map<UUID, Long> cursedPlayers = new HashMap<>();
     private static BabyKillCurseMechanic instance;
@@ -25,6 +27,10 @@ public class BabyKillCurseMechanic extends DifficultyMechanic {
     public BabyKillCurseMechanic(JavaPlugin plugin) {
         super(plugin, 18);
         instance = this;
+        
+        if (ActionBarManager.getInstance() != null) {
+            ActionBarManager.getInstance().registerProvider(this);
+        }
         
         // Timer to restore scale
         plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
@@ -41,17 +47,6 @@ public class BabyKillCurseMechanic extends DifficultyMechanic {
                         }
                     }
                     return true;
-                } else {
-                    Player player = plugin.getServer().getPlayer(entry.getKey());
-                    if (player != null && player.isOnline() && PlayerUtils.isSurvival(player)) {
-                        if (!OverworldToxicityMechanic.isToxic(player)) {
-                            int remaining = (int) ((entry.getValue() - now) / 1000);
-                            String timeStr = String.format("%02d:%02d", remaining / 60, remaining % 60);
-                            if (MissionsModule.getRefugeManager() == null || !MissionsModule.getRefugeManager().isActive()) {
-                                Messenger.sendActionBar(player, "<gray>Tamaño reducido (" + timeStr + ")</gray>");
-                            }
-                        }
-                    }
                 }
                 return false;
             });
@@ -105,5 +100,29 @@ public class BabyKillCurseMechanic extends DifficultyMechanic {
                 }
             }
         }
+    }
+    
+    @Override
+    public String getId() {
+        return "baby_kill_curse";
+    }
+
+    @Override
+    public String getText(Player player) {
+        if (!isActive()) return null;
+        if (!PlayerUtils.isSurvival(player)) return null;
+        if (!cursedPlayers.containsKey(player.getUniqueId())) return null;
+        
+        if (OverworldToxicityMechanic.isToxic(player)) return null;
+        if (MissionsModule.getRefugeManager() != null && MissionsModule.getRefugeManager().isActive()) return null;
+
+        long expiry = cursedPlayers.get(player.getUniqueId());
+        long now = System.currentTimeMillis();
+        
+        if (now >= expiry) return null;
+        
+        int remaining = (int) ((expiry - now) / 1000);
+        String timeStr = String.format("%02d:%02d", remaining / 60, remaining % 60);
+        return "<gray>Tamaño reducido (" + timeStr + ")</gray>";
     }
 }

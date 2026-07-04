@@ -10,10 +10,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import com.panita.tezzlar3.core.chat.Messenger;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarManager;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarProvider;
 import com.panita.tezzlar3.core.util.Global;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 
-public class OverworldToxicityMechanic extends DifficultyMechanic {
+public class OverworldToxicityMechanic extends DifficultyMechanic implements ActionBarProvider {
 
     private final NamespacedKey TOXICITY_KEY;
     private static OverworldToxicityMechanic instance;
@@ -22,6 +24,10 @@ public class OverworldToxicityMechanic extends DifficultyMechanic {
         super(plugin, 20);
         this.TOXICITY_KEY = new NamespacedKey(plugin, "overworld_toxicity");
         instance = this;
+        
+        if (ActionBarManager.getInstance() != null) {
+            ActionBarManager.getInstance().registerProvider(this);
+        }
 
         plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
             if (!isActive()) return;
@@ -35,19 +41,7 @@ public class OverworldToxicityMechanic extends DifficultyMechanic {
                     player.getPersistentDataContainer().set(TOXICITY_KEY, PersistentDataType.INTEGER, seconds);
                     
                     int remaining = 600 - seconds;
-                    if (remaining > 0) {
-                        String color = "<#81C784>"; // Green
-                        if (remaining <= 300) color = "<#FFCA28>"; // Yellow
-                        if (remaining <= 60) color = "<#FF5252>"; // Red
-                        
-                        String timeStr = Global.formatTimeTicks(remaining * 20L);
-                        if (MissionsModule.getRefugeManager() == null || !MissionsModule.getRefugeManager().isActive()) {
-                            Messenger.sendActionBar(player, "<gray>Contaminación en </gray>" + color + timeStr + "</" + color.substring(1,8) + ">");
-                        }
-                    } else {
-                        if (MissionsModule.getRefugeManager() == null || !MissionsModule.getRefugeManager().isActive()) {
-                            Messenger.sendActionBar(player, "<#FF5252><b>¡NIVELES DE CONTAMINACIÓN CRÍTICOS!</b></#FF5252>");
-                        }
+                    if (remaining <= 0) {
                         applyToxicEffects(player);
                     }
                 } else {
@@ -70,5 +64,40 @@ public class OverworldToxicityMechanic extends DifficultyMechanic {
         player.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, 60, 3, false, false, true)); // Hunger 4
         player.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 60, 1, false, false, true)); // Wither 2
         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0, false, false, true));
+    }
+    
+    @Override
+    public String getId() {
+        return "overworld_toxicity";
+    }
+
+    @Override
+    public String getText(Player player) {
+        if (!isActive()) return null;
+        if (!PlayerUtils.isSurvival(player)) return null;
+        if (player.getWorld().getEnvironment() != World.Environment.NORMAL) return null;
+        
+        if (MissionsModule.getRefugeManager() != null && MissionsModule.getRefugeManager().isActive()) return null;
+
+        int seconds = player.getPersistentDataContainer().getOrDefault(TOXICITY_KEY, PersistentDataType.INTEGER, 0);
+        int remaining = 600 - seconds;
+        
+        if (remaining > 0) {
+            String color = "<#81C784>"; // Green
+            if (remaining <= 300) color = "<#FFCA28>"; // Yellow
+            if (remaining <= 60) color = "<#FF5252>"; // Red
+            
+            String timeStr = Global.formatTimeTicks(remaining * 20L);
+            return "<gray>Contaminación en </gray>" + color + timeStr + "</" + color.substring(1,8) + ">";
+        } else {
+            return "<#FF5252><b>¡NIVELES DE CONTAMINACIÓN CRÍTICOS!</b></#FF5252>";
+        }
+    }
+
+    @Override
+    public boolean isUrgent(Player player) {
+        if (!isActive() || !PlayerUtils.isSurvival(player)) return false;
+        int seconds = player.getPersistentDataContainer().getOrDefault(TOXICITY_KEY, PersistentDataType.INTEGER, 0);
+        return (600 - seconds) <= 0;
     }
 }

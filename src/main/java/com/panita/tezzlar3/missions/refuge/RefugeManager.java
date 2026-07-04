@@ -6,6 +6,8 @@ import com.panita.tezzlar3.core.util.Global;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.difficulty.mechanics.AcidRainMechanic;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarManager;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarProvider;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -34,7 +36,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-public class RefugeManager implements Listener {
+public class RefugeManager implements Listener, ActionBarProvider {
     
     private final JavaPlugin plugin;
     private final NamespacedKey TNT_KEY;
@@ -60,6 +62,10 @@ public class RefugeManager implements Listener {
         this.TNT_KEY = new NamespacedKey(plugin, "refuge_tnt");
         this.DOOMED_KEY = new NamespacedKey(plugin, "refuge_doomed");
         this.SURVIVOR_KEY = new NamespacedKey(plugin, "refuge_survivor");
+        
+        if (ActionBarManager.getInstance() != null) {
+            ActionBarManager.getInstance().registerProvider(this);
+        }
     }
     
     public boolean isActive() {
@@ -138,15 +144,6 @@ public class RefugeManager implements Listener {
                         endStage1();
                         return;
                     }
-                    
-                    String timeStr = Global.formatTimeTicks(timeLeft * 20L);
-                    String title = "<red><b>Alerta:</b> Tienes " + timeStr + " para llegar al refugio.</red>";
-                    
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        if (!PlayerUtils.isSurvival(player)) continue;
-                        Messenger.sendActionBar(player, title);
-                    }
-                    
                     timeLeft--;
                 } else if (currentStage == Stage.STAGE_2) {
                     if (timeLeft <= 0) {
@@ -154,9 +151,6 @@ public class RefugeManager implements Listener {
                         cancel();
                         return;
                     }
-                    
-                    String timeStr = Global.formatTimeTicks(timeLeft * 20L);
-                    String title = "<red><b>Alerta:</b> Sobrevive en el refugio " + timeStr + "</red>";
                     
                     for (Player player : Bukkit.getOnlinePlayers()) {
                         if (!PlayerUtils.isSurvival(player)) continue;
@@ -167,7 +161,6 @@ public class RefugeManager implements Listener {
                                 int outTime = abandonCounters.getOrDefault(player.getUniqueId(), 0) + 1;
                                 abandonCounters.put(player.getUniqueId(), outTime);
                                 
-                                Messenger.sendActionBar(player, "<dark_red><b>¡PELIGRO!</b> Vuelve a ponerte a salvo (" + outTime + "/10s)</dark_red>");
                                 SoundUtils.play(player, "block.note_block.pling", 1, 0.5f);
                                 
                                 if (outTime >= 10) {
@@ -175,7 +168,6 @@ public class RefugeManager implements Listener {
                                 }
                             } else {
                                 abandonCounters.put(player.getUniqueId(), 0);
-                                Messenger.sendActionBar(player, title);
                             }
                             
                             // TNT rain over survivors every 3 seconds
@@ -354,4 +346,39 @@ public class RefugeManager implements Listener {
         }.runTaskTimer(plugin, 0L, 5L);
     }
     
+    @Override
+    public String getId() {
+        return "refuge";
+    }
+
+    @Override
+    public String getText(Player player) {
+        if (!isActive()) return null;
+        if (!PlayerUtils.isSurvival(player)) return null;
+        
+        if (currentStage == Stage.STAGE_1) {
+            String timeStr = Global.formatTimeTicks(timeLeft * 20L);
+            return "<red><b>Alerta:</b> Tienes " + timeStr + " para llegar al refugio.</red>";
+        } else if (currentStage == Stage.STAGE_2) {
+            if (!player.getPersistentDataContainer().has(SURVIVOR_KEY, PersistentDataType.BYTE)) return null;
+            
+            boolean isSafe = isPlayerSafe(player);
+            if (!isSafe) {
+                int outTime = abandonCounters.getOrDefault(player.getUniqueId(), 0);
+                return "<dark_red><b>¡PELIGRO!</b> Vuelve a ponerte a salvo (" + outTime + "/10s)</dark_red>";
+            } else {
+                String timeStr = Global.formatTimeTicks(timeLeft * 20L);
+                return "<red><b>Alerta:</b> Sobrevive en el refugio " + timeStr + "</red>";
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isUrgent(Player player) {
+        if (currentStage == Stage.STAGE_2 && player.getPersistentDataContainer().has(SURVIVOR_KEY, PersistentDataType.BYTE)) {
+            return !isPlayerSafe(player);
+        }
+        return false;
+    }
 }
