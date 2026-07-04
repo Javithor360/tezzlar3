@@ -51,6 +51,12 @@ public class MiniEventsModule implements PluginModule {
         manager.registerEvent(new BloodMoonEvent());
         manager.registerEvent(new GlobalAcidRainEvent());
         manager.registerEvent(new WrongToolDamageEvent());
+        manager.registerEvent(new RushModeEvent());
+        manager.registerEvent(new NoOffhandEvent());
+        manager.registerEvent(new MermaidModeEvent());
+        manager.registerEvent(new ResizeModeEvent());
+        manager.registerEvent(new NyctophobiaEvent());
+        manager.registerEvent(new ExtremeModeEvent());
 
         manager.init();
         enabled = true;
