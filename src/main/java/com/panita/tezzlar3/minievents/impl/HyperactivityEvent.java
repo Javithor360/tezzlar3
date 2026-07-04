@@ -31,6 +31,7 @@ public class HyperactivityEvent implements MiniEvent, Listener {
     private int taskId = -1;
     private final Map<UUID, Location> lastLocations = new HashMap<>();
     private final Map<UUID, Integer> stillSeconds = new HashMap<>();
+    private final Set<UUID> penalizedPlayers = new HashSet<>();
 
     @Override
     public void start(JavaPlugin plugin) {
@@ -96,6 +97,7 @@ public class HyperactivityEvent implements MiniEvent, Listener {
 
         lastLocations.clear();
         stillSeconds.clear();
+        penalizedPlayers.clear();
     }
 
     @Override
@@ -133,9 +135,12 @@ public class HyperactivityEvent implements MiniEvent, Listener {
         lastLocations.remove(player.getUniqueId());
         stillSeconds.remove(player.getUniqueId());
         
-        if (taskId != -1 && PlayerUtils.isSurvival(player)) {
-            NamespacedKey key = new NamespacedKey(Tezzlar.getInstance(), "hyperactivity_penalty");
-            player.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
+        if (taskId != -1 && PlayerUtils.isSurvival(player) && !player.isDead()) {
+            if (!penalizedPlayers.contains(player.getUniqueId())) {
+                NamespacedKey key = new NamespacedKey(Tezzlar.getInstance(), "hyperactivity_penalty");
+                player.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
+                penalizedPlayers.add(player.getUniqueId());
+            }
         }
     }
 }

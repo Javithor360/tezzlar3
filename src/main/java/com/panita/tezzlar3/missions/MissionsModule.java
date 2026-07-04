@@ -58,8 +58,8 @@ public class MissionsModule implements PluginModule {
             dataManager.loadPlayerData(player);
         }
         
-        // Ejecutar expiraciones si el día cambió mientras el server estaba offline
-        expirationListener.evaluateExpirations(com.panita.tezzlar3.timeline.util.TimeManager.getCurrentDay());
+        // Execute expirations if the server was offline
+        expirationListener.evaluateExpirations(TimeManager.getCurrentDay());
     }
 
     @Override

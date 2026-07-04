@@ -17,6 +17,11 @@ public class DeathTrainStopCommand implements AdvancedCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (DeathTrainMechanic.getInstance() != null) {
+            if (DeathTrainMechanic.getInstance().getRemainingSeconds() <= 0) {
+                Messenger.prefixedSend(sender, "&cNo hay un DeathTrain activo actualmente.");
+                return;
+            }
+            
             DeathTrainMechanic.getInstance().setRemainingSeconds(0);
             Messenger.prefixedSend(sender, "&aDeathTrain detenido exitosamente.");
         } else {

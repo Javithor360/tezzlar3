@@ -7,13 +7,13 @@ import org.bukkit.command.CommandSender;
 
 @CommandSpec(
         name = "deathtrain",
-        description = "Comandos de administración del DeathTrain.",
+        description = "DeathTrain administration commands.",
         syntax = "/deathtrain",
         permission = "tezzlar.command.deathtrain"
 )
 public class DeathTrainCommand implements AdvancedCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Messenger.prefixedSend(sender, "&7Uso: &b/deathtrain <start|stop>");
+        Messenger.prefixedSend(sender, "&7Uso: &b/deathtrain <start|stop|add|remove>");
     }
 }

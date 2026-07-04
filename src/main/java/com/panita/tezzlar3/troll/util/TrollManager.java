@@ -223,7 +223,7 @@ public class TrollManager {
     }
 
     public static void executeFakeWarden(Player target) {
-        target.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 200, 0));
+        target.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 200, 0, false, true, true));
         target.playSound(target.getLocation(), Sound.ENTITY_WARDEN_EMERGE, 1.0f, 1.0f);
     }
 }
