@@ -12,6 +12,7 @@ import com.panita.tezzlar3.timeline.util.TimeManager;
 import com.panita.tezzlar3.missions.ui.MissionBossBarManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MissionsModule implements PluginModule {
@@ -65,6 +66,9 @@ public class MissionsModule implements PluginModule {
     public void onDisable(JavaPlugin plugin) {
         if (dataManager != null) {
             dataManager.saveAll();
+        }
+        if (refugeManager != null) {
+            HandlerList.unregisterAll(refugeManager);
         }
     }
 

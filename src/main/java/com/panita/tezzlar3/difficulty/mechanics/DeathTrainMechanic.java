@@ -28,9 +28,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class DeathTrainMechanic extends DifficultyMechanic implements Listener {
 
@@ -40,6 +38,7 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener {
     private int remainingSeconds = 0;
     private boolean stormActive = false;
     private final List<String> deadPlayers = new ArrayList<>();
+    private final Map<String, ItemStack> headCache = new HashMap<>();
     private final Random random = new Random();
 
     public DeathTrainMechanic(JavaPlugin plugin) {
@@ -167,13 +166,19 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener {
             if (!deadPlayers.isEmpty()) {
                 if (monster instanceof Zombie || monster instanceof AbstractSkeleton) {
                     String playerName = deadPlayers.get(random.nextInt(deadPlayers.size()));
-                    OfflinePlayer op = Bukkit.getOfflinePlayer(playerName);
                     
-                    ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-                    SkullMeta meta = (SkullMeta) head.getItemMeta();
-                    if (meta != null) {
-                        meta.setOwningPlayer(op);
-                        head.setItemMeta(meta);
+                    ItemStack head = headCache.get(playerName);
+                    if (head == null) {
+                        head = new ItemStack(Material.PLAYER_HEAD);
+                        SkullMeta meta = (SkullMeta) head.getItemMeta();
+                        if (meta != null) {
+                            OfflinePlayer op = Bukkit.getOfflinePlayer(playerName);
+                            meta.setOwningPlayer(op);
+                            head.setItemMeta(meta);
+                        }
+                        headCache.put(playerName, head.clone());
+                    } else {
+                        head = head.clone();
                     }
                     
                     if (monster.getEquipment() != null) {
