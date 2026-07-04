@@ -87,14 +87,13 @@ public class CommandMeta {
         return subCommands;
     }
 
-    /**
-     * Adds a sub-command to this command's metadata.
-     *
-     * @param name The name of the sub-command.
-     * @param meta The metadata for the sub-command.
-     */
     public void addSubCommand(String name, CommandMeta meta) {
-        this.subCommands.put(name.toLowerCase(), meta);
+        name = name.toLowerCase();
+        if (this.subCommands.containsKey(name)) {
+            CommandMeta existing = this.subCommands.get(name);
+            meta.getSubCommands().putAll(existing.getSubCommands());
+        }
+        this.subCommands.put(name, meta);
     }
 
     /**
