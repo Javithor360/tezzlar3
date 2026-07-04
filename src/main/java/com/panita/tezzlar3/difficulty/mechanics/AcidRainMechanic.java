@@ -6,7 +6,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 import com.panita.tezzlar3.core.util.Global;
+import com.panita.tezzlar3.qol.util.CustomItemManager;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
@@ -22,6 +24,7 @@ public class AcidRainMechanic extends DifficultyMechanic {
     private final Random random = new Random();
     private boolean isAcidRain = false;
     private boolean isForcedAcidRain = false;
+    private int acidRainTicks = 0;
 
     public AcidRainMechanic(JavaPlugin plugin) {
         super(plugin, 8); // Day 8
@@ -36,11 +39,13 @@ public class AcidRainMechanic extends DifficultyMechanic {
             currentTask.cancel();
         }
         
-        // Task runs every 3 seconds (60 ticks)
+        // Task runs every 1 second (20 ticks)
         currentTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (!isActive() && !isForcedAcidRain) return;
             
             if (!isAcidRain) return;
+            
+            acidRainTicks++;
             
             for (World world : Bukkit.getWorlds()) {
                 if (world.getEnvironment() != World.Environment.NORMAL) continue;
@@ -51,14 +56,19 @@ public class AcidRainMechanic extends DifficultyMechanic {
                     if (!PlayerUtils.isSurvival(player)) continue;
                     
                     if (player.isInRain()) {
-                        double newHealth = Math.max(0, player.getHealth() - 1.0);
-                        player.setHealth(newHealth);
-                        player.playHurtAnimation(0);
-                        SoundUtils.play(player, "entity.player.hurt", 1, 0.7F);
+                        boolean hasUmbrella = hasFancyUmbrella(player);
+                        int requiredTicks = hasUmbrella ? 6 : 3; // 8s with umbrella, 3s without
+                        
+                        if (acidRainTicks % requiredTicks == 0) {
+                            double newHealth = Math.max(0, player.getHealth() - 1.0);
+                            player.setHealth(newHealth);
+                            player.playHurtAnimation(0);
+                            SoundUtils.play(player, "entity.player.hurt", 1, 0.7F);
+                        }
                     }
                 }
             }
-        }, 60L, 60L);
+        }, 20L, 20L);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -121,5 +131,11 @@ public class AcidRainMechanic extends DifficultyMechanic {
             world.setStorm(false);
             world.setWeatherDuration(0);
         }
+    }
+    
+    private boolean hasFancyUmbrella(Player player) {
+        ItemStack main = player.getInventory().getItemInMainHand();
+        ItemStack off = player.getInventory().getItemInOffHand();
+        return CustomItemManager.isCustomItem(main, "fancy_umbrella") || CustomItemManager.isCustomItem(off, "fancy_umbrella");
     }
 }

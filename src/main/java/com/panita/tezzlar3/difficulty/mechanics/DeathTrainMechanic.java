@@ -6,6 +6,7 @@ import com.panita.tezzlar3.core.config.Config;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.core.util.Global;
 import com.panita.tezzlar3.core.util.PlayerUtils;
+import com.panita.tezzlar3.qol.util.CustomItemManager;
 import com.panita.tezzlar3.minievents.MiniEventsModule;
 import com.panita.tezzlar3.missions.MissionsModule;
 import com.panita.tezzlar3.timeline.util.TimeManager;
@@ -97,7 +98,9 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener, 
                     
                     // Slowness if exposed to rain
                     if (player.isInRain()) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 40, 0, false, false, true));
+                        if (!hasFancyUmbrella(player)) {
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 40, 0, false, false, true));
+                        }
                     }
                 }
             } else {
@@ -207,5 +210,11 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener, 
                 }
             }
         }
+    }
+    
+    private boolean hasFancyUmbrella(Player player) {
+        ItemStack main = player.getInventory().getItemInMainHand();
+        ItemStack off = player.getInventory().getItemInOffHand();
+        return CustomItemManager.isCustomItem(main, "fancy_umbrella") || CustomItemManager.isCustomItem(off, "fancy_umbrella");
     }
 }
