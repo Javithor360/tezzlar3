@@ -81,6 +81,13 @@ public class TrollMenu extends Menu {
                 .build();
         inventory.setItem(16, copper);
 
+        // Magma Trail
+        ItemStack magma = new ItemBuilder(Material.MAGMA_BLOCK)
+                .name("<color:#FF5722><bold>Magma Trail")
+                .lore("<gray>Durante 15s, el bloque bajo", "<gray>sus pies se vuelve magma.")
+                .build();
+        inventory.setItem(17, magma);
+
         // 8. Half Heart
         ItemStack halfHeart = new ItemBuilder(Material.FERMENTED_SPIDER_EYE)
                 .name("<dark_red><bold>Medio Corazón")
@@ -136,6 +143,13 @@ public class TrollMenu extends Menu {
                 .lore("<gray>Aplica oscuridad y reproduce", "<gray>el sonido de spawn de un Warden.")
                 .build();
         inventory.setItem(28, fakeWarden);
+
+        // Debris Trail
+        ItemStack debris = new ItemBuilder(Material.ANCIENT_DEBRIS)
+                .name("<color:#6D4C41><bold>Debris Trail")
+                .lore("<gray>Durante 5s, el bloque bajo", "<gray>sus pies se vuelve escombros antiguos.")
+                .build();
+        inventory.setItem(26, debris);
     }
 
     @Override
@@ -181,6 +195,10 @@ public class TrollMenu extends Menu {
                 TrollManager.enableCopperTrail(target);
                 Messenger.prefixedSend(player, "&aTrolleo &eCopper Trail &aaplicado a " + target.getName());
                 break;
+            case 17:
+                TrollManager.enableMagmaTrail(target);
+                Messenger.prefixedSend(player, "&aTrolleo &eMagma Trail &aaplicado a " + target.getName());
+                break;
             case 19:
                 TrollManager.executeHalfHeart(target);
                 Messenger.prefixedSend(player, "&aTrolleo &eMedio Corazón &aaplicado a " + target.getName());
@@ -209,13 +227,17 @@ public class TrollMenu extends Menu {
                 TrollManager.executeSwapHands(target);
                 Messenger.prefixedSend(player, "&aTrolleo &eCambio de Manos &aaplicado a " + target.getName());
                 break;
+            case 26:
+                TrollManager.enableDebrisTrail(target);
+                Messenger.prefixedSend(player, "&aTrolleo &eDebris Trail &aaplicado a " + target.getName());
+                break;
             case 28:
                 TrollManager.executeFakeWarden(target);
                 Messenger.prefixedSend(player, "&aTrolleo &eWarden Falso &aaplicado a " + target.getName());
                 break;
         }
         
-        if ((slot >= 10 && slot <= 16) || (slot >= 19 && slot <= 25) || slot == 28) {
+        if ((slot >= 10 && slot <= 17) || (slot >= 19 && slot <= 26) || slot == 28) {
             player.closeInventory();
         }
     }

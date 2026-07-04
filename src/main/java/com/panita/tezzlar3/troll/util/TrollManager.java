@@ -115,6 +115,14 @@ public class TrollManager {
         TrollListener.addCopperTrailTarget(target.getUniqueId());
     }
 
+    public static void enableMagmaTrail(Player target) {
+        TrollListener.addMagmaTrailTarget(target.getUniqueId());
+    }
+
+    public static void enableDebrisTrail(Player target) {
+        TrollListener.addDebrisTrailTarget(target.getUniqueId());
+    }
+
     public static void executeHalfHeart(Player target) {
         target.setHealth(1.0);
     }
