@@ -71,11 +71,11 @@ public record FeverDropProfile(
                     "<#FAC650>Tótems</#FAC650>",
                     Material.TOTEM_OF_UNDYING,
                     0,
-                    0.03,
+                    0.05,
                     0.05,
                     1,
                     1,
-                    "&3- &7Los &bCrepers &7tienen una probabilidad del &b5% &7de soltar <#FAC650>Tótems de la Inmortalidad</#FAC650> &7al morir."
+                    "&3- &7Los &bCreepers &7tienen una probabilidad del &b5% &7de soltar <#FAC650>Tótems de la Inmortalidad</#FAC650> &7al morir."
             ),
 
             new FeverDropProfile(
@@ -211,7 +211,7 @@ public record FeverDropProfile(
                     "<#7D4A16>Netherite</#7D4A16>",
                     Material.NETHERITE_SCRAP,
                     0,
-                    0.8,
+                    0.08,
                     0.5,
                     1,
                     3,
@@ -225,7 +225,7 @@ public record FeverDropProfile(
                     "<#7D4A16>Lingotes de Netherite</#7D4A16>",
                     Material.NETHERITE_INGOT,
                     0,
-                    0.1,
+                    0.01,
                     0.1,
                     1,
                     1,
@@ -248,16 +248,16 @@ public record FeverDropProfile(
 
             new FeverDropProfile(
                     "silverfish_exp",
-                    EntityType.SPIDER,
+                    EntityType.SILVERFISH,
                     "Lepisma",
                     "&aExperiencia",
                     null,
-                    5,
+                    3,
                     1,
                     0.001,
                     0,
                     0,
-                    "&3- &7Los &bLepismas &7sueltan &bx5 de experiencia &7al morir."
+                    "&3- &7Los &bLepismas &7sueltan &bx3 de experiencia &7al morir."
             ),
 
             new FeverDropProfile(
@@ -272,6 +272,20 @@ public record FeverDropProfile(
                     0,
                     0,
                     "&3- &7Los &bZombified Piglins &7sueltan &bx5 de experiencia &7al morir."
+            ),
+
+            new FeverDropProfile(
+                    "enderman_xp",
+                    EntityType.ENDERMAN,
+                    "Zombified Piglin",
+                    "&aExperiencia",
+                    null,
+                    3,
+                    1,
+                    0.001,
+                    0,
+                    0,
+                    "&3- &7Los &bEnderman &7sueltan &bx3 de experiencia &7al morir."
             )
     );
 }

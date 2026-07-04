@@ -4,8 +4,10 @@ import com.panita.tezzlar3.minievents.MiniEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.GameMode;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import com.panita.tezzlar3.core.util.PlayerUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +31,7 @@ public class NyctophobiaEvent implements MiniEvent {
     public void start(JavaPlugin plugin) {
         taskId = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
+                if (!PlayerUtils.isSurvival(player)) continue;
                 if (player.getLocation().getBlock().getLightFromBlocks() == 0) {
                     applyNyctophobiaEffect(player);
                 }

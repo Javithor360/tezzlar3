@@ -10,6 +10,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityAirChangeEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class MermaidModeEvent implements MiniEvent, Listener {
 
@@ -20,8 +22,12 @@ public class MermaidModeEvent implements MiniEvent, Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         taskId = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if (player.isInWater()) {
+                if (player.isInWater() || player.isInRain()) {
                     player.setRemainingAir(player.getMaximumAir());
+                    
+                    if (player.isInWater()) {
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.CONDUIT_POWER, 40, 0, true, true, true));
+                    }
                 } else {
                     int newAir = player.getRemainingAir() - 20; // 1 second worth of air
                     if (newAir <= 0) {
@@ -73,13 +79,13 @@ public class MermaidModeEvent implements MiniEvent, Listener {
     public void onAirChange(EntityAirChangeEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         
-        // Prevent air from increasing when not in water
-        if (event.getAmount() > player.getRemainingAir() && !player.isInWater()) {
+        // Prevent air from increasing when not in water/rain
+        if (event.getAmount() > player.getRemainingAir() && !player.isInWater() && !player.isInRain()) {
             event.setCancelled(true);
         }
         
-        // Prevent air from decreasing automatically when in water
-        if (event.getAmount() < player.getRemainingAir() && player.isInWater()) {
+        // Prevent air from decreasing automatically when in water/rain
+        if (event.getAmount() < player.getRemainingAir() && (player.isInWater() || player.isInRain())) {
             event.setCancelled(true);
         }
     }

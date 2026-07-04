@@ -9,7 +9,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.GameMode;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.core.util.PlayerUtils;
 
 import com.panita.tezzlar3.core.chat.Messenger;
 import java.util.Random;
@@ -23,7 +26,9 @@ public class ResizeModeEvent implements MiniEvent, Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            applyResize(player);
+            if (PlayerUtils.isSurvival(player)) {
+                applyResize(player);
+            }
         }
     }
 
@@ -77,6 +82,17 @@ public class ResizeModeEvent implements MiniEvent, Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        applyResize(event.getPlayer());
+        if (PlayerUtils.isSurvival(event.getPlayer())) {
+            applyResize(event.getPlayer());
+        }
+    }
+
+    @EventHandler
+    public void onGameModeChange(PlayerGameModeChangeEvent event) {
+        if (event.getNewGameMode() == GameMode.SURVIVAL || event.getNewGameMode() == GameMode.ADVENTURE) {
+            applyResize(event.getPlayer());
+        } else {
+            removeResize(event.getPlayer());
+        }
     }
 }

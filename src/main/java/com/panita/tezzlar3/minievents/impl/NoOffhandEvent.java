@@ -8,11 +8,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.GameMode;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.core.util.PlayerUtils;
 
 import java.util.HashMap;
 
@@ -25,7 +28,9 @@ public class NoOffhandEvent implements MiniEvent, Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            applyRestriction(player);
+            if (PlayerUtils.isSurvival(player)) {
+                applyRestriction(player);
+            }
         }
     }
 
@@ -85,18 +90,33 @@ public class NoOffhandEvent implements MiniEvent, Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        applyRestriction(event.getPlayer());
+        if (PlayerUtils.isSurvival(event.getPlayer())) {
+            applyRestriction(event.getPlayer());
+        }
+    }
+
+    @EventHandler
+    public void onGameModeChange(PlayerGameModeChangeEvent event) {
+        if (event.getNewGameMode() == GameMode.SURVIVAL || event.getNewGameMode() == GameMode.ADVENTURE) {
+            applyRestriction(event.getPlayer());
+        } else {
+            removeRestriction(event.getPlayer());
+        }
     }
 
     @EventHandler
     public void onSwapHand(PlayerSwapHandItemsEvent event) {
-        event.setCancelled(true);
+        if (PlayerUtils.isSurvival(event.getPlayer())) {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getSlot() == 40) {
-            event.setCancelled(true);
+        if (event.getWhoClicked() instanceof Player player && PlayerUtils.isSurvival(player)) {
+            if (event.getSlot() == 40) {
+                event.setCancelled(true);
+            }
         }
     }
 
