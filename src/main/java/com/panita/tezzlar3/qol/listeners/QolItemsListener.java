@@ -12,6 +12,8 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -128,6 +130,35 @@ public class QolItemsListener implements Listener {
 
             if (count > 0) {
                 Messenger.prefixedSend(player, "<gold>¡Has paralizado a <white>" + count + " <gold>mobs por 15 segundos!");
+            }
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onHeartInteract(PlayerInteractEvent event) {
+        if (!event.getAction().isRightClick()) return;
+
+        ItemStack item = event.getItem();
+        if (item == null || item.getType().isAir()) return;
+
+        if (CustomItemManager.isCustomItem(item, "tezzlar_heart")) {
+            event.setCancelled(true);
+            Player player = event.getPlayer();
+            
+            // Add 1 heart container (+2 max health)
+            AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
+            if (maxHealth != null) {
+                // Consume item
+                item.setAmount(item.getAmount() - 1);
+                
+                EntityUtils.trySetAttribute(player, Attribute.MAX_HEALTH, maxHealth.getBaseValue() + 2.0);
+                player.setHealth(Math.min(player.getHealth() + 2.0, maxHealth.getBaseValue()));
+                
+                SoundUtils.play(player, "entity.player.levelup", 1.0f, 1.2f);
+                SoundUtils.play(player, "entity.wither.spawn", 0.5f, 2.0f);
+                player.getWorld().spawnParticle(Particle.HEART, player.getLocation().add(0, 1, 0), 15, 0.5, 0.5, 0.5, 0.1);
+                
+                Messenger.prefixedSend(player, "<red>¡Has consumido un Corazón de Tezzlar y tu salud máxima ha aumentado!</red>");
             }
         }
     }
