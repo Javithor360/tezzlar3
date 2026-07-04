@@ -1,14 +1,10 @@
 package com.panita.tezzlar3.troll.util;
 
+import org.bukkit.*;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.troll.listeners.TrollListener;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Creeper;
@@ -17,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Silverfish;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
@@ -27,7 +25,6 @@ import java.time.Duration;
 import com.panita.tezzlar3.hardcore.util.HardcoreConfigDefaults;
 import com.panita.tezzlar3.hardcore.util.HardcoreMessageFormatter;
 import com.panita.tezzlar3.core.chat.Messenger;
-import org.bukkit.EntityEffect;
 
 public class TrollManager {
 
@@ -208,5 +205,25 @@ public class TrollManager {
 
     public static void executeFakeTotem(Player target) {
         target.playEffect(EntityEffect.PROTECTED_FROM_DEATH);
+    }
+
+    public static void executeDropItem(Player target) {
+        ItemStack item = target.getInventory().getItemInMainHand();
+        if (item != null && item.getType() != Material.AIR) {
+            target.getWorld().dropItemNaturally(target.getLocation(), item);
+            target.getInventory().setItemInMainHand(null);
+        }
+    }
+
+    public static void executeSwapHands(Player target) {
+        ItemStack main = target.getInventory().getItemInMainHand();
+        ItemStack off = target.getInventory().getItemInOffHand();
+        target.getInventory().setItemInMainHand(off);
+        target.getInventory().setItemInOffHand(main);
+    }
+
+    public static void executeFakeWarden(Player target) {
+        target.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 200, 0));
+        target.playSound(target.getLocation(), Sound.ENTITY_WARDEN_EMERGE, 1.0f, 1.0f);
     }
 }

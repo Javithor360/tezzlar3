@@ -25,7 +25,7 @@ public class TrollMenu extends Menu {
 
     @Override
     public int getSlots() {
-        return 27; // 3 rows
+        return 36; // 4 rows
     }
 
     @Override
@@ -115,6 +115,27 @@ public class TrollMenu extends Menu {
                 .lore("<gray>Finge la activación de", "<gray>un tótem de inmortalidad.")
                 .build();
         inventory.setItem(23, fakeTotem);
+
+        // 13. Drop Item
+        ItemStack dropItem = new ItemBuilder(Material.DROPPER)
+                .name("<white><bold>Drop Item")
+                .lore("<gray>Fuerza al jugador a dropear", "<gray>el ítem que tiene en su mano.")
+                .build();
+        inventory.setItem(24, dropItem);
+
+        // 14. Swap Hands
+        ItemStack swapHands = new ItemBuilder(Material.STICK)
+                .name("<light_purple><bold>Cambio de Manos")
+                .lore("<gray>Intercambia los ítems entre", "<gray>su mano principal y secundaria.")
+                .build();
+        inventory.setItem(25, swapHands);
+
+        // 15. Fake Warden
+        ItemStack fakeWarden = new ItemBuilder(Material.SCULK_SHRIEKER)
+                .name("<dark_aqua><bold>Warden Falso")
+                .lore("<gray>Aplica oscuridad y reproduce", "<gray>el sonido de spawn de un Warden.")
+                .build();
+        inventory.setItem(28, fakeWarden);
     }
 
     @Override
@@ -180,9 +201,21 @@ public class TrollMenu extends Menu {
                 TrollManager.executeFakeTotem(target);
                 Messenger.prefixedSend(player, "&aTrolleo &eTótem Falso &aaplicado a " + target.getName());
                 break;
+            case 24:
+                TrollManager.executeDropItem(target);
+                Messenger.prefixedSend(player, "&aTrolleo &eDrop Item &aaplicado a " + target.getName());
+                break;
+            case 25:
+                TrollManager.executeSwapHands(target);
+                Messenger.prefixedSend(player, "&aTrolleo &eCambio de Manos &aaplicado a " + target.getName());
+                break;
+            case 28:
+                TrollManager.executeFakeWarden(target);
+                Messenger.prefixedSend(player, "&aTrolleo &eWarden Falso &aaplicado a " + target.getName());
+                break;
         }
         
-        if ((slot >= 10 && slot <= 16) || (slot >= 19 && slot <= 23)) {
+        if ((slot >= 10 && slot <= 16) || (slot >= 19 && slot <= 25) || slot == 28) {
             player.closeInventory();
         }
     }
