@@ -278,10 +278,6 @@ public class MiniEventManager implements ActionBarProvider {
     @Override
     public String getText(Player player) {
         if (activeEvent != null && activeEventRemainingTicks > 0) {
-            if (MissionsModule.getRefugeManager() != null && MissionsModule.getRefugeManager().isActive()) return null;
-            if (OverworldToxicityMechanic.isToxic(player)) return null;
-            if (BabyKillCurseMechanic.isCursed(player)) return null;
-
             String timeStr = Global.formatTimeTicks(activeEventRemainingTicks);
             String cleanName = MiniMessage.miniMessage().stripTags(activeEvent.getDisplayName());
             return "<gray>" + cleanName + " (" + timeStr + ")</gray>";

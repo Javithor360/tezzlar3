@@ -112,9 +112,6 @@ public class BabyKillCurseMechanic extends DifficultyMechanic implements ActionB
         if (!isActive()) return null;
         if (!PlayerUtils.isSurvival(player)) return null;
         if (!cursedPlayers.containsKey(player.getUniqueId())) return null;
-        
-        if (OverworldToxicityMechanic.isToxic(player)) return null;
-        if (MissionsModule.getRefugeManager() != null && MissionsModule.getRefugeManager().isActive()) return null;
 
         long expiry = cursedPlayers.get(player.getUniqueId());
         long now = System.currentTimeMillis();

@@ -76,8 +76,6 @@ public class OverworldToxicityMechanic extends DifficultyMechanic implements Act
         if (!isActive()) return null;
         if (!PlayerUtils.isSurvival(player)) return null;
         if (player.getWorld().getEnvironment() != World.Environment.NORMAL) return null;
-        
-        if (MissionsModule.getRefugeManager() != null && MissionsModule.getRefugeManager().isActive()) return null;
 
         int seconds = player.getPersistentDataContainer().getOrDefault(TOXICITY_KEY, PersistentDataType.INTEGER, 0);
         int remaining = 600 - seconds;
