@@ -84,6 +84,7 @@ public class MiniEventsModule implements PluginModule {
         manager.registerEvent(new ExtremeModeEvent());
         manager.registerEvent(new HyperactivityEvent());
         manager.registerEvent(new JobFairEvent());
+        manager.registerEvent(new OppositeHourEvent());
 
         manager.init();
         enabled = true;

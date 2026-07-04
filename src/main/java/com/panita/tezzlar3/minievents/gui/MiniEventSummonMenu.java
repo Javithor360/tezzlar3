@@ -66,6 +66,7 @@ public class MiniEventSummonMenu extends Menu {
                     case "extreme_mode" -> icon = Material.OMINOUS_BOTTLE;
                     case "hyperactivity" -> icon = Material.SUGAR;
                     case "job_fair" -> icon = Material.WRITTEN_BOOK;
+                    case "opposite_hour" -> icon = Material.CLOCK;
                 }
                 
                 ItemStack eventItem = new ItemBuilder(icon)
