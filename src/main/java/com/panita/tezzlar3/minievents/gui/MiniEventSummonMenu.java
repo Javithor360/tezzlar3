@@ -58,6 +58,12 @@ public class MiniEventSummonMenu extends Menu {
                     case "blood_moon" -> icon = Material.JACK_O_LANTERN;
                     case "acid_rain_global" -> icon = Material.SLIME_BALL;
                     case "wrong_tool_damage" -> icon = Material.WOODEN_PICKAXE;
+                    case "rush_mode" -> icon = Material.IRON_AXE;
+                    case "no_offhand" -> icon = Material.STRUCTURE_VOID;
+                    case "mermaid_mode" -> icon = Material.KELP;
+                    case "resize_mode" -> icon = Material.GOLDEN_DANDELION;
+                    case "nyctophobia" -> icon = Material.BLACK_BED;
+                    case "extreme_mode" -> icon = Material.OMINOUS_BOTTLE;
                 }
                 
                 ItemStack eventItem = new ItemBuilder(icon)

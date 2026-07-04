@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.panita.tezzlar3.core.chat.Messenger;
 import java.util.Random;
 
 public class ResizeModeEvent implements MiniEvent, Listener {
@@ -41,6 +42,9 @@ public class ResizeModeEvent implements MiniEvent, Listener {
             // Random double between 0.75 and 1.25
             double newScale = 0.75 + (random.nextDouble() * 0.5);
             scale.setBaseValue(newScale);
+            
+            String formattedSize = String.format(java.util.Locale.US, "%.2f", newScale);
+            Messenger.prefixedSend(player, "&7Tu tamaño ha sido cambiado a: &b" + formattedSize + "x");
         }
     }
 

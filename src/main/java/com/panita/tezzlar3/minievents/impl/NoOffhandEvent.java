@@ -99,4 +99,11 @@ public class NoOffhandEvent implements MiniEvent, Listener {
             event.setCancelled(true);
         }
     }
+
+    @EventHandler
+    public void onBlockPlace(org.bukkit.event.block.BlockPlaceEvent event) {
+        if (event.getBlockPlaced().getType() == Material.STRUCTURE_VOID) {
+            event.setCancelled(true);
+        }
+    }
 }

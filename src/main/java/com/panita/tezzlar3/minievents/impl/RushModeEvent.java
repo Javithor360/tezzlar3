@@ -52,6 +52,10 @@ public class RushModeEvent implements MiniEvent, Listener {
             if (maxHealth != null) {
                 maxHealth.setBaseValue(maxHealth.getBaseValue() * 2.0);
             }
+        } else if (activeMode == 1) {
+            // No Hunger - set food and saturation to max at the start
+            player.setFoodLevel(20);
+            player.setSaturation(20.0f);
         } else if (activeMode == 2) {
             // Speed III (infinite duration for the event, we remove it on stop)
             player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, PotionEffect.INFINITE_DURATION, 2, false, false, true));
@@ -83,11 +87,20 @@ public class RushModeEvent implements MiniEvent, Listener {
 
     @Override
     public String getDescription() {
-        return "\n&7Durante las próximas &b2 horas&7, el modo rush estará activo.\n\n&3- &7Los jugadores recibirán un efecto potenciador (Doble Vida, Sin Hambre, o Velocidad III) al azar.";
+        if (activeMode == 0) {
+            return "\n&7Durante las próximas &b2 horas&7, el modo rush estará activo.\n\n&3- &7Los jugadores recibirán el efecto &bDoble Vida&7.";
+        } else if (activeMode == 1) {
+            return "\n&7Durante la próxima &b1 hora&7, el modo rush estará activo.\n\n&3- &7Los jugadores recibirán el efecto &bSin Hambre&7.";
+        } else {
+            return "\n&7Durante las próximas &b2 horas&7, el modo rush estará activo.\n\n&3- &7Los jugadores recibirán el efecto &bVelocidad III&7.";
+        }
     }
 
     @Override
     public long getDurationTicks() {
+        if (activeMode == 1) {
+            return 60 * 60 * 20L; // 1 hour
+        }
         return 2 * 60 * 60 * 20L; // 2 hours
     }
 
@@ -99,12 +112,9 @@ public class RushModeEvent implements MiniEvent, Listener {
     @EventHandler
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
         if (activeMode == 1) {
-            // No hunger for 1h max
-            long elapsedMillis = System.currentTimeMillis() - startTimestamp;
-            if (elapsedMillis <= 3600000L) { // 1 hour in ms
-                if (event.getEntity() instanceof Player player) {
-                    event.setFoodLevel(20);
-                    player.setSaturation(20.0f);
+            if (event.getEntity() instanceof Player player) {
+                // Prevent food level from decreasing but let increase
+                if (event.getFoodLevel() < player.getFoodLevel()) {
                     event.setCancelled(true);
                 }
             }

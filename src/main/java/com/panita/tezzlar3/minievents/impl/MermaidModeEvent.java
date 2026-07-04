@@ -6,12 +6,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class MermaidModeEvent implements MiniEvent {
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityAirChangeEvent;
+
+public class MermaidModeEvent implements MiniEvent, Listener {
 
     private int taskId = -1;
 
     @Override
     public void start(JavaPlugin plugin) {
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
         taskId = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.isInWater()) {
@@ -31,6 +37,8 @@ public class MermaidModeEvent implements MiniEvent {
 
     @Override
     public void stop(JavaPlugin plugin) {
+        HandlerList.unregisterAll(this);
+
         if (taskId != -1) {
             Bukkit.getScheduler().cancelTask(taskId);
             taskId = -1;
@@ -59,5 +67,20 @@ public class MermaidModeEvent implements MiniEvent {
     @Override
     public long getDurationTicks() {
         return 2 * 60 * 60 * 20L; // 2 hours
+    }
+
+    @EventHandler
+    public void onAirChange(EntityAirChangeEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        
+        // Prevent air from increasing when not in water
+        if (event.getAmount() > player.getRemainingAir() && !player.isInWater()) {
+            event.setCancelled(true);
+        }
+        
+        // Prevent air from decreasing automatically when in water
+        if (event.getAmount() < player.getRemainingAir() && player.isInWater()) {
+            event.setCancelled(true);
+        }
     }
 }

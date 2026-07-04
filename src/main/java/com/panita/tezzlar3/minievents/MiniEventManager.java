@@ -187,8 +187,8 @@ public class MiniEventManager {
 
     private void triggerEvent(MiniEvent event) {
         activeEvent = event;
-        activeEventRemainingTicks = event.getDurationTicks();
         event.start(plugin);
+        activeEventRemainingTicks = event.getDurationTicks();
         
         if (activeEventRemainingTicks == 0) {
             // Instant event

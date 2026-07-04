@@ -18,7 +18,7 @@ public class NyctophobiaEvent implements MiniEvent {
 
     // List of negative effects and their amplifiers (0-indexed)
     private final List<NyctoEffect> negativeEffects = Arrays.asList(
-            new NyctoEffect(PotionEffectType.MINING_FATIGUE, 0),
+            new NyctoEffect(PotionEffectType.MINING_FATIGUE, 2), // MINING FATIGUE III
             new NyctoEffect(PotionEffectType.SLOWNESS, 3), // SLOWNESS IV
             new NyctoEffect(PotionEffectType.BLINDNESS, 0),
             new NyctoEffect(PotionEffectType.NAUSEA, 0),
@@ -29,7 +29,7 @@ public class NyctophobiaEvent implements MiniEvent {
     public void start(JavaPlugin plugin) {
         taskId = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if (player.getLocation().getBlock().getLightLevel() == 0) {
+                if (player.getLocation().getBlock().getLightFromBlocks() == 0) {
                     applyNyctophobiaEffect(player);
                 }
             }
