@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -34,6 +35,8 @@ import java.util.Random;
 public class DeathTrainMechanic extends DifficultyMechanic implements Listener {
 
     private static DeathTrainMechanic instance;
+    private static org.bukkit.scheduler.BukkitTask currentTask;
+    
     private int remainingSeconds = 0;
     private boolean stormActive = false;
     private final List<String> deadPlayers = new ArrayList<>();
@@ -41,6 +44,11 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener {
 
     public DeathTrainMechanic(JavaPlugin plugin) {
         super(plugin, 2); // Active from day 2
+        
+        if (instance != null) {
+            HandlerList.unregisterAll(instance);
+        }
+        
         instance = this;
         
         this.remainingSeconds = Config.raw().getInt("difficulty.death_train_seconds", 0);
@@ -51,7 +59,11 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener {
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
-        plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
+        if (currentTask != null) {
+            currentTask.cancel();
+        }
+
+        currentTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
             if (!isActive()) return;
             
             // Prevent overlap with other mechanics by pausing the DeathTrain

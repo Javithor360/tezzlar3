@@ -67,6 +67,7 @@ import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SpawnerMobBuffMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.OverworldToxicityMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -75,6 +76,9 @@ import java.util.List;
 public class DifficultyModule implements PluginModule {
     private boolean enabled;
     public static final String PACKAGE_NAME = "com.panita.tezzlar3.difficulty";
+    
+    private final List<DifficultyMechanic> mechanics = new ArrayList<>();
+    private boolean initialized = false;
 
     @Override
     public String id() {
@@ -88,10 +92,9 @@ public class DifficultyModule implements PluginModule {
 
     @Override
     public void onEnable(JavaPlugin plugin) {
-        List<DifficultyMechanic> mechanics = new ArrayList<>();
-        
-        // Day 1
-        mechanics.add(new PremiumArmorSetMechanic(plugin));
+        if (!initialized) {
+            // Day 1
+            mechanics.add(new PremiumArmorSetMechanic(plugin));
         
         // Day 2
         mechanics.add(new DeathTrainMechanic(plugin));
@@ -192,6 +195,9 @@ public class DifficultyModule implements PluginModule {
         // Day 20
         mechanics.add(new OverworldToxicityMechanic(plugin));
         mechanics.add(new EnderGuardianMechanic(plugin));
+            
+            initialized = true;
+        }
         
         for (DifficultyMechanic mechanic : mechanics) {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);
@@ -203,6 +209,14 @@ public class DifficultyModule implements PluginModule {
     @Override
     public boolean isEnabled() {
         return enabled;
+    }
+
+    @Override
+    public void onDisable(JavaPlugin plugin) {
+        for (DifficultyMechanic mechanic : mechanics) {
+            HandlerList.unregisterAll(mechanic);
+        }
+        enabled = false;
     }
 
     @Override

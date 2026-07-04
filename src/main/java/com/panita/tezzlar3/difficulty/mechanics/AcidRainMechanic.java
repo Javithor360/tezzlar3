@@ -9,6 +9,7 @@ import com.panita.tezzlar3.core.util.Global;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,16 +17,27 @@ import java.util.Random;
 
 public class AcidRainMechanic extends DifficultyMechanic {
     private static AcidRainMechanic instance;
+    private static org.bukkit.scheduler.BukkitTask currentTask;
+    
     private final Random random = new Random();
     private boolean isAcidRain = false;
     private boolean isForcedAcidRain = false;
 
     public AcidRainMechanic(JavaPlugin plugin) {
         super(plugin, 8); // Day 8
+        
+        if (instance != null) {
+            HandlerList.unregisterAll(instance);
+        }
+        
         instance = this;
         
+        if (currentTask != null) {
+            currentTask.cancel();
+        }
+        
         // Task runs every 3 seconds (60 ticks)
-        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        currentTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (!isActive() && !isForcedAcidRain) return;
             
             if (!isAcidRain) return;
