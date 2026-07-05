@@ -5,10 +5,8 @@ import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.qol.util.CustomItemManager;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -20,7 +18,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -28,12 +28,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.inventory.meta.BundleMeta;
 import org.bukkit.util.Vector;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import com.panita.tezzlar3.Tezzlar;
+import com.panita.tezzlar3.hardcore.util.HardcoreDataManager;
+import org.bukkit.entity.EntityType;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class QolItemsListener implements Listener {
 
@@ -182,6 +183,121 @@ public class QolItemsListener implements Listener {
             } else if (maxHealth != null) {
                 Messenger.prefixedSend(player, "<red>No puedes reducir más tu salud máxima.</red>");
             }
+        } else if (CustomItemManager.isCustomItem(item, "life_saver")) {
+            event.setCancelled(true);
+            Player player = event.getPlayer();
+            
+            int currentLives = HardcoreDataManager.getLives(player.getUniqueId(), player.getName());
+            int maxLives = HardcoreDataManager.getMaxLives(player.getUniqueId(), player.getName());
+            
+            if (currentLives < maxLives) {
+                item.setAmount(item.getAmount() - 1);
+                HardcoreDataManager.setLives(player.getUniqueId(), player.getName(), currentLives + 1);
+                
+                SoundUtils.play(player, "entity.player.levelup", 1.0f, 1.2f);
+                SoundUtils.play(player, "entity.illusioner.prepare_mirror", 0.5f, 1.5f);
+                player.getWorld().spawnParticle(Particle.HEART, player.getLocation().add(0, 1, 0), 15, 0.5, 0.5, 0.5, 0.1);
+                
+                Messenger.prefixedSend(player, "<green>¡Has consumido un Salva Vidas y has recuperado una vida!</green>");
+            } else {
+                Messenger.prefixedSend(player, "<red>Tus vidas ya están al máximo. No puedes consumir esto, pero puedes dárselo a quién lo necesite.</red>");
+            }
+        } else if (CustomItemManager.isCustomItem(item, "memory_evoker")) {
+            event.setCancelled(true);
+            Player player = event.getPlayer();
+
+            String evokerWorldStr = Tezzlar.getConfigManager().getString("qol.memory_evoker.world", "world");
+            int evokerX = Tezzlar.getConfigManager().getInt("qol.memory_evoker.x", 0);
+            int evokerY = Tezzlar.getConfigManager().getInt("qol.memory_evoker.y", 64);
+            int evokerZ = Tezzlar.getConfigManager().getInt("qol.memory_evoker.z", 0);
+            double radius = Tezzlar.getConfigManager().getDouble("qol.memory_evoker.radius", 50.0);
+
+            World evokerWorld = Bukkit.getWorld(evokerWorldStr);
+            if (evokerWorld == null || !player.getWorld().equals(evokerWorld)) {
+                Messenger.prefixedSend(player, "<red>Debes estar en el mundo correcto para usar el Memory Evoker.</red>");
+                return;
+            }
+
+            Location center = new Location(evokerWorld, evokerX, evokerY, evokerZ);
+            if (player.getLocation().distance(center) > radius) {
+                Messenger.prefixedSend(player, "<red>Debes estar cerca del altar para utilizar el Memory Evoker.</red>");
+                return;
+            }
+
+            ItemMeta meta = item.getItemMeta();
+            if (meta == null || !meta.hasDisplayName()) {
+                Messenger.prefixedSend(player, "<red>Debes renombrar este ítem en un yunque con el nombre del jugador caído.</red>");
+                return;
+            }
+
+            String targetName = PlainTextComponentSerializer.plainText().serialize(meta.displayName()).trim();
+
+            @SuppressWarnings("deprecation")
+            OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
+
+            if (target == null || !target.hasPlayedBefore()) {
+                Messenger.prefixedSend(player, "<red>El jugador <yellow>" + targetName + "</yellow> no existe o no se ha unido al servidor.</red>");
+                return;
+            }
+
+            long banExpiration = HardcoreDataManager.getBanExpiration(target.getUniqueId(), target.getName());
+            if (banExpiration <= System.currentTimeMillis()) {
+                Messenger.prefixedSend(player, "<red>El jugador <yellow>" + target.getName() + "</yellow> no está baneado actualmente por muertes.</red>");
+                return;
+            }
+
+            item.setAmount(item.getAmount() - 1);
+            spawnMemoryEvokerWave(player.getLocation(), target);
+            
+            Messenger.prefixedSend(player, "<gold>Has evocado los recuerdos de <yellow>" + target.getName() + "</yellow>. ¡Prepárate para luchar!</gold>");
+            SoundUtils.play(player, "entity.wither.spawn", 1.0f, 0.5f);
+        }
+    }
+
+    private void spawnMemoryEvokerWave(Location loc, OfflinePlayer target) {
+        String waveId = UUID.randomUUID().toString();
+        EntityType[] mobTypes = {EntityType.ZOMBIE, EntityType.HUSK, EntityType.SKELETON, EntityType.STRAY,
+                EntityType.BOGGED, EntityType.PARCHED, EntityType.VINDICATOR, EntityType.PILLAGER, EntityType.EVOKER, EntityType.RAVAGER};
+        Random random = new Random();
+        
+        int numMobs = 4;
+        int keyholderIndex = random.nextInt(numMobs);
+        String customName = "<gold>Evoca-recuerdos de " + target.getName() + "</gold>";
+        
+        for (int i = 0; i < numMobs; i++) {
+            EntityType type = mobTypes[random.nextInt(mobTypes.length)];
+            
+            double offsetX = (random.nextDouble() * 10) - 5;
+            double offsetZ = (random.nextDouble() * 10) - 5;
+            Location spawnLoc = loc.clone().add(offsetX, 0, offsetZ);
+            spawnLoc.setY(spawnLoc.getWorld().getHighestBlockYAt(spawnLoc) + 1);
+            
+            Mob mob = EntityUtils.spawnNatural(spawnLoc, type);
+            if (mob == null) continue;
+            
+            EntityUtils.setCustomName(mob, customName, true);
+            EntityUtils.setColoredGlowing(mob, NamedTextColor.LIGHT_PURPLE);
+            mob.setRemoveWhenFarAway(false);
+            
+            ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+            SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
+            skullMeta.setOwningPlayer(target);
+            head.setItemMeta(skullMeta);
+            
+            EntityEquipment equip = mob.getEquipment();
+            if (equip != null) {
+                equip.setHelmet(head);
+                equip.setHelmetDropChance(0.0f);
+            }
+            
+            mob.getPersistentDataContainer().set(new NamespacedKey(Tezzlar.getInstance(), "is_memory_mob"), PersistentDataType.STRING, waveId);
+            mob.getPersistentDataContainer().set(new NamespacedKey(Tezzlar.getInstance(), "memory_target"), PersistentDataType.STRING, target.getUniqueId().toString());
+            
+            if (i == keyholderIndex) {
+                mob.getPersistentDataContainer().set(new NamespacedKey(Tezzlar.getInstance(), "is_memory_keyholder"), PersistentDataType.BYTE, (byte) 1);
+            }
+            
+            mob.getWorld().spawnParticle(Particle.SOUL, mob.getLocation().add(0, 1, 0), 30, 0.5, 0.5, 0.5, 0.1);
         }
     }
 
