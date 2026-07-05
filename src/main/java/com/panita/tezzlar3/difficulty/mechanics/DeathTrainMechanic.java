@@ -215,6 +215,9 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener, 
     private boolean hasFancyUmbrella(Player player) {
         ItemStack main = player.getInventory().getItemInMainHand();
         ItemStack off = player.getInventory().getItemInOffHand();
-        return CustomItemManager.isCustomItem(main, "fancy_umbrella") || CustomItemManager.isCustomItem(off, "fancy_umbrella");
+        ItemStack helmet = player.getInventory().getHelmet();
+        return CustomItemManager.isCustomItem(main, "fancy_umbrella") 
+                || CustomItemManager.isCustomItem(off, "fancy_umbrella")
+                || CustomItemManager.isCustomItem(helmet, "fancy_umbrella");
     }
 }

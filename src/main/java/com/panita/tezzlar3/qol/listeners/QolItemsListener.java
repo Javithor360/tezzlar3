@@ -160,6 +160,28 @@ public class QolItemsListener implements Listener {
                 
                 Messenger.prefixedSend(player, "<red>¡Has consumido un Corazón de Tezzlar y tu salud máxima ha aumentado!</red>");
             }
+        } else if (CustomItemManager.isCustomItem(item, "tezzlar_heartnt")) {
+            event.setCancelled(true);
+            Player player = event.getPlayer();
+            
+            // Remove 1 heart container (-2 max health)
+            AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
+            if (maxHealth != null && maxHealth.getBaseValue() > 2.0) {
+                // Consume item
+                item.setAmount(item.getAmount() - 1);
+                
+                EntityUtils.trySetAttribute(player, Attribute.MAX_HEALTH, maxHealth.getBaseValue() - 2.0);
+                if (player.getHealth() > maxHealth.getBaseValue()) {
+                    player.setHealth(maxHealth.getBaseValue());
+                }
+                
+                SoundUtils.play(player, "entity.wither.hurt", 1.0f, 0.8f);
+                player.getWorld().spawnParticle(Particle.DAMAGE_INDICATOR, player.getLocation().add(0, 1, 0), 15, 0.5, 0.5, 0.5, 0.1);
+                
+                Messenger.prefixedSend(player, "<dark_red>¡Has consumido un Corazón Maldito y tu salud máxima ha disminuido!</dark_red>");
+            } else if (maxHealth != null) {
+                Messenger.prefixedSend(player, "<red>No puedes reducir más tu salud máxima.</red>");
+            }
         }
     }
 
