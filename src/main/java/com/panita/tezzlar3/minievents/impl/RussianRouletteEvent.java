@@ -48,7 +48,6 @@ public class RussianRouletteEvent implements MiniEvent, Listener {
         World world = Bukkit.getWorld(Tezzlar.getConfigManager().getString("worldName", "world"));
         if (world != null) {
             Location spawnLoc = new Location(world, x + 0.5, y + 1.0, z + 0.5);
-            spawnLoc.setY(world.getHighestBlockYAt(spawnLoc) + 1);
             
             npc = (WanderingTrader) world.spawnEntity(spawnLoc, EntityType.WANDERING_TRADER);
             npc.setAI(false);
@@ -109,7 +108,8 @@ public class RussianRouletteEvent implements MiniEvent, Listener {
                 int maxLives = HardcoreDataManager.getMaxLives(player.getUniqueId(), player.getName());
                 
                 if (currentLives >= maxLives) {
-                    Messenger.prefixedSend(player, "<red>El Mercader te rechaza: 'Tus vidas ya están al máximo. No puedes tentar más a la suerte.'</red>");
+                    Messenger.prefixedSend(player, "<red>El Mercader te dice: \"Tus vidas ya están al máximo. No puedes tentar más a la suerte.\"</red>");
+                    SoundUtils.play(player, "entity.villager.no", 1.0f, 1.0f);
                     return;
                 }
                 
