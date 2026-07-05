@@ -43,7 +43,7 @@ public class BroadcastCommand implements AdvancedCommand, TabSuggestingCommand {
             return;
         }
         
-        SoundUtils.playGlobal("ENTITY_EXPERIENCE_ORB_PICKUP", 1.0f, 1.0f);
+        SoundUtils.playGlobal("entity.experience_orb.pickup", 1.0f, 1.0f);
     }
     
     @Override
