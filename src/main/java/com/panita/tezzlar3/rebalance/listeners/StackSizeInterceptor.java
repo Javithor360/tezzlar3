@@ -30,135 +30,50 @@ public class StackSizeInterceptor implements Listener {
         this.plugin = plugin;
     }
 
-    private void requestUpdate(Player player) {
-        plugin.getServer().getScheduler().runTaskLater(plugin, player::updateInventory, 1L);
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onItemSpawn(ItemSpawnEvent event) {
-        ItemStack item = event.getEntity().getItemStack();
-        if (applyCustomStackSize(item)) {
-            event.getEntity().setItemStack(item);
-        }
+    private void schedulePlayerSweep(Player player) {
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            boolean modified = sweepInventory(player.getInventory());
+            ItemStack cursor = player.getItemOnCursor();
+            if (applyCustomStackSize(cursor)) {
+                player.setItemOnCursor(cursor);
+                modified = true;
+            }
+            if (modified) {
+                player.updateInventory();
+            }
+        }, 1L);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPickup(EntityPickupItemEvent event) {
-        boolean modified = false;
         if (event.getEntity() instanceof Player player) {
-            modified = sweepInventory(player.getInventory());
-        }
-        
-        ItemStack item = event.getItem().getItemStack();
-        if (applyCustomStackSize(item)) {
-            event.getItem().setItemStack(item);
-            modified = true;
-        }
-
-        if (modified && event.getEntity() instanceof Player player) {
-            requestUpdate(player);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onInventoryOpen(InventoryOpenEvent event) {
-        boolean topMod = sweepInventory(event.getInventory());
-        boolean botMod = sweepInventory(event.getPlayer().getInventory());
-        if ((topMod || botMod) && event.getPlayer() instanceof Player player) {
-            requestUpdate(player);
+            schedulePlayerSweep(player);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (sweepInventory(event.getPlayer().getInventory())) {
-            requestUpdate(event.getPlayer());
-        }
+        schedulePlayerSweep(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCraft(CraftItemEvent event) {
-        boolean modified = false;
-        ItemStack item = event.getCurrentItem();
-        if (item != null && applyCustomStackSize(item)) {
-            event.setCurrentItem(item);
-            modified = true;
-        }
-        if (modified && event.getWhoClicked() instanceof Player player) {
-            requestUpdate(player);
+        if (event.getWhoClicked() instanceof Player player) {
+            schedulePlayerSweep(player);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
-        boolean modified = false;
-        
-        ItemStack current = event.getCurrentItem();
-        if (current != null && applyCustomStackSize(current)) {
-            event.setCurrentItem(current);
-            modified = true;
+        if (event.getWhoClicked() instanceof Player player) {
+            schedulePlayerSweep(player);
         }
-        
-        ItemStack cursor = event.getCursor();
-        if (cursor != null && applyCustomStackSize(cursor)) {
-            event.getView().setCursor(cursor);
-            modified = true;
-        }
-        
-        if (modified && event.getWhoClicked() instanceof Player player) {
-            requestUpdate(player);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onPrepareCraft(PrepareItemCraftEvent event) {
-        ItemStack result = event.getInventory().getResult();
-        if (result != null && applyCustomStackSize(result)) {
-            event.getInventory().setResult(result);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onFurnaceSmelt(FurnaceSmeltEvent event) {
-        ItemStack result = event.getResult();
-        if (result != null && applyCustomStackSize(result)) {
-            event.setResult(result);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onBlockCook(BlockCookEvent event) {
-        ItemStack result = event.getResult();
-        if (result != null && applyCustomStackSize(result)) {
-            event.setResult(result);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onBrew(BrewEvent event) {
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            sweepInventory(event.getContents());
-        }, 1L);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCreativeClick(InventoryCreativeEvent event) {
-        boolean modified = false;
-        
-        ItemStack current = event.getCurrentItem();
-        if (current != null && applyCustomStackSize(current)) {
-            event.setCurrentItem(current);
-            modified = true;
-        }
-        
-        ItemStack cursor = event.getCursor();
-        if (cursor != null && applyCustomStackSize(cursor)) {
-            event.getView().setCursor(cursor);
-            modified = true;
-        }
-        
-        if (modified && event.getWhoClicked() instanceof Player player) {
-            requestUpdate(player);
+        if (event.getWhoClicked() instanceof Player player) {
+            schedulePlayerSweep(player);
         }
     }
 
