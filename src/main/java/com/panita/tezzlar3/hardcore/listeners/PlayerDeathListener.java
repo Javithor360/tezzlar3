@@ -5,6 +5,7 @@ import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.Global;
 import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.hardcore.HardcoreModule;
+import com.panita.tezzlar3.hardcore.util.DeathTracker;
 import com.panita.tezzlar3.hardcore.util.HardcoreConfigDefaults;
 import com.panita.tezzlar3.hardcore.util.HardcoreDataManager;
 import com.panita.tezzlar3.hardcore.util.HardcoreMessageFormatter;
@@ -75,6 +76,8 @@ public class PlayerDeathListener implements Listener {
             currentDeaths++;
             HardcoreDataManager.incrementDeaths(player.getUniqueId(), player.getName());
         }
+        
+        DeathTracker.logDeath(player, currentDeaths, player.getLocation(), event.getDeathMessage());
 
         try {
             player.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, player.getLocation(), 5);

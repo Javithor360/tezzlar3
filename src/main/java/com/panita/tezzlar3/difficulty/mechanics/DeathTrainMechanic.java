@@ -144,6 +144,10 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener, 
         return remainingSeconds;
     }
 
+    public List<String> getDeadPlayers() {
+        return new ArrayList<>(deadPlayers);
+    }
+
     public void setRemainingSeconds(int remainingSeconds) {
         this.remainingSeconds = Math.min(remainingSeconds, 115200); // Max 32 hours
         this.remainingSeconds = Math.max(this.remainingSeconds, 0); // No negative

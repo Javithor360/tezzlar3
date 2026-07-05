@@ -14,6 +14,6 @@ import org.bukkit.command.CommandSender;
 public class DeathTrainCommand implements AdvancedCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Messenger.prefixedSend(sender, "&7Uso: &b/deathtrain <start|stop|add|remove>");
+        Messenger.prefixedSend(sender, "&7Uso: &b/deathtrain <start|stop|add|remove|status>");
     }
 }
