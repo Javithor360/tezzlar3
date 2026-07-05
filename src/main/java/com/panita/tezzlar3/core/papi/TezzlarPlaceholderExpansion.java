@@ -57,11 +57,12 @@ public class TezzlarPlaceholderExpansion extends PlaceholderExpansion {
         if (params.equalsIgnoreCase("belowname")) {
             int deaths = HardcoreDataManager.getDeaths(player.getUniqueId(), player.getName());
             int lives = HardcoreDataManager.getLives(player.getUniqueId(), player.getName());
-            
-            if (lives > 0) {
-                return "💛 " + lives + " Vidas";
+            if (deaths >= 1) {
+                String plural = (deaths == 1) ? "Muerte" : "Muertes";
+                return "💀 " + deaths + " " + plural;
             } else {
-                return "💀 " + deaths + " muertes";
+                String plural = (lives == 1) ? "Vida" : "Vidas";
+                return "❤ " + lives + " " + plural;
             }
         }
         

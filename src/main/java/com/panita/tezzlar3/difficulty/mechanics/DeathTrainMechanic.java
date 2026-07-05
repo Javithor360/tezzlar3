@@ -181,6 +181,9 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener, 
         if (MissionsModule.getRefugeManager() != null && MissionsModule.getRefugeManager().isActive()) return;
         if (MiniEventsModule.getManager() != null && MiniEventsModule.getManager().getActiveEvent() != null) return;
         
+        // Prevent infinite loops from Oozing/Infested effects and only buff natural mobs
+        if (!EntityUtils.isValidNaturalSpawn(event.getSpawnReason())) return;
+        
         if (event.getEntity() instanceof Monster monster) {
             // Apply Strength II
             monster.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 1));
