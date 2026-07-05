@@ -87,19 +87,42 @@ public class MissionCheckCommand implements AdvancedCommand, TabSuggestingComman
         String noKeyword = showCompleted ? "" : "no ";
 
         Messenger.send(sender, "&8----------------------------------------");
-        Messenger.send(sender, "&e" + count + "/" + totalPlayers + " &fjugadores " + noKeyword + "han completado la misión:");
-        Messenger.send(sender, "&7Título: &f" + mission.getName());
+        Messenger.send(sender, "&7Título: &6" + mission.getName());
         Messenger.send(sender, "&7Estado: " + status);
+        
         Messenger.send(sender, "&7Recompensas: &a" + rewardsCount);
+        if (rewardsCount > 0) {
+            Messenger.send(sender, "  &a" + String.join(", ", formatActionList(mission.getRewards())));
+        }
+        
         Messenger.send(sender, "&7Castigos: &c" + punishmentsCount);
+        if (punishmentsCount > 0) {
+            Messenger.send(sender, "  &c" + String.join(", ", formatActionList(mission.getPunishments())));
+        }
         
         if (targetList.isEmpty()) {
-            Messenger.send(sender, "&7Lista Solicitada: &8(Vacía)");
+            Messenger.send(sender, "&7Lista: &8(Vacía)");
         } else {
-            Messenger.send(sender, "&7Lista Solicitada:");
+            Messenger.send(sender, "&7Lista:");
             Messenger.send(sender, "  &b" + String.join(", ", targetList));
         }
+        
+        Messenger.send(sender, "");
+        Messenger.send(sender, "&e" + count + "/" + totalPlayers + " &ajugadores " + noKeyword + "han completado la misión.");
         Messenger.send(sender, "&8----------------------------------------");
+    }
+
+    private List<String> formatActionList(List<java.util.Map<?, ?>> actions) {
+        if (actions == null) return List.of();
+        List<String> result = new ArrayList<>();
+        for (java.util.Map<?, ?> action : actions) {
+            if (action.containsKey("description")) {
+                result.add(String.valueOf(action.get("description")));
+            } else {
+                result.add(String.valueOf(action.get("id")));
+            }
+        }
+        return result;
     }
 
     @Override
