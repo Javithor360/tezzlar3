@@ -12,6 +12,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.inventory.FurnaceSmeltEvent;
+import org.bukkit.event.inventory.BrewEvent;
+import org.bukkit.event.block.BlockCookEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -113,6 +116,29 @@ public class StackSizeInterceptor implements Listener {
         if (result != null && applyCustomStackSize(result)) {
             event.getInventory().setResult(result);
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onFurnaceSmelt(FurnaceSmeltEvent event) {
+        ItemStack result = event.getResult();
+        if (result != null && applyCustomStackSize(result)) {
+            event.setResult(result);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onBlockCook(BlockCookEvent event) {
+        ItemStack result = event.getResult();
+        if (result != null && applyCustomStackSize(result)) {
+            event.setResult(result);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onBrew(BrewEvent event) {
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            sweepInventory(event.getContents());
+        }, 1L);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
