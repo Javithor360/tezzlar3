@@ -7,14 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCreativeEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
-import org.bukkit.event.inventory.FurnaceSmeltEvent;
-import org.bukkit.event.inventory.BrewEvent;
-import org.bukkit.event.block.BlockCookEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -30,50 +23,147 @@ public class StackSizeInterceptor implements Listener {
         this.plugin = plugin;
     }
 
-    private void schedulePlayerSweep(Player player) {
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-            boolean modified = sweepInventory(player.getInventory());
-            ItemStack cursor = player.getItemOnCursor();
-            if (applyCustomStackSize(cursor)) {
-                player.setItemOnCursor(cursor);
-                modified = true;
-            }
-            if (modified) {
-                player.updateInventory();
-            }
-        }, 1L);
+    private void requestUpdate(Player player) {
+        plugin.getServer().getScheduler().runTaskLater(plugin, player::updateInventory, 1L);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onItemSpawn(ItemSpawnEvent event) {
+        ItemStack item = event.getEntity().getItemStack();
+        if (applyCustomStackSize(item)) {
+            event.getEntity().setItemStack(item);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPickup(EntityPickupItemEvent event) {
+        boolean modified = false;
         if (event.getEntity() instanceof Player player) {
-            schedulePlayerSweep(player);
+            modified = sweepInventory(player.getInventory());
+        }
+        
+        ItemStack item = event.getItem().getItemStack();
+        if (applyCustomStackSize(item)) {
+            event.getItem().setItemStack(item);
+            modified = true;
+        }
+
+        if (modified && event.getEntity() instanceof Player player) {
+            requestUpdate(player);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        boolean topMod = false;
+        // Do not sweep processing block inventories to prevent breaking vanilla mechanics (Furnaces, Brewers, etc.)
+        org.bukkit.event.inventory.InventoryType topType = event.getInventory().getType();
+        if (topType != org.bukkit.event.inventory.InventoryType.FURNACE && 
+            topType != org.bukkit.event.inventory.InventoryType.BLAST_FURNACE && 
+            topType != org.bukkit.event.inventory.InventoryType.SMOKER &&
+            topType != org.bukkit.event.inventory.InventoryType.BREWING) {
+            topMod = sweepInventory(event.getInventory());
+        }
+        
+        boolean botMod = sweepInventory(event.getPlayer().getInventory());
+        if ((topMod || botMod) && event.getPlayer() instanceof Player player) {
+            requestUpdate(player);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        schedulePlayerSweep(event.getPlayer());
+        if (sweepInventory(event.getPlayer().getInventory())) {
+            requestUpdate(event.getPlayer());
+        }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCraft(CraftItemEvent event) {
-        if (event.getWhoClicked() instanceof Player player) {
-            schedulePlayerSweep(player);
+        boolean modified = false;
+        ItemStack item = event.getCurrentItem();
+        if (item != null && applyCustomStackSize(item)) {
+            event.setCurrentItem(item);
+            modified = true;
+        }
+        if (modified && event.getWhoClicked() instanceof Player player) {
+            requestUpdate(player);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getWhoClicked() instanceof Player player) {
-            schedulePlayerSweep(player);
+        if (event.getClick() == org.bukkit.event.inventory.ClickType.MIDDLE) {
+            if (event.getWhoClicked() instanceof Player player) {
+                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                    boolean mod = sweepInventory(player.getInventory());
+                    ItemStack cur = player.getItemOnCursor();
+                    if (applyCustomStackSize(cur)) {
+                        player.setItemOnCursor(cur);
+                        mod = true;
+                    }
+                    if (mod) {
+                        player.updateInventory();
+                    }
+                }, 1L);
+            }
+            return;
+        }
+
+        boolean modified = false;
+        
+        // Skip modifying items inside processing blocks to prevent breaking them
+        boolean isProcessingBlock = false;
+        if (event.getClickedInventory() != null) {
+            org.bukkit.event.inventory.InventoryType type = event.getClickedInventory().getType();
+            isProcessingBlock = (type == org.bukkit.event.inventory.InventoryType.FURNACE || 
+                                 type == org.bukkit.event.inventory.InventoryType.BLAST_FURNACE || 
+                                 type == org.bukkit.event.inventory.InventoryType.SMOKER ||
+                                 type == org.bukkit.event.inventory.InventoryType.BREWING);
+        }
+        
+        if (!isProcessingBlock) {
+            ItemStack current = event.getCurrentItem();
+            if (current != null && applyCustomStackSize(current)) {
+                event.setCurrentItem(current);
+                modified = true;
+            }
+        }
+        
+        ItemStack cursor = event.getCursor();
+        if (cursor != null && applyCustomStackSize(cursor)) {
+            event.getView().setCursor(cursor);
+            modified = true;
+        }
+        
+        if (modified && event.getWhoClicked() instanceof Player player) {
+            requestUpdate(player);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPrepareCraft(PrepareItemCraftEvent event) {
+        ItemStack result = event.getInventory().getResult();
+        if (result != null && applyCustomStackSize(result)) {
+            event.getInventory().setResult(result);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCreativeClick(InventoryCreativeEvent event) {
+        // Fix for middle click copying blocks: delay the modification by 1 tick
         if (event.getWhoClicked() instanceof Player player) {
-            schedulePlayerSweep(player);
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                boolean modified = sweepInventory(player.getInventory());
+                ItemStack cursor = player.getItemOnCursor();
+                if (applyCustomStackSize(cursor)) {
+                    player.setItemOnCursor(cursor);
+                    modified = true;
+                }
+                if (modified) {
+                    player.updateInventory();
+                }
+            }, 1L);
         }
     }
 
