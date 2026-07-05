@@ -85,6 +85,7 @@ public class MiniEventsModule implements PluginModule {
         manager.registerEvent(new HyperactivityEvent());
         manager.registerEvent(new JobFairEvent());
         manager.registerEvent(new OppositeHourEvent());
+        manager.registerEvent(new RussianRouletteEvent());
 
         manager.init();
         enabled = true;
