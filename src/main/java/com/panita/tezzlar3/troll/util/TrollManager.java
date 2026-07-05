@@ -70,12 +70,12 @@ public class TrollManager {
         Location loc = target.getLocation();
         if (loc.getBlock().getType().isAir()) {
             loc.getBlock().setType(Material.COBWEB);
-            // Remove the cobweb after 5 seconds
+            // Remove the cobweb after 10 seconds (doubled from 5)
             Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
                 if (loc.getBlock().getType() == Material.COBWEB) {
                     loc.getBlock().setType(Material.AIR);
                 }
-            }, 100L);
+            }, 200L);
         }
     }
 
@@ -233,5 +233,32 @@ public class TrollManager {
     public static void executeFakeWarden(Player target) {
         target.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 200, 0, false, true, true));
         target.playSound(target.getLocation(), Sound.ENTITY_WARDEN_EMERGE, 1.0f, 1.0f);
+    }
+
+    public static void executeFakeThor(Player target) {
+        target.getWorld().strikeLightningEffect(target.getLocation());
+    }
+
+    public static void executeFakeExplosion(Player target) {
+        target.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, target.getLocation(), 1);
+        target.playSound(target.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 1.0f);
+    }
+
+    public static void executeThorPro(Player target) {
+        Location center = target.getLocation();
+        World world = target.getWorld();
+        
+        // Spawn lightning effects around the player
+        for (int i = 0; i < 5; i++) {
+            double offsetX = (Math.random() - 0.5) * 10;
+            double offsetZ = (Math.random() - 0.5) * 10;
+            Location stormLoc = center.clone().add(offsetX, 0, offsetZ);
+            world.strikeLightningEffect(world.getHighestBlockAt(stormLoc).getLocation());
+        }
+        
+        // One real lightning on the player
+        Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+            world.strikeLightning(target.getLocation());
+        }, 10L);
     }
 }
