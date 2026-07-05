@@ -2,6 +2,7 @@ package com.panita.tezzlar3.inventory.tasks;
 
 import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.chat.Messenger;
+import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.inventory.util.InventoryConfigDefaults;
 import com.panita.tezzlar3.inventory.util.GravesDataManager;
 import com.panita.tezzlar3.inventory.util.InventorySerializer;
@@ -26,15 +27,13 @@ import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ResolvableProfile;
 import com.destroystokyo.paper.profile.PlayerProfile;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class RevenantTrackerTask implements Runnable {
 
     private final NamespacedKey pdcKey;
     private final Random random = new Random();
+    private final Map<String, Integer> presenceCounter = new HashMap<>();
 
     public RevenantTrackerTask() {
         this.pdcKey = new NamespacedKey(Tezzlar.getInstance(), "revenant_inventory");
@@ -69,13 +68,28 @@ public class RevenantTrackerTask implements Runnable {
             }
 
             if (owner != null) {
-                spawnRevenant(graveLoc, id, section, owner);
-                GravesDataManager.removeGrave(id);
+                int count = presenceCounter.getOrDefault(id, 0);
+                
+                if (count == 0) {
+                    spawnMinions(graveLoc);
+                }
+                
+                count++;
+                presenceCounter.put(id, count);
+                
+                if (count >= 4) { // 4 seconds delay
+                    spawnRevenantOnly(graveLoc, id, section, owner);
+                    GravesDataManager.removeGrave(id);
+                    presenceCounter.remove(id);
+                }
+            } else {
+                // Reset counter if player leaves the area
+                presenceCounter.put(id, 0);
             }
         }
     }
 
-    private void spawnRevenant(Location loc, String id, ConfigurationSection section, Player owner) {
+    private void spawnRevenantOnly(Location loc, String id, ConfigurationSection section, Player owner) {
         String base64 = section.getString("itemsBase64");
         String playerName = section.getString("playerName");
 
@@ -127,8 +141,11 @@ public class RevenantTrackerTask implements Runnable {
 
         // Store inventory in PDC
         zombie.getPersistentDataContainer().set(pdcKey, PersistentDataType.STRING, base64);
-
-        // Spawn Minions
+        
+        SoundUtils.playGlobal("entity.zombie.break_wooden_door", 1.0f, 0.5f);
+    }
+    
+    private void spawnMinions(Location loc) {
         List<String> minions = Tezzlar.getConfigManager().getStringList("inventory.revenant.minions");
         if (minions == null || minions.isEmpty()) minions = InventoryConfigDefaults.REVENANT_MINIONS;
         
@@ -146,5 +163,8 @@ public class RevenantTrackerTask implements Runnable {
             } catch (Exception ignored) {
             }
         }
+        
+        // Play an initial eerie sound to warn the player
+        SoundUtils.playGlobal("entity.skeleton_horse.death", 1.0f, 2.0f);
     }
 }
