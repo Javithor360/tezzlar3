@@ -149,19 +149,16 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener, 
     }
 
     public void setRemainingSeconds(int remainingSeconds) {
-        this.remainingSeconds = Math.min(remainingSeconds, 115200); // Max 32 hours
+        this.remainingSeconds = Math.min(remainingSeconds, 172800); // Max 48 hours
         this.remainingSeconds = Math.max(this.remainingSeconds, 0); // No negative
         Tezzlar.getConfigManager().updateInt("difficulty.death_train_seconds", this.remainingSeconds, null);
     }
 
-    public void addDeathTrainTime(Player deceased) {
+    public void addDeathTrainTime(Player deceased, int secondsToAdd) {
         if (!isActive()) return;
-        
-        int day = TimeManager.getCurrentDay();
-        int secondsToAdd = day * 3600;
-        
+
         this.remainingSeconds += secondsToAdd;
-        this.remainingSeconds = Math.min(this.remainingSeconds, 115200); // Max 32 hours
+        this.remainingSeconds = Math.min(this.remainingSeconds, 172800); // Max 48 hours
         
         Tezzlar.getConfigManager().updateInt("difficulty.death_train_seconds", remainingSeconds, null);
 

@@ -223,7 +223,13 @@ public class PlayerDeathListener implements Listener {
         }
         
         if (DeathTrainMechanic.getInstance() != null) {
-            DeathTrainMechanic.getInstance().addDeathTrainTime(player);
+            int secondsToAdd;
+            if (currentDeaths == 0) {
+                secondsToAdd = 1800; // 30 minutes for zero deaths
+            } else {
+                secondsToAdd = TimeManager.getCurrentDay() * 1200; // 20 minutes per day for >= 1 deaths
+            }
+            DeathTrainMechanic.getInstance().addDeathTrainTime(player, secondsToAdd);
         }
     }
     
