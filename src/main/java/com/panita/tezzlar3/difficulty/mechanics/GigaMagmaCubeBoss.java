@@ -1,6 +1,10 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
+import net.kyori.adventure.key.Key;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.NamespacedKey;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Equippable;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.core.util.SoundUtils;
@@ -59,13 +63,13 @@ public class GigaMagmaCubeBoss {
         // Add yellow glowing
         EntityUtils.setColoredGlowing(boss, NamedTextColor.YELLOW);
 
-        EntityUtils.trySetAttribute(boss, Attribute.MAX_HEALTH, 1000.0);
+        EntityUtils.trySetAttribute(boss, Attribute.MAX_HEALTH, 2500.0);
         EntityUtils.trySetAttribute(boss, Attribute.GRAVITY, 0.45);
         EntityUtils.trySetAttribute(boss, Attribute.ARMOR, 120.0);
         EntityUtils.trySetAttribute(boss, Attribute.ATTACK_DAMAGE, 25.0);
         EntityUtils.trySetAttribute(boss, Attribute.FOLLOW_RANGE, 100.0);
         
-        double maxHealth = 1000.0;
+        double maxHealth = 2500.0;
         if (boss.getAttribute(Attribute.MAX_HEALTH) != null) {
             maxHealth = boss.getAttribute(Attribute.MAX_HEALTH).getValue();
         }
@@ -187,7 +191,7 @@ public class GigaMagmaCubeBoss {
     }
     
     private void executeRandomAttack(List<Player> players) {
-        int attackType = random.nextInt(7);
+        int attackType = random.nextInt(8);
         switch (attackType) {
             case 0:
                 executeChargedBeam(players);
@@ -209,6 +213,9 @@ public class GigaMagmaCubeBoss {
                 break;
             case 6:
                 executeBlazes(players);
+                break;
+            case 7:
+                executePyromaniacPiglins(players);
                 break;
         }
     }
@@ -362,6 +369,60 @@ public class GigaMagmaCubeBoss {
         if (!leftover.isEmpty()) {
             for (ItemStack drop : leftover.values()) {
                 p.getWorld().dropItem(p.getLocation(), drop);
+            }
+        }
+    }
+
+    private void executePyromaniacPiglins(List<Player> players) {
+        boss.getWorld().playSound(boss.getLocation(), org.bukkit.Sound.ENTITY_PIGLIN_ANGRY, 3.0f, 0.5f);
+        
+        int piglinCount = 4 + random.nextInt(3); // 4 to 6 piglins
+        for (int i = 0; i < piglinCount; i++) {
+            Location spawnLoc = boss.getLocation().add(random.nextInt(11) - 5, 2, random.nextInt(11) - 5);
+            Piglin piglin = (Piglin) EntityUtils.spawnNatural(spawnLoc, EntityType.PIGLIN);
+            if (piglin != null) {
+                EntityUtils.setCustomName(piglin, "&6Piglin Pirómano Demente");
+                piglin.setImmuneToZombification(true);
+                
+                if (piglin.getAttribute(Attribute.MAX_HEALTH) != null) {
+                    piglin.getAttribute(Attribute.MAX_HEALTH).setBaseValue(60.0);
+                    piglin.setHealth(60.0);
+                }
+
+                org.bukkit.inventory.EntityEquipment eq = piglin.getEquipment();
+                if (eq != null) {
+                    Key modelKey = Key.key("panita", "fallen_hero");
+                    
+                    ItemStack helmet = new ItemStack(Material.DIAMOND_HELMET);
+                    Equippable eqCompH = helmet.getData(DataComponentTypes.EQUIPPABLE);
+                    if (eqCompH != null) helmet.setData(DataComponentTypes.EQUIPPABLE, eqCompH.toBuilder().assetId(modelKey).build());
+                    eq.setHelmet(helmet);
+                    eq.setHelmetDropChance(0.0f);
+                    
+                    ItemStack chestplate = new ItemStack(Material.DIAMOND_CHESTPLATE);
+                    Equippable eqCompC = chestplate.getData(DataComponentTypes.EQUIPPABLE);
+                    if (eqCompC != null) chestplate.setData(DataComponentTypes.EQUIPPABLE, eqCompC.toBuilder().assetId(modelKey).build());
+                    eq.setChestplate(chestplate);
+                    eq.setChestplateDropChance(0.0f);
+                    
+                    ItemStack leggings = new ItemStack(Material.DIAMOND_LEGGINGS);
+                    Equippable eqCompL = leggings.getData(DataComponentTypes.EQUIPPABLE);
+                    if (eqCompL != null) leggings.setData(DataComponentTypes.EQUIPPABLE, eqCompL.toBuilder().assetId(modelKey).build());
+                    eq.setLeggings(leggings);
+                    eq.setLeggingsDropChance(0.0f);
+                    
+                    ItemStack boots = new ItemStack(Material.DIAMOND_BOOTS);
+                    Equippable eqCompB = boots.getData(DataComponentTypes.EQUIPPABLE);
+                    if (eqCompB != null) boots.setData(DataComponentTypes.EQUIPPABLE, eqCompB.toBuilder().assetId(modelKey).build());
+                    eq.setBoots(boots);
+                    eq.setBootsDropChance(0.0f);
+                    
+                    ItemStack crossbow = new ItemStack(Material.CROSSBOW);
+                    eq.setItemInMainHand(crossbow);
+                    eq.setItemInMainHandDropChance(0.0f);
+                }
+
+                piglin.getPersistentDataContainer().set(GigaMagmaCubeMechanic.PIGLIN_PYROMANIAC_KEY, PersistentDataType.BYTE, (byte) 1);
             }
         }
     }

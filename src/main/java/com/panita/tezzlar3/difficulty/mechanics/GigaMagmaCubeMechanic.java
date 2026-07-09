@@ -34,9 +34,11 @@ import java.util.UUID;
 
 public class GigaMagmaCubeMechanic extends DifficultyMechanic {
     private final Random random = new Random();
-    public static NamespacedKey BOSS_KEY;
-    public static NamespacedKey BLAZE_KEY;
-    public static NamespacedKey MINION_KEY;
+    public static final NamespacedKey BOSS_KEY = new NamespacedKey(com.panita.tezzlar3.Tezzlar3.getInstance(), "giga_magma_cube");
+    public static final NamespacedKey MINION_KEY;
+    public static final NamespacedKey BLAZE_KEY;
+    public static final NamespacedKey GHAST_KEY;
+    public static final NamespacedKey PIGLIN_PYROMANIAC_KEY;
     
     // Map to keep track of active bosses
     private static final Map<UUID, GigaMagmaCubeBoss> activeBosses = new HashMap<>();
@@ -47,9 +49,10 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
 
     public GigaMagmaCubeMechanic(JavaPlugin plugin) {
         super(plugin, 10); // Day 10
-        BOSS_KEY = new NamespacedKey(plugin, "giga_magma_cube");
-        BLAZE_KEY = new NamespacedKey(plugin, "giga_blaze");
-        MINION_KEY = new NamespacedKey(plugin, "giga_minion");
+        MINION_KEY = new NamespacedKey(plugin, "giga_magma_cube_minion");
+        BLAZE_KEY = new NamespacedKey(plugin, "giga_magma_cube_blaze");
+        GHAST_KEY = new NamespacedKey(plugin, "giga_magma_cube_ghast");
+        PIGLIN_PYROMANIAC_KEY = new NamespacedKey(plugin, "giga_magma_cube_piglin_pyro");
         CustomMobManager.register(CustomMobType.GIGA_MAGMA_CUBE, this::spawnManual);
         
         // Scan for existing bosses that were loaded when the plugin started or chunk loaded
@@ -168,6 +171,32 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
             GigaMagmaCubeBoss bossLogic = activeBosses.remove(event.getEntity().getUniqueId());
             if (bossLogic != null) {
                 bossLogic.handleDeath();
+            }
+        } else {
+            org.bukkit.entity.LivingEntity entity = event.getEntity();
+            if (entity.getPersistentDataContainer().has(BLAZE_KEY, PersistentDataType.BYTE) ||
+                entity.getPersistentDataContainer().has(GHAST_KEY, PersistentDataType.BYTE)) {
+                event.getDrops().clear();
+                event.setDroppedExp(0);
+            }
+            
+            if (entity.getPersistentDataContainer().has(PIGLIN_PYROMANIAC_KEY, PersistentDataType.BYTE)) {
+                event.getDrops().clear();
+                event.getDrops().add(new org.bukkit.inventory.ItemStack(org.bukkit.Material.GOLD_NUGGET, 64));
+                event.setDroppedExp(500);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onProjectileHit(org.bukkit.event.entity.ProjectileHitEvent event) {
+        if (!isActive()) return;
+        
+        if (event.getEntity() instanceof org.bukkit.entity.Arrow arrow && arrow.getShooter() instanceof org.bukkit.entity.Entity shooter) {
+            if (shooter.getPersistentDataContainer().has(PIGLIN_PYROMANIAC_KEY, PersistentDataType.BYTE)) {
+                org.bukkit.Location hitLoc = event.getHitEntity() != null ? event.getHitEntity().getLocation() : (event.getHitBlock() != null ? event.getHitBlock().getLocation() : arrow.getLocation());
+                hitLoc.getWorld().createExplosion(hitLoc, 4.04f, false, true);
+                arrow.remove();
             }
         }
     }
