@@ -7,6 +7,8 @@ import com.panita.tezzlar3.inventory.util.InventoryConfigDefaults;
 import com.panita.tezzlar3.inventory.util.GravesDataManager;
 import com.panita.tezzlar3.inventory.util.InventorySerializer;
 import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarManager;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarProvider;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -24,14 +26,37 @@ import com.destroystokyo.paper.profile.PlayerProfile;
 
 import java.util.*;
 
-public class RevenantTrackerTask implements Runnable {
+public class RevenantTrackerTask implements Runnable, ActionBarProvider {
 
     private final NamespacedKey pdcKey;
     private final Random random = new Random();
     private final Map<String, Integer> presenceCounter = new HashMap<>();
+    private final Map<UUID, Integer> playerSecondsLeft = new HashMap<>();
 
     public RevenantTrackerTask() {
         this.pdcKey = new NamespacedKey(Tezzlar.getInstance(), "revenant_inventory");
+        if (ActionBarManager.getInstance() != null) {
+            ActionBarManager.getInstance().registerProvider(this);
+        }
+    }
+
+    @Override
+    public String getId() {
+        return "grave_revive";
+    }
+
+    @Override
+    public String getText(Player player) {
+        Integer seconds = playerSecondsLeft.get(player.getUniqueId());
+        if (seconds != null) {
+            return "<red><b>¡El Vestigio revivirá en " + seconds + " segundos!</b></red>";
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isUrgent(Player player) {
+        return playerSecondsLeft.containsKey(player.getUniqueId());
     }
 
     @Override
@@ -40,8 +65,12 @@ public class RevenantTrackerTask implements Runnable {
         if (!Tezzlar.getConfigManager().getBoolean("inventory.revenantZombie", InventoryConfigDefaults.INVENTORY_REVENANTZOMBIE)) return;
 
         Map<String, ConfigurationSection> graves = GravesDataManager.getActiveGraves();
-        if (graves.isEmpty()) return;
+        if (graves.isEmpty()) {
+            playerSecondsLeft.clear();
+            return;
+        }
 
+        Set<UUID> activeTrackedPlayers = new HashSet<>();
         for (Map.Entry<String, ConfigurationSection> entry : graves.entrySet()) {
             String id = entry.getKey();
             ConfigurationSection section = entry.getValue();
@@ -71,10 +100,11 @@ public class RevenantTrackerTask implements Runnable {
                 
                 count++;
                 presenceCounter.put(id, count);
+                activeTrackedPlayers.add(owner.getUniqueId());
                 
                 if (count < 4) {
                     int secondsLeft = 4 - count;
-                    owner.sendActionBar(Messenger.mini("<red><b>¡El Vestigio revivirá en " + secondsLeft + " segundos!</b></red>"));
+                    playerSecondsLeft.put(owner.getUniqueId(), secondsLeft);
                     
                     // Spawn flame circle at the edge of the 10 block radius
                     double radius = 10.0;
@@ -92,12 +122,16 @@ public class RevenantTrackerTask implements Runnable {
                     spawnRevenantOnly(graveLoc, id, section, owner);
                     GravesDataManager.removeGrave(id);
                     presenceCounter.remove(id);
+                    playerSecondsLeft.remove(owner.getUniqueId());
                 }
             } else {
                 // Reset counter if player leaves the area
                 presenceCounter.put(id, 0);
             }
         }
+        
+        // Remove players from playerSecondsLeft that are no longer tracked
+        playerSecondsLeft.keySet().removeIf(uuid -> !activeTrackedPlayers.contains(uuid));
     }
 
     private void spawnRevenantOnly(Location loc, String id, ConfigurationSection section, Player owner) {

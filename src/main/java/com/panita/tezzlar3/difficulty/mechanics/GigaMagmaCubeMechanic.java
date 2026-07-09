@@ -1,5 +1,6 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
+import com.panita.tezzlar3.Tezzlar;
 import org.bukkit.Bukkit;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import org.bukkit.Location;
@@ -7,13 +8,8 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.AbstractArrow;
+import org.bukkit.entity.*;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.MagmaCube;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -34,11 +30,11 @@ import java.util.UUID;
 
 public class GigaMagmaCubeMechanic extends DifficultyMechanic {
     private final Random random = new Random();
-    public static final NamespacedKey BOSS_KEY = new NamespacedKey(com.panita.tezzlar3.Tezzlar3.getInstance(), "giga_magma_cube");
-    public static final NamespacedKey MINION_KEY;
-    public static final NamespacedKey BLAZE_KEY;
-    public static final NamespacedKey GHAST_KEY;
-    public static final NamespacedKey PIGLIN_PYROMANIAC_KEY;
+    public static final NamespacedKey BOSS_KEY = new NamespacedKey(Tezzlar.getInstance(), "giga_magma_cube");
+    public static NamespacedKey MINION_KEY;
+    public static NamespacedKey BLAZE_KEY;
+    public static NamespacedKey GHAST_KEY;
+    public static NamespacedKey PIGLIN_PYROMANIAC_KEY;
     
     // Map to keep track of active bosses
     private static final Map<UUID, GigaMagmaCubeBoss> activeBosses = new HashMap<>();
@@ -188,18 +184,7 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onProjectileHit(org.bukkit.event.entity.ProjectileHitEvent event) {
-        if (!isActive()) return;
-        
-        if (event.getEntity() instanceof org.bukkit.entity.Arrow arrow && arrow.getShooter() instanceof org.bukkit.entity.Entity shooter) {
-            if (shooter.getPersistentDataContainer().has(PIGLIN_PYROMANIAC_KEY, PersistentDataType.BYTE)) {
-                org.bukkit.Location hitLoc = event.getHitEntity() != null ? event.getHitEntity().getLocation() : (event.getHitBlock() != null ? event.getHitBlock().getLocation() : arrow.getLocation());
-                hitLoc.getWorld().createExplosion(hitLoc, 4.04f, false, true);
-                arrow.remove();
-            }
-        }
-    }
+
     
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSlimeSplit(SlimeSplitEvent event) {
@@ -221,6 +206,14 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
                 if (hitLoc != null) {
                     hitLoc.getWorld().strikeLightning(hitLoc);
                 }
+            }
+        }
+        
+        if (event.getEntity() instanceof Arrow arrow && arrow.getShooter() instanceof Entity shooter) {
+            if (shooter.getPersistentDataContainer().has(PIGLIN_PYROMANIAC_KEY, PersistentDataType.BYTE)) {
+                Location hitLoc = event.getHitEntity() != null ? event.getHitEntity().getLocation() : (event.getHitBlock() != null ? event.getHitBlock().getLocation() : arrow.getLocation());
+                hitLoc.getWorld().createExplosion(hitLoc, 4.04f, false, true);
+                arrow.remove();
             }
         }
     }
