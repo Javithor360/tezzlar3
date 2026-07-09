@@ -8,12 +8,7 @@ import com.panita.tezzlar3.inventory.util.GravesDataManager;
 import com.panita.tezzlar3.inventory.util.InventorySerializer;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Entity;
@@ -76,6 +71,22 @@ public class RevenantTrackerTask implements Runnable {
                 
                 count++;
                 presenceCounter.put(id, count);
+                
+                if (count < 4) {
+                    int secondsLeft = 4 - count;
+                    owner.sendActionBar(Messenger.mini("<red><b>¡El Vestigio revivirá en " + secondsLeft + " segundos!</b></red>"));
+                    
+                    // Spawn flame circle at the edge of the 10 block radius
+                    double radius = 10.0;
+                    for (int i = 0; i < 360; i += 10) {
+                        double angle = Math.toRadians(i);
+                        double px = graveLoc.getX() + radius * Math.cos(angle);
+                        double pz = graveLoc.getZ() + radius * Math.sin(angle);
+                        Location pLoc = new Location(world, px, graveLoc.getY() + 1.0, pz);
+                        world.spawnParticle(Particle.FLAME, pLoc, 2, 0.0, 0.0, 0.0, 0.02);
+                    }
+                    SoundUtils.play(owner, "block.fire.ambient", 1.0f, 1.0f);
+                }
                 
                 if (count >= 4) { // 4 seconds delay
                     spawnRevenantOnly(graveLoc, id, section, owner);
