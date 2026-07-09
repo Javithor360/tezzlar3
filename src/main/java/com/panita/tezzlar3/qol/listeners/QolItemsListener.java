@@ -15,6 +15,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -39,6 +40,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class QolItemsListener implements Listener {
 
     private final Map<UUID, Long> hornCooldowns = new HashMap<>();
+    private final Map<UUID, Long> hornVulnerability = new HashMap<>();
 
     public QolItemsListener() {
     }
@@ -82,26 +84,46 @@ public class QolItemsListener implements Listener {
 
             long now = System.currentTimeMillis();
             if (hornCooldowns.containsKey(player.getUniqueId())) {
-                if (now - hornCooldowns.get(player.getUniqueId()) < 15000) {
+                if (now - hornCooldowns.get(player.getUniqueId()) < 20000) {
                     return; // Prevent execution spam
                 }
             }
             hornCooldowns.put(player.getUniqueId(), now);
+            hornVulnerability.put(player.getUniqueId(), now + 8000);
 
-            // Set vanilla visual cooldown to 15 seconds (300 ticks)
-            player.setCooldown(Material.GOAT_HORN, 300);
+            // Set vanilla visual cooldown to 20 seconds (400 ticks)
+            player.setCooldown(Material.GOAT_HORN, 400);
+            
+            player.setFoodLevel(Math.max(0, player.getFoodLevel() - 4));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 160, 0));
 
             int count = 0;
-            for (Entity entity : player.getNearbyEntities(30, 30, 30)) {
-                if (entity instanceof Mob mob) {
-                    double distance = player.getLocation().distance(mob.getLocation());
+            Random random = new Random();
+            double[] fractions = {0.5, 0.33, 0.25, 0.2};
 
-                    // Push entities within 5 blocks and spawn sonic boom
-                    if (distance <= 5.0) {
-                        Vector push = mob.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(1.5).setY(0.5);
+            for (Entity entity : player.getNearbyEntities(20, 20, 20)) {
+                if (entity instanceof Mob mob) {
+                    
+                    if (mob.getType() == EntityType.PHANTOM) {
+                        Vector push = mob.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(3.5).setY(1.0);
                         mob.setVelocity(push);
                         mob.getWorld().spawnParticle(Particle.SONIC_BOOM, mob.getLocation().add(0, 1, 0), 1);
                         mob.getWorld().playSound(mob.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 1.0f);
+                        
+                        double maxHealth = 20.0;
+                        if (mob.getAttribute(Attribute.MAX_HEALTH) != null) {
+                            maxHealth = mob.getAttribute(Attribute.MAX_HEALTH).getValue();
+                        }
+                        double damage = maxHealth * fractions[random.nextInt(fractions.length)];
+                        mob.damage(damage, player);
+                    } else {
+                        double distance = player.getLocation().distance(mob.getLocation());
+                        if (distance <= 5.0) {
+                            Vector push = mob.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(1.5).setY(0.5);
+                            mob.setVelocity(push);
+                            mob.getWorld().spawnParticle(Particle.SONIC_BOOM, mob.getLocation().add(0, 1, 0), 1);
+                            mob.getWorld().playSound(mob.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 1.0f);
+                        }
                     }
 
                     mob.setAware(false);
@@ -112,7 +134,7 @@ public class QolItemsListener implements Listener {
 
                         @Override
                         public void run() {
-                            if (!mob.isValid() || mob.isDead() || passedTicks >= 300) {
+                            if (!mob.isValid() || mob.isDead() || passedTicks >= 160) {
                                 if (mob.isValid() && !mob.isDead()) {
                                     mob.setAware(true);
                                     EntityUtils.removeColoredGlowing(mob);
@@ -120,21 +142,34 @@ public class QolItemsListener implements Listener {
                                 this.cancel();
                                 return;
                             }
-                            mob.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, mob.getLocation().add(0, 1, 0), 10, 0.4, 0.4, 0.4, 0.0);
+                            mob.getWorld().spawnParticle(Particle.CRIT, mob.getLocation().add(0, 2, 0), 5, 0.4, 0.4, 0.4, 0.0);
                             passedTicks += 10;
                         }
-                    }.runTaskTimer(Tezzlar.getInstance(), 0L, 10L); // 15 seconds duration (runs every 0.5s)
+                    }.runTaskTimer(Tezzlar.getInstance(), 0L, 10L); // 8 seconds duration (runs every 0.5s)
 
                     count++;
                 }
             }
 
             if (count > 0) {
-                Messenger.prefixedSend(player, "<gold>¡Has paralizado a <white>" + count + " <gold>mobs por 15 segundos!");
+                Messenger.prefixedSend(player, "<gold>¡Has paralizado a <white>" + count + " <gold>mobs por 8 segundos! <red>Eres vulnerable durante este tiempo.</red>");
             }
         }
     }
     
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPlayerDamageHorn(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            if (hornVulnerability.containsKey(player.getUniqueId())) {
+                if (System.currentTimeMillis() < hornVulnerability.get(player.getUniqueId())) {
+                    event.setDamage(event.getDamage() * 1.5);
+                } else {
+                    hornVulnerability.remove(player.getUniqueId());
+                }
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGH)
     public void onHeartInteract(PlayerInteractEvent event) {
         if (!event.getAction().isRightClick()) return;

@@ -47,6 +47,9 @@ public class GoatHornParalyzeMechanic extends DifficultyMechanic {
             
             // Set vanilla visual cooldown to 15 seconds (300 ticks)
             player.setCooldown(Material.GOAT_HORN, 300);
+            
+            player.setFoodLevel(Math.max(0, player.getFoodLevel() - 4));
+            player.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.SLOWNESS, 100, 0));
 
             int count = 0;
             for (Entity entity : player.getNearbyEntities(15, 15, 15)) {

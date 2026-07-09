@@ -10,7 +10,7 @@ import com.panita.tezzlar3.difficulty.mechanics.GhastExplosionMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.NightRainMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DifficultyMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DeathTrainMechanic;
-import com.panita.tezzlar3.difficulty.mechanics.DoubleMobCapMechanic;
+
 import com.panita.tezzlar3.difficulty.mechanics.DoubleFallDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EliteMobStatsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.FastDrowningMechanic;
@@ -25,7 +25,7 @@ import com.panita.tezzlar3.difficulty.mechanics.ParasiticSilverfishMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PhantomRideMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.LightningSkeletonMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.NaturalRavagerMechanic;
-import com.panita.tezzlar3.difficulty.mechanics.PeacefulBiomeSpawnsMechanic;
+
 import com.panita.tezzlar3.difficulty.mechanics.PlayerKillOnlyDropsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PremiumArmorSetMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.CopperDamageMechanic;
@@ -133,13 +133,11 @@ public class DifficultyModule implements PluginModule {
         
         // Day 9
         mechanics.add(new NaturalRavagerMechanic(plugin));
-        mechanics.add(new DoubleMobCapMechanic(plugin));
         mechanics.add(new FastStriderMechanic(plugin));
         mechanics.add(new LavaDepthStriderMechanic(plugin));
         
         // Day 10
         mechanics.add(new PlayerKillOnlyDropsMechanic(plugin));
-        mechanics.add(new PeacefulBiomeSpawnsMechanic(plugin));
         mechanics.add(new VillagerProfessionLossMechanic(plugin));
         mechanics.add(new GigaMagmaCubeMechanic(plugin));
         
