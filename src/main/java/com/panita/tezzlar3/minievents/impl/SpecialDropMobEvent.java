@@ -116,7 +116,11 @@ public class SpecialDropMobEvent implements MiniEvent, Listener {
                         amount += random.nextInt(absoluteLootingLevel + 1);
                     }
                     
-                    event.getDrops().add(new ItemStack(activeProfile.dropItem(), amount));
+                    while (amount > 0) {
+                        int stackSize = Math.min(64, amount);
+                        event.getDrops().add(new ItemStack(activeProfile.dropItem(), stackSize));
+                        amount -= stackSize;
+                    }
                 }
             }
         }

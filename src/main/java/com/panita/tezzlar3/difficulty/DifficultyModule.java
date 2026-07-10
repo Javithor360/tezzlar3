@@ -67,6 +67,7 @@ import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SpawnerMobBuffMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.OverworldToxicityMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.TripledArrowDamageMechanic;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -140,6 +141,7 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new PlayerKillOnlyDropsMechanic(plugin));
         mechanics.add(new VillagerProfessionLossMechanic(plugin));
         mechanics.add(new GigaMagmaCubeMechanic(plugin));
+        mechanics.add(new TripledArrowDamageMechanic(plugin));
         
         // Day 11
         mechanics.add(new NightRainMechanic(plugin));

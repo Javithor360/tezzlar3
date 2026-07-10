@@ -153,26 +153,26 @@ public class GigaMagmaCubeBoss {
     private void giveRewards(Player p) {
         // Constant 5-12 Netherite Scrap
         int scrapCount = 5 + random.nextInt(8);
-        giveOrDropItem(p, new ItemStack(Material.NETHERITE_SCRAP, scrapCount));
+        giveOrDropItems(p, Material.NETHERITE_SCRAP, scrapCount);
         
         // Select 2 random choices
         List<Runnable> options = new ArrayList<>();
         
-        options.add(() -> giveOrDropItem(p, new ItemStack(Material.GOLDEN_APPLE, 1 + random.nextInt(16))));
-        options.add(() -> giveOrDropItem(p, new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 1)));
+        options.add(() -> giveOrDropItems(p, Material.GOLDEN_APPLE, 1 + random.nextInt(16)));
+        options.add(() -> giveOrDropItems(p, Material.ENCHANTED_GOLDEN_APPLE, 1));
         options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 0)));
         options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 12 * 60 * 60 * 20, 0)));
         options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1)));
         options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 4 * 60 * 60 * 20, 2)));
         options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 8 * 60 * 60 * 20, 2)));
-        options.add(() -> giveOrDropItem(p, new ItemStack(Material.TOTEM_OF_UNDYING, 1 + random.nextInt(4))));
-        options.add(() -> giveOrDropItem(p, new ItemStack(Material.DIAMOND, 12 + random.nextInt(25))));
-        options.add(() -> giveOrDropItem(p, new ItemStack(Material.GOLDEN_CARROT, 128 + random.nextInt(385))));
+        options.add(() -> giveOrDropItems(p, Material.TOTEM_OF_UNDYING, 1 + random.nextInt(4)));
+        options.add(() -> giveOrDropItems(p, Material.DIAMOND, 12 + random.nextInt(25)));
+        options.add(() -> giveOrDropItems(p, Material.GOLDEN_CARROT, 128 + random.nextInt(385)));
         options.add(() -> p.giveExpLevels(30 + random.nextInt(51)));
-        options.add(() -> giveOrDropItem(p, new ItemStack(Material.RAW_GOLD, 32 + random.nextInt(97))));
+        options.add(() -> giveOrDropItems(p, Material.RAW_GOLD, 32 + random.nextInt(97)));
         options.add(() -> {
             Material[] shulkers = {Material.SHULKER_BOX, Material.RED_SHULKER_BOX, Material.BLUE_SHULKER_BOX, Material.BLACK_SHULKER_BOX};
-            giveOrDropItem(p, new ItemStack(shulkers[random.nextInt(shulkers.length)], 1));
+            giveOrDropItems(p, shulkers[random.nextInt(shulkers.length)], 1);
         });
         options.add(() -> {
             String[] customItems = {"tactic_bow", "tezzlar_heart", "bee_totem", "chicken_totem", "ghast_totem", "golden_totem", "life_save", "memory_evoker", "sniffer_totem", "sulfur_totem", "turtle_totem"};
@@ -180,7 +180,7 @@ public class GigaMagmaCubeBoss {
             ItemStack item = CustomItemManager.getItem(chosen);
             if (item != null) giveOrDropItem(p, item);
         });
-        options.add(() -> giveOrDropItem(p, new ItemStack(Material.EMERALD, 128 + random.nextInt(385))));
+        options.add(() -> giveOrDropItems(p, Material.EMERALD, 128 + random.nextInt(385)));
         
         Collections.shuffle(options);
         
@@ -372,6 +372,15 @@ public class GigaMagmaCubeBoss {
             for (ItemStack drop : leftover.values()) {
                 p.getWorld().dropItem(p.getLocation(), drop);
             }
+        }
+    }
+
+    private void giveOrDropItems(Player p, Material material, int amount) {
+        int maxStack = Math.min(64, Math.max(1, material.getMaxStackSize()));
+        while (amount > 0) {
+            int currentAmount = Math.min(amount, maxStack);
+            giveOrDropItem(p, new ItemStack(material, currentAmount));
+            amount -= currentAmount;
         }
     }
 

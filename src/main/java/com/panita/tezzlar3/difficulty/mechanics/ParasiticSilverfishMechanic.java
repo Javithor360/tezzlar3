@@ -52,9 +52,9 @@ public class ParasiticSilverfishMechanic extends DifficultyMechanic {
                         // f(t) = 1.0 * (1.15 ^ t)
                         double damage = Math.pow(1.15, time);
                         
-                        // Cap at 70 HP max damage per second
-                        if (damage > 70.0) {
-                            damage = 70.0;
+                        // Cap at 100 HP max damage per second
+                        if (damage > 100.0) {
+                            damage = 100.0;
                         }
                         
                         player.damage(damage, parasite);
@@ -98,8 +98,8 @@ public class ParasiticSilverfishMechanic extends DifficultyMechanic {
         
         if (event.getDamager() instanceof Silverfish parasite && parasite.getPersistentDataContainer().has(PARASITE_KEY, PersistentDataType.BYTE)) {
             
-            // 15% chance to clone on hit
-            if (random.nextDouble() < 0.25) {
+            // 40% chance to clone on hit
+            if (random.nextDouble() < 0.40) {
                 Silverfish newParasite = (Silverfish) EntityUtils.spawnNatural(parasite.getLocation(), EntityType.SILVERFISH);
                 makeParasite(newParasite);
             }
@@ -144,8 +144,8 @@ public class ParasiticSilverfishMechanic extends DifficultyMechanic {
         if (event.isSneaking()) {
             for (Entity passenger : player.getPassengers()) {
                 if (passenger instanceof Silverfish parasite && parasite.getPersistentDataContainer().has(PARASITE_KEY, PersistentDataType.BYTE)) {
-                    // Only 10% chance to successfully shake it off
-                    if (random.nextDouble() <= 0.10) {
+                    // Only 5% chance to successfully shake it off
+                    if (random.nextDouble() <= 0.05) {
                         // Dismount
                         player.removePassenger(parasite);
                         parasite.getPersistentDataContainer().set(ATTACH_TIME_KEY, PersistentDataType.INTEGER, 0);

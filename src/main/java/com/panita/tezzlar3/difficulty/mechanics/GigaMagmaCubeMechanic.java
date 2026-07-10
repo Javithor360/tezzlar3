@@ -96,7 +96,7 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
         if (isLava) {
             // Lava: 1 in 150 chance, 11x11x10 space (radius 5)
             if (random.nextInt(150) != 0) return;
-            if (!hasOpenSpace(event.getLocation(), 5, 10)) return;
+            if (!hasOpenSpace(event.getLocation(), 4, 8)) return;
         } else {
             // Not lava: 1 in 500 chance, 15x15x15 space (radius 7)
             if (random.nextInt(500) != 0) return;

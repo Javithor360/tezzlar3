@@ -242,8 +242,8 @@ public class EntityUtils {
             }
             if (entity.getAttribute(attr) != null) {
                 // Prevent Spigot hard limit crash
-                if (attr == Attribute.MAX_HEALTH && value > 1024.0) {
-                    value = 1024.0;
+                if (attr == Attribute.MAX_HEALTH && value > 6144.0) {
+                    value = 6144.0;
                 }
                 entity.getAttribute(attr).setBaseValue(value);
             }

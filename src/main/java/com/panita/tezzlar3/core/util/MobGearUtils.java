@@ -46,10 +46,10 @@ public class MobGearUtils {
     private static final Material[] BOOTS = {Material.LEATHER_BOOTS, Material.COPPER_BOOTS, Material.CHAINMAIL_BOOTS, Material.IRON_BOOTS, Material.GOLDEN_BOOTS, Material.DIAMOND_BOOTS};
 
     // Elite & Master Armor Materials (Day 11+)
-    private static final Material[] ELITE_HELMETS = {Material.COPPER_HELMET, Material.CHAINMAIL_HELMET, Material.IRON_HELMET, Material.DIAMOND_HELMET, Material.NETHERITE_HELMET};
-    private static final Material[] ELITE_CHESTPLATES = {Material.COPPER_CHESTPLATE, Material.CHAINMAIL_CHESTPLATE, Material.IRON_CHESTPLATE, Material.DIAMOND_CHESTPLATE, Material.NETHERITE_CHESTPLATE};
-    private static final Material[] ELITE_LEGGINGS = {Material.COPPER_LEGGINGS, Material.CHAINMAIL_LEGGINGS, Material.IRON_LEGGINGS, Material.DIAMOND_LEGGINGS, Material.NETHERITE_LEGGINGS};
-    private static final Material[] ELITE_BOOTS = {Material.COPPER_BOOTS, Material.CHAINMAIL_BOOTS, Material.IRON_BOOTS, Material.DIAMOND_BOOTS, Material.NETHERITE_BOOTS};
+    private static final Material[] ELITE_HELMETS = {Material.IRON_HELMET, Material.DIAMOND_HELMET, Material.NETHERITE_HELMET};
+    private static final Material[] ELITE_CHESTPLATES = {Material.IRON_CHESTPLATE, Material.DIAMOND_CHESTPLATE, Material.NETHERITE_CHESTPLATE};
+    private static final Material[] ELITE_LEGGINGS = {Material.IRON_LEGGINGS, Material.DIAMOND_LEGGINGS, Material.NETHERITE_LEGGINGS};
+    private static final Material[] ELITE_BOOTS = {Material.IRON_BOOTS, Material.DIAMOND_BOOTS, Material.NETHERITE_BOOTS};
 
     // Weapon Materials
     private static final Material[] MELEE_WEAPONS = {
@@ -63,11 +63,11 @@ public class MobGearUtils {
 
     // Elite & Master Weapon Materials (Day 11+)
     private static final Material[] ELITE_MELEE_WEAPONS = {
-            Material.IRON_SWORD, Material.DIAMOND_SWORD, Material.COPPER_SWORD, Material.NETHERITE_SWORD,
-            Material.IRON_AXE, Material.DIAMOND_AXE, Material.COPPER_AXE, Material.NETHERITE_AXE,
-            Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE, Material.COPPER_PICKAXE, Material.NETHERITE_PICKAXE,
-            Material.IRON_SHOVEL, Material.DIAMOND_SHOVEL, Material.COPPER_SHOVEL, Material.NETHERITE_SHOVEL,
-            Material.IRON_SPEAR, Material.DIAMOND_SPEAR, Material.COPPER_SPEAR, Material.NETHERITE_SPEAR,
+            Material.IRON_SWORD, Material.DIAMOND_SWORD, Material.NETHERITE_SWORD,
+            Material.IRON_AXE, Material.DIAMOND_AXE, Material.NETHERITE_AXE,
+            Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE,
+            Material.IRON_SHOVEL, Material.DIAMOND_SHOVEL, Material.NETHERITE_SHOVEL,
+            Material.IRON_SPEAR, Material.DIAMOND_SPEAR, Material.NETHERITE_SPEAR,
             Material.TRIDENT, Material.MACE
     };
 
@@ -91,10 +91,10 @@ public class MobGearUtils {
         if (tier == GearTier.VANILLA) return;
         
         // Armor Assignment (higher chances depending on tier)
-        double helmetChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.70 : 0.40);
-        double chestChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.65 : 0.30);
-        double legsChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.65 : 0.30);
-        double bootsChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.70 : 0.40);
+        double helmetChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.80 : 0.40);
+        double chestChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.75 : 0.30);
+        double legsChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.75 : 0.30);
+        double bootsChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.80 : 0.40);
 
         Material[] hPool = tier == GearTier.BASIC ? HELMETS : ELITE_HELMETS;
         Material[] cPool = tier == GearTier.BASIC ? CHESTPLATES : ELITE_CHESTPLATES;
@@ -110,7 +110,7 @@ public class MobGearUtils {
         EntityType type = entity.getType();
         boolean isSkeleton = type == EntityType.SKELETON || type == EntityType.WITHER_SKELETON || type == EntityType.STRAY || type == EntityType.BOGGED || type == EntityType.PARCHED;
         
-        double weaponChance = tier == GearTier.MASTER ? 1.0 : (tier == GearTier.ELITE ? 0.75 : 0.50);
+        double weaponChance = tier == GearTier.MASTER ? 1.0 : (tier == GearTier.ELITE ? 0.85 : 0.50);
         if (random.nextDouble() < weaponChance) {
             ItemStack weapon = null;
             
@@ -140,7 +140,7 @@ public class MobGearUtils {
         }
 
         // Offhand Assignment
-        double offhandChance = tier == GearTier.MASTER ? 0.50 : (tier == GearTier.ELITE ? 0.30 : 0.15);
+        double offhandChance = tier == GearTier.MASTER ? 0.70 : (tier == GearTier.ELITE ? 0.50 : 0.15);
         if (random.nextDouble() < offhandChance) {
             ItemStack offhand = getRandomItem(OFFHAND_ITEMS, tier);
             if (offhand.getType() == Material.SHIELD) {
@@ -176,7 +176,7 @@ public class MobGearUtils {
         // Base probability of having NO enchantments
         double noneChance = switch (tier) {
             case MASTER -> 0.10; // 10% chance of no enchants
-            case ELITE -> 0.50;  // 50% chance of no enchants
+            case ELITE -> 0.30;  // 30% chance of no enchants
             default -> 0.70;     // 70% chance of no enchants
         };
 
@@ -261,7 +261,7 @@ public class MobGearUtils {
             Material mat = options[random.nextInt(options.length)];
             
             if (mat.name().contains("NETHERITE_")) {
-                double chance = tier == GearTier.MASTER ? 0.35 : 0.10;
+                double chance = tier == GearTier.MASTER ? 0.75 : 0.45;
                 if (random.nextDouble() < chance) return mat;
                 continue;
             }
@@ -270,7 +270,7 @@ public class MobGearUtils {
                            mat.name().equals("TRIDENT") || mat.name().equals("MACE");
             
             if (isOP) {
-                double chance = tier == GearTier.MASTER ? 0.80 : (tier == GearTier.ELITE ? 0.25 : 0.10);
+                double chance = tier == GearTier.MASTER ? 0.90 : (tier == GearTier.ELITE ? 0.70 : 0.10);
                 if (random.nextDouble() < chance) return mat;
             } else {
                 return mat; // Normal items accepted immediately
