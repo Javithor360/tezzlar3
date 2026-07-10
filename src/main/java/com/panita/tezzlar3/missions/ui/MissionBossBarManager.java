@@ -13,22 +13,20 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.UUID;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 public class MissionBossBarManager implements Listener {
-    private final Map<UUID, Set<String>> playerActiveBars = new HashMap<>();
+    private long tickCounter = 0;
 
     public MissionBossBarManager(JavaPlugin plugin) {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            tickCounter++;
             int currentDay = TimeManager.getCurrentDay();
             
             List<Mission> activeMissions = new ArrayList<>();
@@ -40,58 +38,17 @@ public class MissionBossBarManager implements Listener {
 
             for (Player player : Bukkit.getOnlinePlayers()) {
                 PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player);
-                Set<String> displayedThisTick = new HashSet<>();
                 
-                int incompleteMissions = 0;
-                
+                List<Mission> incompleteMissions = new ArrayList<>();
                 for (Mission mission : activeMissions) {
-                    if (data != null && data.hasCompleted(mission.getId())) {
-                        continue; // Do not show completed missions
+                    if (data == null || !data.hasCompleted(mission.getId())) {
+                        incompleteMissions.add(mission);
                     }
-                    
-                    incompleteMissions++;
-                    
-                    int currentProgress = 0;
-                    if (mission.getScope().equalsIgnoreCase("GROUP")) {
-                        currentProgress = MissionsModule.getGlobalMissionManager().getProgress(mission.getId());
-                    } else {
-                        if (data != null) {
-                            currentProgress = data.getProgress(mission.getId());
-                        }
-                    }
-                    
-                    // Calculate smooth time progress using UTC-6 real world time
-                    long totalMillis = (mission.getEndDay() - mission.getStartDay() + 1) * 24L * 60L * 60L * 1000L;
-                    
-                    ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/Mexico_City"));
-                    ZonedDateTime today2PM = now.withHour(14).withMinute(0).withSecond(0).withNano(0);
-                    
-                    long millisPassedInCurrentDay;
-                    if (now.isBefore(today2PM)) {
-                        ZonedDateTime yesterday2PM = today2PM.minusDays(1);
-                        millisPassedInCurrentDay = Duration.between(yesterday2PM, now).toMillis();
-                    } else {
-                        millisPassedInCurrentDay = Duration.between(today2PM, now).toMillis();
-                    }
-                    
-                    long passedMillis = (currentDay - mission.getStartDay()) * 24L * 60L * 60L * 1000L + millisPassedInCurrentDay;
-                    float timeProgress = 1.0f - ((float) passedMillis / totalMillis);
-                    timeProgress = Math.max(0.0f, Math.min(1.0f, timeProgress));
-                    
-                    // Format color based on urgency
-                    BossBar.Color barColor = BossBar.Color.BLUE;
-                    if (timeProgress < 0.25f) barColor = BossBar.Color.RED;
-                    else if (timeProgress < 0.5f) barColor = BossBar.Color.YELLOW;
-                    
-                    // Build text
-                    String text = "<b><yellow>Día " + currentDay + "</yellow></b> <dark_gray>-</dark_gray> " + mission.getName() + " <gray>(" + currentProgress + "/" + mission.getObjectiveAmount() + ")</gray>";
-                    String barId = "mission_" + mission.getId();
-                    
-                    Messenger.showBossBar(player, barId, text, barColor, BossBar.Overlay.PROGRESS, timeProgress);
-                    displayedThisTick.add(barId);
                 }
                 
-                if (incompleteMissions == 0) {
+                if (incompleteMissions.isEmpty()) {
+                    Messenger.hideBossBar(player, "missions_bar");
+                    
                     // Show default timeline bossbar
                     ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/Mexico_City"));
                     ZonedDateTime today2PM = now.withHour(14).withMinute(0).withSecond(0).withNano(0);
@@ -109,22 +66,58 @@ public class MissionBossBarManager implements Listener {
                     timeProgress = Math.max(0.0f, Math.min(1.0f, timeProgress));
                     
                     BossBar.Color barColor = BossBar.Color.BLUE;
-                    
                     String text = "<gradient:#5FE2C5:#C6DEF1:#5FE2C5><shadow:#0D1E40:1>TEZZLAR</shadow></gradient> <dark_gray>-</dark_gray> <#F2E76B>Día " + currentDay + "</#F2E76B>";
-                    String barId = "timeline_day_bar";
                     
-                    Messenger.showBossBar(player, barId, text, barColor, BossBar.Overlay.PROGRESS, timeProgress);
-                    displayedThisTick.add(barId);
-                }
-                
-                // Clear bars that should no longer be displayed (expired or completed)
-                Set<String> previous = playerActiveBars.getOrDefault(player.getUniqueId(), new HashSet<>());
-                for (String id : previous) {
-                    if (!displayedThisTick.contains(id)) {
-                        Messenger.hideBossBar(player, id);
+                    Messenger.showBossBar(player, "timeline_day_bar", text, barColor, BossBar.Overlay.PROGRESS, timeProgress);
+                } else {
+                    Messenger.hideBossBar(player, "timeline_day_bar");
+                    
+                    int index = (int) ((tickCounter / 30) % incompleteMissions.size());
+                    Mission mission = incompleteMissions.get(index);
+                    
+                    int currentProgress = 0;
+                    int maxProgress = mission.getObjectiveAmount();
+                    
+                    if (mission.getObjectiveTargetsMap() != null && !mission.getObjectiveTargetsMap().isEmpty()) {
+                        maxProgress = 0;
+                        for (Map.Entry<String, Integer> entry : mission.getObjectiveTargetsMap().entrySet()) {
+                            maxProgress += entry.getValue();
+                            if (data != null) {
+                                currentProgress += data.getProgress(mission.getId() + "_sub_" + entry.getKey());
+                            }
+                        }
+                    } else if (mission.getScope().equalsIgnoreCase("GROUP")) {
+                        currentProgress = MissionsModule.getGlobalMissionManager().getProgress(mission.getId());
+                    } else if (data != null) {
+                        currentProgress = data.getProgress(mission.getId());
                     }
+                    
+                    // Calculate smooth time progress using UTC-6 real world time
+                    long totalMillis = (mission.getEndDay() - mission.getStartDay() + 1) * 24L * 60L * 60L * 1000L;
+                    ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/Mexico_City"));
+                    ZonedDateTime today2PM = now.withHour(14).withMinute(0).withSecond(0).withNano(0);
+                    
+                    long millisPassedInCurrentDay;
+                    if (now.isBefore(today2PM)) {
+                        ZonedDateTime yesterday2PM = today2PM.minusDays(1);
+                        millisPassedInCurrentDay = Duration.between(yesterday2PM, now).toMillis();
+                    } else {
+                        millisPassedInCurrentDay = Duration.between(today2PM, now).toMillis();
+                    }
+                    
+                    long passedMillis = (currentDay - mission.getStartDay()) * 24L * 60L * 60L * 1000L + millisPassedInCurrentDay;
+                    float timeProgress = 1.0f - ((float) passedMillis / totalMillis);
+                    timeProgress = Math.max(0.0f, Math.min(1.0f, timeProgress));
+                    
+                    BossBar.Color barColor = BossBar.Color.BLUE;
+                    if (timeProgress < 0.25f) barColor = BossBar.Color.RED;
+                    else if (timeProgress < 0.5f) barColor = BossBar.Color.YELLOW;
+                    
+                    String pagination = incompleteMissions.size() > 1 ? " <shadow:#000000:1><dark_gray>[" + (index + 1) + "/" + incompleteMissions.size() + "]</dark_gray></shadow>" : "";
+                    String text = "<b><yellow>Día " + currentDay + "</yellow></b> <dark_gray>-</dark_gray> " + mission.getName() + " <gray>(" + currentProgress + "/" + maxProgress + ")</gray>" + pagination;
+                    
+                    Messenger.showBossBar(player, "missions_bar", text, barColor, BossBar.Overlay.PROGRESS, timeProgress);
                 }
-                playerActiveBars.put(player.getUniqueId(), displayedThisTick);
             }
         }, 20L, 20L); // Update every second
     }
@@ -132,11 +125,7 @@ public class MissionBossBarManager implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        Set<String> bars = playerActiveBars.remove(player.getUniqueId());
-        if (bars != null) {
-            for (String id : bars) {
-                Messenger.hideBossBar(player, id);
-            }
-        }
+        Messenger.hideBossBar(player, "missions_bar");
+        Messenger.hideBossBar(player, "timeline_day_bar");
     }
 }
