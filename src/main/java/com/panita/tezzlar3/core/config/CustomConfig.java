@@ -43,4 +43,10 @@ public class CustomConfig {
     public void reload() {
         this.config = YamlConfiguration.loadConfiguration(this.file);
     }
+
+    public static boolean exists(JavaPlugin plugin, String folder, String fileName) {
+        File dataDir = new File(plugin.getDataFolder(), folder);
+        File targetFile = new File(dataDir, fileName);
+        return targetFile.exists();
+    }
 }
