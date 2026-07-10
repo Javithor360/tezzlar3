@@ -108,12 +108,18 @@ public class RevenantTrackerTask implements Runnable, ActionBarProvider {
                     
                     // Spawn flame circle at the edge of the 10 block radius
                     double radius = 10.0;
-                    for (int i = 0; i < 360; i += 10) {
+                    for (int i = 0; i < 360; i += 5) {
                         double angle = Math.toRadians(i);
                         double px = graveLoc.getX() + radius * Math.cos(angle);
                         double pz = graveLoc.getZ() + radius * Math.sin(angle);
-                        Location pLoc = new Location(world, px, graveLoc.getY() + 1.0, pz);
-                        world.spawnParticle(Particle.FLAME, pLoc, 2, 0.0, 0.0, 0.0, 0.02);
+                        
+                        Location pLoc1 = new Location(world, px, graveLoc.getY() + 0.5, pz);
+                        Location pLoc2 = new Location(world, px, graveLoc.getY() + 1.5, pz);
+                        Location pLoc3 = new Location(world, px, graveLoc.getY() + 2.5, pz);
+                        
+                        world.spawnParticle(Particle.FLAME, pLoc1, 4, 0.2, 0.2, 0.2, 0.03);
+                        world.spawnParticle(Particle.FLAME, pLoc2, 4, 0.2, 0.2, 0.2, 0.03);
+                        world.spawnParticle(Particle.FLAME, pLoc3, 4, 0.2, 0.2, 0.2, 0.03);
                     }
                     SoundUtils.play(owner, "block.fire.ambient", 1.0f, 1.0f);
                 }
