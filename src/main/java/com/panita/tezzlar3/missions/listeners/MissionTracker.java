@@ -30,7 +30,16 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.Arrays;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.HashMap;
+import org.bukkit.event.block.BlockBreakEvent;
+
 public class MissionTracker implements Listener {
+    private final Map<UUID, Map<String, LinkedList<Long>>> timedKills = new HashMap<>();
 
     public MissionTracker() {
         // Repeated task to check passive state missions (like wearing armor)
@@ -188,7 +197,7 @@ public class MissionTracker implements Listener {
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
-        if (!hasActiveMissionObjective("KILL_ENTITY")) return;
+        if (!hasActiveMissionObjective("KILL_ENTITY") && !hasActiveMissionObjective("KILL_ENTITY_TIMED")) return;
         
         if (event.getEntity().getKiller() != null) {
             Player player = event.getEntity().getKiller();
@@ -196,6 +205,36 @@ public class MissionTracker implements Listener {
             String env = event.getEntity().getWorld().getEnvironment().name();
             
             checkObjective(player, "KILL_ENTITY", target, env, 1, event.getEntity());
+            
+            // Check for KILL_ENTITY_TIMED
+            for (Map.Entry<String, Mission> entry : MissionsModule.getMissionManager().getLoadedMissions().entrySet()) {
+                Mission mission = entry.getValue();
+                if (mission.getObjectiveType().equalsIgnoreCase("KILL_ENTITY_TIMED") && mission.getObjectiveTarget().equalsIgnoreCase(target)) {
+                    int currentDay = TimeManager.getCurrentDay();
+                    if (currentDay < mission.getStartDay() || currentDay > mission.getEndDay()) continue;
+                    
+                    PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player);
+                    if (data == null || data.hasCompleted(mission.getId())) continue;
+                    
+                    long now = System.currentTimeMillis();
+                    long timeLimitMs = mission.getObjectiveTimeLimit() * 1000L;
+                    
+                    timedKills.putIfAbsent(player.getUniqueId(), new HashMap<>());
+                    Map<String, LinkedList<Long>> playerMissions = timedKills.get(player.getUniqueId());
+                    playerMissions.putIfAbsent(mission.getId(), new LinkedList<>());
+                    
+                    LinkedList<Long> kills = playerMissions.get(mission.getId());
+                    kills.add(now);
+                    
+                    // Remove old kills outside the time window
+                    kills.removeIf(time -> (now - time) > timeLimitMs);
+                    
+                    if (kills.size() >= mission.getObjectiveAmount()) {
+                        advanceProgress(player, mission.getId(), mission.getObjectiveAmount());
+                        kills.clear(); // Reset after completion
+                    }
+                }
+            }
         }
     }
 
@@ -272,5 +311,53 @@ public class MissionTracker implements Listener {
         }
 
         return attemptAmount - remaining;
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (!hasActiveMissionObjective("MINE_BLOCKS")) return;
+        
+        Player player = event.getPlayer();
+        String blockName = event.getBlock().getType().name();
+
+        for (Map.Entry<String, Mission> entry : MissionsModule.getMissionManager().getLoadedMissions().entrySet()) {
+            Mission mission = entry.getValue();
+            if (!mission.getObjectiveType().equalsIgnoreCase("MINE_BLOCKS")) continue;
+            
+            int currentDay = TimeManager.getCurrentDay();
+            if (currentDay < mission.getStartDay() || currentDay > mission.getEndDay()) continue;
+            
+            PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player);
+            if (data == null || data.hasCompleted(mission.getId())) continue;
+
+            Map<String, Integer> targets = mission.getObjectiveTargetsMap();
+            if (targets == null || targets.isEmpty()) continue;
+
+            for (Map.Entry<String, Integer> target : targets.entrySet()) {
+                List<String> validBlocks = Arrays.asList(target.getKey().split(","));
+                if (validBlocks.contains(blockName)) {
+                    String subKey = mission.getId() + "_sub_" + target.getKey();
+                    int currentSub = data.getProgress(subKey);
+                    
+                    if (currentSub < target.getValue()) {
+                        data.setProgress(subKey, currentSub + 1);
+                        
+                        // Check if all targets are now fulfilled
+                        int completedTargets = 0;
+                        for (Map.Entry<String, Integer> t : targets.entrySet()) {
+                            if (data.getProgress(mission.getId() + "_sub_" + t.getKey()) >= t.getValue()) {
+                                completedTargets++;
+                            }
+                        }
+                        
+                        if (completedTargets >= targets.size()) {
+                            // All blocks mined, complete the mission
+                            advanceProgress(player, mission.getId(), 1);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
     }
 }

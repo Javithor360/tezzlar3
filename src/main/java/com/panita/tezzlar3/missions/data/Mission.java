@@ -1,6 +1,8 @@
 package com.panita.tezzlar3.missions.data;
 
 import org.bukkit.configuration.ConfigurationSection;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +21,8 @@ public class Mission {
     private final int objectiveRadius;
     private final int objectiveMinHeight;
     private final String objectivePotionEffect;
+    private final int objectiveTimeLimit;
+    private final Map<String, Integer> objectiveTargetsMap;
     
     private final List<Map<?, ?>> rewards;
     private final List<Map<?, ?>> punishments;
@@ -39,6 +43,18 @@ public class Mission {
         this.objectiveRadius = obj.getInt("radius", 20);
         this.objectiveMinHeight = obj.getInt("min_height", Integer.MIN_VALUE);
         this.objectivePotionEffect = obj.getString("potion_effect", null);
+        this.objectiveTimeLimit = obj.getInt("time_limit", 0);
+        
+        Map<String, Integer> targetsMap = new HashMap<>();
+        if (obj.isConfigurationSection("targets")) {
+            ConfigurationSection targetsSection = obj.getConfigurationSection("targets");
+            if (targetsSection != null) {
+                for (String key : targetsSection.getKeys(false)) {
+                    targetsMap.put(key, targetsSection.getInt(key));
+                }
+            }
+        }
+        this.objectiveTargetsMap = targetsMap;
         
         this.rewards = section.getMapList("rewards");
         this.punishments = section.getMapList("punishments");
@@ -57,6 +73,8 @@ public class Mission {
     public int getObjectiveRadius() { return objectiveRadius; }
     public int getObjectiveMinHeight() { return objectiveMinHeight; }
     public String getObjectivePotionEffect() { return objectivePotionEffect; }
+    public int getObjectiveTimeLimit() { return objectiveTimeLimit; }
+    public Map<String, Integer> getObjectiveTargetsMap() { return objectiveTargetsMap; }
     public List<Map<?, ?>> getRewards() { return rewards; }
     public List<Map<?, ?>> getPunishments() { return punishments; }
 }

@@ -95,6 +95,38 @@ missions:
       - id: "REGENERATION_TO_WITHER"
       - id: "WITHER_SKELETON_SPAWN_ON_DAMAGE"
 
+  wither_rush:
+    name: "Cacería de Wither Skeleton"
+    start_day: 11
+    end_day: 11
+    scope: INDIVIDUAL
+    objective:
+      type: KILL_ENTITY_TIMED
+      target: WITHER_SKELETON
+      amount: 20
+      time_limit: 45
+    rewards:
+      - id: "GIVE_EXP"
+        args: { levels: 15 }
+        description: "15 Niveles de Experiencia"
+
+  mining_fever:
+    name: "Obra Minera"
+    start_day: 12
+    end_day: 12
+    scope: INDIVIDUAL
+    objective:
+      type: MINE_BLOCKS
+      targets:
+        DIAMOND_ORE,DEEPSLATE_DIAMOND_ORE: 32
+        EMERALD_ORE,DEEPSLATE_EMERALD_ORE: 5
+        ANCIENT_DEBRIS: 16
+        NETHER_QUARTZ_ORE: 128
+    rewards:
+      - id: "GIVE_EXP"
+        args: { levels: 15 }
+        description: "15 Niveles de Experiencia"
+
   warden_spawn:
     name: "Traer un Warden al Spawn"
     start_day: 13
