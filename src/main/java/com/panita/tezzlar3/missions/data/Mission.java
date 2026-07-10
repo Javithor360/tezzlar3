@@ -17,6 +17,8 @@ public class Mission {
     private final String objectiveEnvironment;
     private final String objectiveLocation;
     private final int objectiveRadius;
+    private final int objectiveMinHeight;
+    private final String objectivePotionEffect;
     
     private final List<Map<?, ?>> rewards;
     private final List<Map<?, ?>> punishments;
@@ -35,6 +37,8 @@ public class Mission {
         this.objectiveEnvironment = obj.getString("environment");
         this.objectiveLocation = obj.getString("location");
         this.objectiveRadius = obj.getInt("radius", 20);
+        this.objectiveMinHeight = obj.getInt("min_height", Integer.MIN_VALUE);
+        this.objectivePotionEffect = obj.getString("potion_effect", null);
         
         this.rewards = section.getMapList("rewards");
         this.punishments = section.getMapList("punishments");
@@ -51,6 +55,8 @@ public class Mission {
     public String getObjectiveEnvironment() { return objectiveEnvironment; }
     public String getObjectiveLocation() { return objectiveLocation; }
     public int getObjectiveRadius() { return objectiveRadius; }
+    public int getObjectiveMinHeight() { return objectiveMinHeight; }
+    public String getObjectivePotionEffect() { return objectivePotionEffect; }
     public List<Map<?, ?>> getRewards() { return rewards; }
     public List<Map<?, ?>> getPunishments() { return punishments; }
 }

@@ -80,8 +80,10 @@ missions:
     objective:
       type: KILL_ENTITY
       target: WITHER
-      amount: 1
+      amount: 3
       environment: NETHER
+      min_height: 160
+      potion_effect: "WEAKNESS"
     rewards:
       - id: "GIVE_EXP"
         args: { levels: 50 }

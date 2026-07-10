@@ -24,6 +24,9 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import com.panita.tezzlar3.core.util.CraftingUtils;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
 
@@ -149,7 +152,7 @@ public class MissionTracker implements Listener {
         return false;
     }
 
-    private void checkObjective(Player player, String type, String target, String environment, int amount) {
+    private void checkObjective(Player player, String type, String target, String environment, int amount, Entity targetEntity) {
         for (Map.Entry<String, Mission> entry : MissionsModule.getMissionManager().getLoadedMissions().entrySet()) {
             Mission mission = entry.getValue();
             if (mission.getObjectiveType().equalsIgnoreCase(type) && mission.getObjectiveTarget().equalsIgnoreCase(target)) {
@@ -160,13 +163,27 @@ public class MissionTracker implements Listener {
                     }
                 }
                 
+                if (type.equalsIgnoreCase("KILL_ENTITY")) {
+                    if (targetEntity != null) {
+                        if (mission.getObjectiveMinHeight() != Integer.MIN_VALUE && targetEntity.getLocation().getY() < mission.getObjectiveMinHeight()) {
+                            continue; // Mob is below required height
+                        }
+                    }
+                    if (mission.getObjectivePotionEffect() != null && player != null) {
+                        PotionEffectType reqEffect = Registry.POTION_EFFECT_TYPE.get(NamespacedKey.minecraft(mission.getObjectivePotionEffect().toLowerCase()));
+                        if (reqEffect != null && !player.hasPotionEffect(reqEffect)) {
+                            continue; // Player does not have required potion effect
+                        }
+                    }
+                }
+                
                 advanceProgress(player, mission.getId(), amount);
             }
         }
     }
 
     private void checkObjective(Player player, String type, String target, int amount) {
-        checkObjective(player, type, target, null, amount);
+        checkObjective(player, type, target, null, amount, null);
     }
 
     @EventHandler
@@ -178,7 +195,7 @@ public class MissionTracker implements Listener {
             String target = event.getEntityType().name();
             String env = event.getEntity().getWorld().getEnvironment().name();
             
-            checkObjective(player, "KILL_ENTITY", target, env, 1);
+            checkObjective(player, "KILL_ENTITY", target, env, 1, event.getEntity());
         }
     }
 
