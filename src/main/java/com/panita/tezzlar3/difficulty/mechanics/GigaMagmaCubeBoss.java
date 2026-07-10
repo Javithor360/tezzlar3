@@ -175,8 +175,10 @@ public class GigaMagmaCubeBoss {
             giveOrDropItem(p, new ItemStack(shulkers[random.nextInt(shulkers.length)], 1));
         });
         options.add(() -> {
-            ItemStack bow = CustomItemManager.getItem("tactic_bow");
-            if (bow != null) giveOrDropItem(p, bow);
+            String[] customItems = {"tactic_bow", "tezzlar_heart", "bee_totem", "chicken_totem", "ghast_totem", "golden_totem", "life_save", "memory_evoker", "sniffer_totem", "sulfur_totem", "turtle_totem"};
+            String chosen = customItems[random.nextInt(customItems.length)];
+            ItemStack item = CustomItemManager.getItem(chosen);
+            if (item != null) giveOrDropItem(p, item);
         });
         options.add(() -> giveOrDropItem(p, new ItemStack(Material.EMERALD, 128 + random.nextInt(385))));
         
