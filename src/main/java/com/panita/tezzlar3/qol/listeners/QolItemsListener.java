@@ -105,7 +105,9 @@ public class QolItemsListener implements Listener {
                 if (entity instanceof Mob mob) {
                     
                     if (mob.getType() == EntityType.PHANTOM) {
-                        Vector push = mob.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(3.5).setY(1.0);
+                        Vector dir = mob.getLocation().toVector().subtract(player.getLocation().toVector());
+                        if (dir.lengthSquared() < 0.0001) dir = player.getLocation().getDirection();
+                        Vector push = dir.normalize().multiply(3.5).setY(1.0);
                         mob.setVelocity(push);
                         mob.getWorld().spawnParticle(Particle.SONIC_BOOM, mob.getLocation().add(0, 1, 0), 1);
                         mob.getWorld().playSound(mob.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 1.0f);
@@ -119,7 +121,9 @@ public class QolItemsListener implements Listener {
                     } else {
                         double distance = player.getLocation().distance(mob.getLocation());
                         if (distance <= 5.0) {
-                            Vector push = mob.getLocation().toVector().subtract(player.getLocation().toVector()).normalize().multiply(1.5).setY(0.5);
+                            Vector dir = mob.getLocation().toVector().subtract(player.getLocation().toVector());
+                            if (dir.lengthSquared() < 0.0001) dir = player.getLocation().getDirection();
+                            Vector push = dir.normalize().multiply(1.5).setY(0.5);
                             mob.setVelocity(push);
                             mob.getWorld().spawnParticle(Particle.SONIC_BOOM, mob.getLocation().add(0, 1, 0), 1);
                             mob.getWorld().playSound(mob.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 1.0f);
