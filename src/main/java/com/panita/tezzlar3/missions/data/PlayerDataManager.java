@@ -1,6 +1,7 @@
 package com.panita.tezzlar3.missions.data;
 
 import com.panita.tezzlar3.core.config.CustomConfig;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -38,6 +39,16 @@ public class PlayerDataManager {
         data.setBanExpiration(config.getLong("ban_expiration", 0L));
         data.setDayChangeAcknowledged(config.getInt("day_change_acknowledged", 1));
         data.setLives(config.getInt("lives", 3));
+        
+        if (config.contains("first_join_day")) {
+            data.setFirstJoinDay(config.getInt("first_join_day"));
+        } else {
+            if (player.hasPlayedBefore()) {
+                data.setFirstJoinDay(1);
+            } else {
+                data.setFirstJoinDay(TimeManager.getCurrentDay());
+            }
+        }
         
         if (config.contains("active_progress")) {
             for (String key : config.getConfigurationSection("active_progress").getKeys(false)) {
@@ -86,6 +97,7 @@ public class PlayerDataManager {
         config.set("ban_expiration", data.getBanExpiration());
         config.set("day_change_acknowledged", data.getDayChangeAcknowledged());
         config.set("punishments_acknowledged", data.hasPunishmentsAcknowledged());
+        config.set("first_join_day", data.getFirstJoinDay());
 
         for (Map.Entry<String, Integer> entry : data.getActiveProgress().entrySet()) {
             config.set("active_progress." + entry.getKey(), entry.getValue());

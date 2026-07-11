@@ -135,7 +135,7 @@ public class MissionExpirationListener implements Listener {
                         
                         if (p != null && p.isOnline()) {
                             PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(p);
-                            if (data != null && !data.hasCompleted(mission.getId())) {
+                            if (data != null && data.getFirstJoinDay() <= mission.getEndDay() && !data.hasCompleted(mission.getId())) {
                                 for (Map<?, ?> punishmentMap : mission.getPunishments()) {
                                     String id = (String) punishmentMap.get("id");
                                     if (!data.hasPunishment(id)) {
@@ -148,21 +148,24 @@ public class MissionExpirationListener implements Listener {
                             CustomConfig customConfig = new CustomConfig(plugin, "data", file.getName());
                             FileConfiguration config = customConfig.getConfig();
                             
-                            List<String> completed = config.getStringList("completed_missions");
-                            if (!completed.contains(mission.getId())) {
-                                List<String> activePunishments = config.getStringList("active_punishments");
-                                boolean changed = false;
-                                for (Map<?, ?> punishmentMap : mission.getPunishments()) {
-                                    String id = (String) punishmentMap.get("id");
-                                    if (!activePunishments.contains(id)) {
-                                        activePunishments.add(id);
-                                        changed = true;
+                            int firstJoinDay = config.getInt("first_join_day", 1);
+                            if (firstJoinDay <= mission.getEndDay()) {
+                                List<String> completed = config.getStringList("completed_missions");
+                                if (!completed.contains(mission.getId())) {
+                                    List<String> activePunishments = config.getStringList("active_punishments");
+                                    boolean changed = false;
+                                    for (Map<?, ?> punishmentMap : mission.getPunishments()) {
+                                        String id = (String) punishmentMap.get("id");
+                                        if (!activePunishments.contains(id)) {
+                                            activePunishments.add(id);
+                                            changed = true;
+                                        }
                                     }
-                                }
-                                if (changed) {
-                                    config.set("active_punishments", activePunishments);
-                                    config.set("punishments_acknowledged", false);
-                                    customConfig.save();
+                                    if (changed) {
+                                        config.set("active_punishments", activePunishments);
+                                        config.set("punishments_acknowledged", false);
+                                        customConfig.save();
+                                    }
                                 }
                             }
                         }

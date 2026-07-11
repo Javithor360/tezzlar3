@@ -29,6 +29,7 @@ public class PlayerMissionData {
     private long banExpiration = 0;
     private int dayChangeAcknowledged = 1;
     private int lives = 3; // Remaining lives
+    private int firstJoinDay = 1; // When they joined the server for the first time
 
     public PlayerMissionData(UUID uuid, String name) {
         this.uuid = uuid;
@@ -150,5 +151,13 @@ public class PlayerMissionData {
 
     public void setLives(int lives) {
         this.lives = lives;
+    }
+
+    public int getFirstJoinDay() {
+        return firstJoinDay;
+    }
+
+    public void setFirstJoinDay(int firstJoinDay) {
+        this.firstJoinDay = firstJoinDay;
     }
 }
