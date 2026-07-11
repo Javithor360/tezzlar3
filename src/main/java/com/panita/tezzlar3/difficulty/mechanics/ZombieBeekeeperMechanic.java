@@ -1,5 +1,6 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
+import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -59,16 +60,25 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
             damageAttr.setBaseValue(damageAttr.getBaseValue() * 2.0);
         }
         
-        EntityUtils.equipArmor(zombie, 
-            new ItemStack(Material.BEE_NEST), 
-            new ItemStack(Material.GOLDEN_CHESTPLATE), 
-            new ItemStack(Material.GOLDEN_LEGGINGS), 
-            new ItemStack(Material.GOLDEN_BOOTS), 
-            0.0f);
+        ItemStack helmet = new ItemStack(Material.BEE_NEST);
+        ItemStack chestplate = new ItemStack(Material.GOLDEN_CHESTPLATE);
+        ItemStack leggings = new ItemStack(Material.GOLDEN_LEGGINGS);
+        ItemStack boots = new ItemStack(Material.GOLDEN_BOOTS);
+        ItemStack sword = new ItemStack(Material.GOLDEN_SWORD);
+
+        if (TimeManager.getCurrentDay() >= 12) {
+            sword.addUnsafeEnchantment(Enchantment.SHARPNESS, 10);
+            helmet.addUnsafeEnchantment(Enchantment.PROJECTILE_PROTECTION, 3);
+            chestplate.addUnsafeEnchantment(Enchantment.PROJECTILE_PROTECTION, 3);
+            leggings.addUnsafeEnchantment(Enchantment.PROJECTILE_PROTECTION, 3);
+            boots.addUnsafeEnchantment(Enchantment.PROJECTILE_PROTECTION, 3);
+        }
+
+        EntityUtils.equipArmor(zombie, helmet, chestplate, leggings, boots, 0.0f);
             
         EntityEquipment eq = zombie.getEquipment();
         if (eq != null) {
-            eq.setItemInMainHand(new ItemStack(Material.GOLDEN_SWORD));
+            eq.setItemInMainHand(sword);
             eq.setItemInMainHandDropChance(0.0f);
         }
     }

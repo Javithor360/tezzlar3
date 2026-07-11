@@ -1,6 +1,7 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
 import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -78,7 +79,8 @@ public class LightningSkeletonMechanic extends DifficultyMechanic {
             EntityUtils.equipArmor(skeleton, helmet, chestplate, leggings, boots, 0.0f);
             
             ItemStack bow = new ItemStack(Material.BOW);
-            bow.addUnsafeEnchantment(Enchantment.POWER, 5);
+            int powerLevel = TimeManager.getCurrentDay() >= 12 ? 35 : 5;
+            bow.addUnsafeEnchantment(Enchantment.POWER, powerLevel);
             skeleton.getEquipment().setItemInMainHand(bow);
             skeleton.getEquipment().setItemInMainHandDropChance(0.0f);
         });

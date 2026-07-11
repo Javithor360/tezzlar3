@@ -2,6 +2,7 @@ package com.panita.tezzlar3.difficulty.mechanics;
 
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.core.util.ItemUtils;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -51,7 +52,9 @@ public class InfraredSkeletonMechanic extends DifficultyMechanic {
         // Weapon
         ItemStack bow = new ItemStack(Material.BOW);
         ItemUtils.enchantItem(bow, Enchantment.FLAME, 1);
-        ItemUtils.enchantItem(bow, Enchantment.POWER, 3);
+        
+        int powerLevel = TimeManager.getCurrentDay() >= 12 ? 30 : 3;
+        ItemUtils.enchantItem(bow, Enchantment.POWER, powerLevel);
         
         if (skeleton.getEquipment() != null) {
             skeleton.getEquipment().setItemInMainHand(bow);

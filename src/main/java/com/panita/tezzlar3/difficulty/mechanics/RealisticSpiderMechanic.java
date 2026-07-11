@@ -1,6 +1,7 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
 import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -84,11 +85,15 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
                 spider.getAttribute(Attribute.SCALE).setBaseValue(0.2);
             }
             
-            // Reduce Health (4.0 HP - Half of previous 8.0)
+            // Set Health dynamically based on Day
+            double maxHealth = TimeManager.getCurrentDay() >= 12 ? 10.0 : 4.0;
             if (spider.getAttribute(Attribute.MAX_HEALTH) != null) {
-                spider.getAttribute(Attribute.MAX_HEALTH).setBaseValue(4.0);
-                if (spider.getHealth() > 4.0) {
-                    spider.setHealth(4.0);
+                spider.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHealth);
+                if (spider.getHealth() > maxHealth) {
+                    spider.setHealth(maxHealth);
+                } else if (maxHealth == 10.0) {
+                    // Make sure it heals up if we buffed its max health
+                    spider.setHealth(maxHealth);
                 }
             }
             
