@@ -79,6 +79,9 @@ import com.panita.tezzlar3.difficulty.mechanics.NetherOverworldSpawnsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PhantomRiderMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ZoglinNetherSpawnsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.VampireBatMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.EndermanNerfMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.GhastDeflectOnlyMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.AncestralRemainsMechanic;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -108,123 +111,128 @@ public class DifficultyModule implements PluginModule {
             // Day 1
             mechanics.add(new PremiumArmorSetMechanic(plugin));
         
-        // Day 2
-        mechanics.add(new DeathTrainMechanic(plugin));
-        
-        // Day 3
-        mechanics.add(new DoubleFallDamageMechanic(plugin));
-        mechanics.add(new AnimalOneShotMechanic(plugin));
-        mechanics.add(new ZombieBeekeeperMechanic(plugin));
-        mechanics.add(new SuffocationImmunityMechanic(plugin));
-        
-        // Day 4
-        mechanics.add(new GoatHornParalyzeMechanic(plugin));
-        mechanics.add(new InfraredSkeletonMechanic(plugin));
-        mechanics.add(new RandomMobSizeMechanic(plugin));
-        
-        // Day 5
-        mechanics.add(new OverworldBedExplosionMechanic(plugin));
-        mechanics.add(new RandomMobGearMechanic(plugin));
-        mechanics.add(new RealisticSpiderMechanic(plugin));
-        mechanics.add(new PhantomRideMechanic(plugin));
-        
-        // Day 6
-        mechanics.add(new ZombieCavalryMechanic(plugin));
-        mechanics.add(new ParasiticSilverfishMechanic(plugin));
+            // Day 2
+            mechanics.add(new DeathTrainMechanic(plugin));
 
-        // Day 7
-        mechanics.add(new AngryWolfMechanic(plugin));
-        mechanics.add(new ShinyPiglinMechanic(plugin));
-        mechanics.add(new CreeperExplosionMechanic(plugin));
-        
-        // Day 8
-        mechanics.add(new LightningSkeletonMechanic(plugin));
-        mechanics.add(new FastDrowningMechanic(plugin));
-        mechanics.add(new AcidRainMechanic(plugin));
-        mechanics.add(new GhastExplosionMechanic(plugin));
-        
-        // Day 9
-        mechanics.add(new NaturalRavagerMechanic(plugin));
-        mechanics.add(new FastStriderMechanic(plugin));
-        mechanics.add(new LavaDepthStriderMechanic(plugin));
-        
-        // Day 10
-        mechanics.add(new PlayerKillOnlyDropsMechanic(plugin));
-        mechanics.add(new VillagerProfessionLossMechanic(plugin));
-        mechanics.add(new GigaMagmaCubeMechanic(plugin));
-        mechanics.add(new TripledArrowDamageMechanic(plugin));
-        
-        // Day 11
-        mechanics.add(new NightRainMechanic(plugin));
-        mechanics.add(new NetherBlazeSpawnsMechanic(plugin));
-        mechanics.add(new CopperDamageMechanic(plugin));
-        mechanics.add(new EliteMobStatsMechanic(plugin));
-        mechanics.add(new SkeletonBowPowerMechanic(plugin));
-        
-        // Day 12
-        mechanics.add(new FastHungerMechanic(plugin));
-        mechanics.add(new SlimeBanzaiMechanic(plugin));
-        mechanics.add(new InvisibleChargedCreeperMechanic(plugin));
-        mechanics.add(new CopperGolemLightningMechanic(plugin));
-        mechanics.add(new MagmaDamageMechanic(plugin));
-        
-        // Day 13
-        mechanics.add(new WeavingSpiderMechanic(plugin));
-        mechanics.add(new BuffedSnowGolemMechanic(plugin));
-        mechanics.add(new PeruvianVindicatorMechanic(plugin));
-        
-        // Day 14
-        mechanics.add(new EternalFireMechanic(plugin));
-        mechanics.add(new StrayFreezeMechanic(plugin));
-        mechanics.add(new GlobalVariantsMechanic(plugin));
-        mechanics.add(new WitherSkeletonEliteGearMechanic(plugin));
-        
-        // Day 15
-        mechanics.add(new ToxicMeatMechanic(plugin));
-        mechanics.add(new MutatedSpiderMechanic(plugin));
-        mechanics.add(new EternalNightMechanic(plugin));
-        mechanics.add(new ZombieRatatouilleMechanic(plugin));
-        
-        // Day 16
-        mechanics.add(new IllagerGuardianMechanic(plugin));
-        mechanics.add(new ElderGuardianMechanic(plugin));
-        mechanics.add(new ExplosiveTotemMechanic(plugin));
-        mechanics.add(new NetherRoofWitherMechanic(plugin));
-        mechanics.add(new SpawnerMobBuffMechanic(plugin));
-        
-        // Day 17
-        mechanics.add(new BabyMobRiderMechanic(plugin));
-        mechanics.add(new ChargedZombieMechanic(plugin));
-        mechanics.add(new TeleportingSpawnsMechanic(plugin));
-        
-        // Day 18
-        mechanics.add(new BabyKillCurseMechanic(plugin));
-        mechanics.add(new VehicleDismountMechanic(plugin));
-        
-        // Day 19
-        mechanics.add(new DoubleDamageMechanic(plugin));
-        mechanics.add(new ApocalypticZombieMechanic(plugin));
-        
-        // Day 20
-        mechanics.add(new OverworldToxicityMechanic(plugin));
-        mechanics.add(new EnderGuardianMechanic(plugin));
-        
-        // Day 21
-        mechanics.add(new DoubleTotemMechanic(plugin));
-        mechanics.add(new ZombieCameramanMechanic(plugin));
-        
-        // Day 22
-        mechanics.add(new WrongToolDamageMechanic(plugin));
-        mechanics.add(new ColoredShulkerMechanic(plugin));
-        
-        // Day 23
-        mechanics.add(new DoubleFireLavaDamageMechanic(plugin));
-        mechanics.add(new NetherOverworldSpawnsMechanic(plugin));
-        mechanics.add(new PhantomRiderMechanic(plugin));
-        
-        // Day 24
-        mechanics.add(new ZoglinNetherSpawnsMechanic(plugin));
-        mechanics.add(new VampireBatMechanic(plugin));
+            // Day 3
+            mechanics.add(new DoubleFallDamageMechanic(plugin));
+            mechanics.add(new AnimalOneShotMechanic(plugin));
+            mechanics.add(new ZombieBeekeeperMechanic(plugin));
+            mechanics.add(new SuffocationImmunityMechanic(plugin));
+
+            // Day 4
+            mechanics.add(new GoatHornParalyzeMechanic(plugin));
+            mechanics.add(new InfraredSkeletonMechanic(plugin));
+            mechanics.add(new RandomMobSizeMechanic(plugin));
+
+            // Day 5
+            mechanics.add(new OverworldBedExplosionMechanic(plugin));
+            mechanics.add(new RandomMobGearMechanic(plugin));
+            mechanics.add(new RealisticSpiderMechanic(plugin));
+            mechanics.add(new PhantomRideMechanic(plugin));
+
+            // Day 6
+            mechanics.add(new ZombieCavalryMechanic(plugin));
+            mechanics.add(new ParasiticSilverfishMechanic(plugin));
+
+            // Day 7
+            mechanics.add(new AngryWolfMechanic(plugin));
+            mechanics.add(new ShinyPiglinMechanic(plugin));
+            mechanics.add(new CreeperExplosionMechanic(plugin));
+
+            // Day 8
+            mechanics.add(new LightningSkeletonMechanic(plugin));
+            mechanics.add(new FastDrowningMechanic(plugin));
+            mechanics.add(new AcidRainMechanic(plugin));
+            mechanics.add(new GhastExplosionMechanic(plugin));
+
+            // Day 9
+            mechanics.add(new NaturalRavagerMechanic(plugin));
+            mechanics.add(new FastStriderMechanic(plugin));
+            mechanics.add(new LavaDepthStriderMechanic(plugin));
+
+            // Day 10
+            mechanics.add(new PlayerKillOnlyDropsMechanic(plugin));
+            mechanics.add(new VillagerProfessionLossMechanic(plugin));
+            mechanics.add(new GigaMagmaCubeMechanic(plugin));
+            mechanics.add(new TripledArrowDamageMechanic(plugin));
+
+            // Day 11
+            mechanics.add(new NightRainMechanic(plugin));
+            mechanics.add(new NetherBlazeSpawnsMechanic(plugin));
+            mechanics.add(new CopperDamageMechanic(plugin));
+            mechanics.add(new EliteMobStatsMechanic(plugin));
+            mechanics.add(new SkeletonBowPowerMechanic(plugin));
+
+            // Day 12
+            mechanics.add(new FastHungerMechanic(plugin));
+            mechanics.add(new SlimeBanzaiMechanic(plugin));
+            mechanics.add(new InvisibleChargedCreeperMechanic(plugin));
+            mechanics.add(new CopperGolemLightningMechanic(plugin));
+            mechanics.add(new MagmaDamageMechanic(plugin));
+
+            // Day 13
+            mechanics.add(new WeavingSpiderMechanic(plugin));
+            mechanics.add(new BuffedSnowGolemMechanic(plugin));
+            mechanics.add(new PeruvianVindicatorMechanic(plugin));
+
+            // Day 14
+            mechanics.add(new EternalFireMechanic(plugin));
+            mechanics.add(new StrayFreezeMechanic(plugin));
+            mechanics.add(new GlobalVariantsMechanic(plugin));
+            mechanics.add(new WitherSkeletonEliteGearMechanic(plugin));
+
+            // Day 15
+            mechanics.add(new ToxicMeatMechanic(plugin));
+            mechanics.add(new MutatedSpiderMechanic(plugin));
+            mechanics.add(new EternalNightMechanic(plugin));
+            mechanics.add(new ZombieRatatouilleMechanic(plugin));
+
+            // Day 16
+            mechanics.add(new IllagerGuardianMechanic(plugin));
+            mechanics.add(new ElderGuardianMechanic(plugin));
+            mechanics.add(new ExplosiveTotemMechanic(plugin));
+            mechanics.add(new NetherRoofWitherMechanic(plugin));
+            mechanics.add(new SpawnerMobBuffMechanic(plugin));
+
+            // Day 17
+            mechanics.add(new BabyMobRiderMechanic(plugin));
+            mechanics.add(new ChargedZombieMechanic(plugin));
+            mechanics.add(new TeleportingSpawnsMechanic(plugin));
+
+            // Day 18
+            mechanics.add(new BabyKillCurseMechanic(plugin));
+            mechanics.add(new VehicleDismountMechanic(plugin));
+
+            // Day 19
+            mechanics.add(new DoubleDamageMechanic(plugin));
+            mechanics.add(new ApocalypticZombieMechanic(plugin));
+
+            // Day 20
+            mechanics.add(new OverworldToxicityMechanic(plugin));
+            mechanics.add(new EnderGuardianMechanic(plugin));
+
+            // Day 21
+            mechanics.add(new DoubleTotemMechanic(plugin));
+            mechanics.add(new ZombieCameramanMechanic(plugin));
+
+            // Day 22
+            mechanics.add(new WrongToolDamageMechanic(plugin));
+            mechanics.add(new ColoredShulkerMechanic(plugin));
+
+            // Day 23
+            mechanics.add(new DoubleFireLavaDamageMechanic(plugin));
+            mechanics.add(new NetherOverworldSpawnsMechanic(plugin));
+            mechanics.add(new PhantomRiderMechanic(plugin));
+
+            // Day 24
+            mechanics.add(new ZoglinNetherSpawnsMechanic(plugin));
+            mechanics.add(new VampireBatMechanic(plugin));
+
+            // Day 25
+            mechanics.add(new EndermanNerfMechanic(plugin));
+            mechanics.add(new GhastDeflectOnlyMechanic(plugin));
+            mechanics.add(new AncestralRemainsMechanic(plugin));
             
             initialized = true;
         }
