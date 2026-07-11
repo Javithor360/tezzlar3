@@ -70,6 +70,8 @@ import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SkeletonBowPowerMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.MagmaDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.TripledArrowDamageMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.DoubleTotemMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ZombieCameramanMechanic;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -199,6 +201,10 @@ public class DifficultyModule implements PluginModule {
         // Day 20
         mechanics.add(new OverworldToxicityMechanic(plugin));
         mechanics.add(new EnderGuardianMechanic(plugin));
+        
+        // Day 21
+        mechanics.add(new DoubleTotemMechanic(plugin));
+        mechanics.add(new ZombieCameramanMechanic(plugin));
             
             initialized = true;
         }

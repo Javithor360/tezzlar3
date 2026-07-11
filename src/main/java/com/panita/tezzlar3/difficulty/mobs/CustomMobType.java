@@ -15,7 +15,8 @@ public enum CustomMobType {
     ZOMBIE_RATATOUILLE(Material.ZOMBIE_HEAD, "<#FFA35C>Zombie Ratatouille</#FFA35C>", 20.0, "Controlado por un conejo que lo hace inmune."),
     CHARGED_ZOMBIE(Material.CREEPER_HEAD, "<#00FFFF>Zombie Cargado</#00FFFF>", 40.0, "- Aura azul y Casco de Diamante<newline>- Otorga Lentitud IV al golpear"),
     APOCALYPTIC_ZOMBIE(Material.BLACK_BANNER, "<gradient:#DB7A56:#F84E49>Zombie Apocalíptico</gradient>", 20.0, "- Fuerza II permanente<newline>- Invoca horda al acercarse"),
-    ENDER_GUARDIAN(Material.ENDERMAN_SPAWN_EGG, "<#6b54ff>EnderGuardian</#6b54ff>", 40.0, "- Enderman con un Guardián montado<newline>- El guardián se teletransporta con él");
+    ENDER_GUARDIAN(Material.ENDERMAN_SPAWN_EGG, "<#6b54ff>EnderGuardian</#6b54ff>", 40.0, "- Enderman con un Guardián montado<newline>- El guardián se teletransporta con él"),
+    ZOMBIE_CAMERAMAN(Material.PLAYER_HEAD, "&aZombie Camarografo", 40.0, "Te aplica un modificador aleatorio al golpearte.");
 
     private final Material icon;
     private final String customName;
