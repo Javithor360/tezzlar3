@@ -54,13 +54,13 @@ public class GigaMagmaCubeBoss {
         // Add yellow glowing
         EntityUtils.setColoredGlowing(boss, NamedTextColor.YELLOW);
 
-        EntityUtils.trySetAttribute(boss, Attribute.MAX_HEALTH, 1500.0);
+        EntityUtils.trySetAttribute(boss, Attribute.MAX_HEALTH, 2000.0);
         EntityUtils.trySetAttribute(boss, Attribute.GRAVITY, 0.45);
         EntityUtils.trySetAttribute(boss, Attribute.ARMOR, 120.0);
         EntityUtils.trySetAttribute(boss, Attribute.ATTACK_DAMAGE, 25.0);
         EntityUtils.trySetAttribute(boss, Attribute.FOLLOW_RANGE, 100.0);
         
-        double maxHealth = 1500.0;
+        double maxHealth = 2000.0;
         if (boss.getAttribute(Attribute.MAX_HEALTH) != null) {
             maxHealth = boss.getAttribute(Attribute.MAX_HEALTH).getValue();
         }
@@ -89,7 +89,7 @@ public class GigaMagmaCubeBoss {
                 }
                 
                 // Update Bossbar
-                float progress = (float) (boss.getHealth() / 1500.0);
+                float progress = (float) (boss.getHealth() / 2000.0);
                 progress = Math.max(0.0f, Math.min(1.0f, progress));
                 
                 List<Player> nearbyPlayers = new ArrayList<>();
