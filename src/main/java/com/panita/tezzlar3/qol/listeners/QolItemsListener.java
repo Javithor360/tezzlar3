@@ -103,6 +103,7 @@ public class QolItemsListener implements Listener {
 
             for (Entity entity : player.getNearbyEntities(20, 20, 20)) {
                 if (entity instanceof Mob mob) {
+                    if (mob.getPersistentDataContainer().has(new NamespacedKey(Tezzlar.getInstance(), "giga_magma_cube"), PersistentDataType.BYTE)) continue;
                     
                     if (mob.getType() == EntityType.PHANTOM) {
                         Vector dir = mob.getLocation().toVector().subtract(player.getLocation().toVector());

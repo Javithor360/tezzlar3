@@ -2,9 +2,11 @@ package com.panita.tezzlar3.difficulty.mechanics;
 
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.qol.util.CustomItemManager;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
@@ -12,7 +14,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -33,7 +38,7 @@ public class GoatHornParalyzeMechanic extends DifficultyMechanic {
         if (!isActive()) return;
         
         if (event.getAction().isRightClick() && event.getItem() != null && event.getItem().getType() == Material.GOAT_HORN) {
-            if (com.panita.tezzlar3.qol.util.CustomItemManager.isCustomItem(event.getItem(), "amethyst_horn")) return;
+            if (CustomItemManager.isCustomItem(event.getItem(), "amethyst_horn")) return;
             
             Player player = event.getPlayer();
             
@@ -49,11 +54,13 @@ public class GoatHornParalyzeMechanic extends DifficultyMechanic {
             player.setCooldown(Material.GOAT_HORN, 300);
             
             player.setFoodLevel(Math.max(0, player.getFoodLevel() - 4));
-            player.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.SLOWNESS, 100, 0));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 0));
 
             int count = 0;
             for (Entity entity : player.getNearbyEntities(15, 15, 15)) {
                 if (entity instanceof Mob mob) {
+                    if (mob.getPersistentDataContainer().has(new NamespacedKey(plugin, "giga_magma_cube"), PersistentDataType.BYTE)) continue;
+                    
                     // setAware(false) disables pathfinding and targeting AI but preserves gravity
                     mob.setAware(false);
                     EntityUtils.setColoredGlowing(mob, NamedTextColor.DARK_BLUE);
