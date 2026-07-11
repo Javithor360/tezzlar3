@@ -82,6 +82,8 @@ import com.panita.tezzlar3.difficulty.mechanics.VampireBatMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EndermanNerfMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.GhastDeflectOnlyMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.AncestralRemainsMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ElytraNerfMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.PiglinDJMechanic;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -233,6 +235,10 @@ public class DifficultyModule implements PluginModule {
             mechanics.add(new EndermanNerfMechanic(plugin));
             mechanics.add(new GhastDeflectOnlyMechanic(plugin));
             mechanics.add(new AncestralRemainsMechanic(plugin));
+
+            // Day 26
+            mechanics.add(new ElytraNerfMechanic(plugin));
+            mechanics.add(new PiglinDJMechanic(plugin));
             
             initialized = true;
         }
