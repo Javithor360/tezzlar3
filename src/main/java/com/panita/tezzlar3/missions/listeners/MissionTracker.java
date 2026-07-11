@@ -17,10 +17,12 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import com.panita.tezzlar3.core.util.CraftingUtils;
@@ -38,10 +40,17 @@ import java.util.LinkedList;
 import java.util.HashMap;
 import org.bukkit.event.block.BlockBreakEvent;
 
-public class MissionTracker implements Listener {
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarManager;
+import com.panita.tezzlar3.core.chat.actionbar.ActionBarProvider;
+import com.panita.tezzlar3.core.util.Global;
+
+public class MissionTracker implements Listener, ActionBarProvider {
     private final Map<UUID, Map<String, LinkedList<Long>>> timedKills = new HashMap<>();
 
     public MissionTracker() {
+        if (ActionBarManager.getInstance() != null) {
+            ActionBarManager.getInstance().registerProvider(this);
+        }
         // Repeated task to check passive state missions (like wearing armor)
         Bukkit.getScheduler().runTaskTimer(Tezzlar.getInstance(), () -> {
             int currentDay = TimeManager.getCurrentDay();
@@ -249,6 +258,58 @@ public class MissionTracker implements Listener {
                 checkObjective(null, "SUMMON_ENTITY", "IRON_GOLEM", 1);
             }
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerExpChange(PlayerExpChangeEvent event) {
+        if (!hasActiveMissionObjective("OBTAIN_EXP")) return;
+        
+        if (event.getAmount() > 0) {
+            checkObjective(event.getPlayer(), "OBTAIN_EXP", null, event.getAmount());
+        }
+    }
+
+    @Override
+    public String getId() {
+        return "mission_timed_kill";
+    }
+
+    @Override
+    public String getText(Player player) {
+        Map<String, LinkedList<Long>> playerMissions = timedKills.get(player.getUniqueId());
+        if (playerMissions == null || playerMissions.isEmpty()) return null;
+
+        long now = System.currentTimeMillis();
+        int currentDay = TimeManager.getCurrentDay();
+        
+        for (Map.Entry<String, LinkedList<Long>> entry : playerMissions.entrySet()) {
+            Mission mission = MissionsModule.getMissionManager().getMission(entry.getKey());
+            if (mission == null) continue;
+            if (currentDay < mission.getStartDay() || currentDay > mission.getEndDay()) continue;
+            
+            LinkedList<Long> kills = entry.getValue();
+            long timeLimitMs = mission.getObjectiveTimeLimit() * 1000L;
+            kills.removeIf(time -> (now - time) > timeLimitMs);
+            
+            if (!kills.isEmpty()) {
+                long oldest = kills.getFirst();
+                long remainingMs = timeLimitMs - (now - oldest);
+                if (remainingMs < 0) remainingMs = 0;
+                
+                String timeStr = Global.formatTimeTicks((remainingMs / 1000) * 20L);
+                
+                int n = kills.size();
+                int N = mission.getObjectiveAmount();
+                
+                return String.format("<#FFB732>Racha en progreso: <#FF5555>%d<#FFB732>/<#FF5555>%d <#FFB732>(%s)</#FFB732>", n, N, timeStr);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isUrgent(Player player) {
+        return getText(player) != null;
     }
 
     @EventHandler
