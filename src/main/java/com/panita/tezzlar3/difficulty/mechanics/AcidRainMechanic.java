@@ -63,7 +63,7 @@ public class AcidRainMechanic extends DifficultyMechanic {
                             double newHealth = Math.max(0, player.getHealth() - 1.0);
                             player.setHealth(newHealth);
                             player.playHurtAnimation(0);
-                            SoundUtils.play(player, "entity.player.hurt", 1, 0.7F);
+                            SoundUtils.playInRadius(player.getLocation(), "entity.player.hurt", 10.0f, 0.7F);
                         }
                     }
                 }

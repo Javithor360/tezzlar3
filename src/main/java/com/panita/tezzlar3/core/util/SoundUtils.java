@@ -48,6 +48,22 @@ public class SoundUtils {
         }
     }
 
+    /**
+     * Plays a sound in the world so nearby players can hear it.
+     *
+     * @param loc    The location to play the sound at.
+     * @param key    The sound key.
+     * @param radius The rough radius in blocks where the sound should be heard.
+     * @param pitch  The pitch.
+     */
+    public static void playInRadius(org.bukkit.Location loc, String key, float radius, float pitch) {
+        Sound sound = getSound(key);
+        if (sound != null && loc != null && loc.getWorld() != null) {
+            float volume = radius / 16.0f;
+            loc.getWorld().playSound(loc, sound, volume, pitch);
+        }
+    }
+
     public static void playGlobal(String soundKey, float volume, float pitch) {
         Sound sound = getSound(soundKey);
         if (sound == null) {

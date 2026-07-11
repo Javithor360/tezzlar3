@@ -111,7 +111,7 @@ public class QolItemsListener implements Listener {
                         Vector push = dir.normalize().multiply(3.5).setY(1.0);
                         mob.setVelocity(push);
                         mob.getWorld().spawnParticle(Particle.SONIC_BOOM, mob.getLocation().add(0, 1, 0), 1);
-                        mob.getWorld().playSound(mob.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 1.0f);
+                        mob.getWorld().playSound(mob.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 0.625f, 1.0f);
                         
                         double maxHealth = 20.0;
                         if (mob.getAttribute(Attribute.MAX_HEALTH) != null) {
@@ -127,7 +127,7 @@ public class QolItemsListener implements Listener {
                             Vector push = dir.normalize().multiply(1.5).setY(0.5);
                             mob.setVelocity(push);
                             mob.getWorld().spawnParticle(Particle.SONIC_BOOM, mob.getLocation().add(0, 1, 0), 1);
-                            mob.getWorld().playSound(mob.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 1.0f);
+                            mob.getWorld().playSound(mob.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 0.625f, 1.0f);
                         }
                     }
 
@@ -195,8 +195,8 @@ public class QolItemsListener implements Listener {
                 EntityUtils.trySetAttribute(player, Attribute.MAX_HEALTH, maxHealth.getBaseValue() + 2.0);
                 player.setHealth(Math.min(player.getHealth() + 2.0, maxHealth.getBaseValue()));
                 
-                SoundUtils.play(player, "entity.player.levelup", 1.0f, 1.2f);
-                SoundUtils.play(player, "entity.wither.spawn", 0.5f, 2.0f);
+                SoundUtils.playInRadius(player.getLocation(), "entity.player.levelup", 10.0f, 1.2f);
+                SoundUtils.playInRadius(player.getLocation(), "entity.wither.spawn", 10.0f, 2.0f);
                 player.getWorld().spawnParticle(Particle.HEART, player.getLocation().add(0, 1, 0), 15, 0.5, 0.5, 0.5, 0.1);
                 
                 Messenger.prefixedSend(player, "<red>¡Has consumido un Corazón de Tezzlar y tu salud máxima ha aumentado!</red>");
@@ -216,7 +216,7 @@ public class QolItemsListener implements Listener {
                     player.setHealth(maxHealth.getBaseValue());
                 }
                 
-                SoundUtils.play(player, "entity.wither.hurt", 1.0f, 0.8f);
+                SoundUtils.playInRadius(player.getLocation(), "entity.wither.hurt", 10.0f, 0.8f);
                 player.getWorld().spawnParticle(Particle.DAMAGE_INDICATOR, player.getLocation().add(0, 1, 0), 15, 0.5, 0.5, 0.5, 0.1);
                 
                 Messenger.prefixedSend(player, "<dark_red>¡Has consumido un Corazón Maldito y tu salud máxima ha disminuido!</dark_red>");
@@ -234,8 +234,8 @@ public class QolItemsListener implements Listener {
                 item.setAmount(item.getAmount() - 1);
                 HardcoreDataManager.setLives(player.getUniqueId(), player.getName(), currentLives + 1);
                 
-                SoundUtils.play(player, "entity.player.levelup", 1.0f, 1.2f);
-                SoundUtils.play(player, "entity.illusioner.prepare_mirror", 0.5f, 1.5f);
+                SoundUtils.playInRadius(player.getLocation(), "entity.player.levelup", 10.0f, 1.2f);
+                SoundUtils.playInRadius(player.getLocation(), "entity.illusioner.prepare_mirror", 10.0f, 1.5f);
                 player.getWorld().spawnParticle(Particle.HEART, player.getLocation().add(0, 1, 0), 15, 0.5, 0.5, 0.5, 0.1);
                 
                 Messenger.prefixedSend(player, "<green>¡Has consumido un Salva Vidas y has recuperado una vida!</green>");
@@ -290,7 +290,7 @@ public class QolItemsListener implements Listener {
             spawnMemoryEvokerWave(player.getLocation(), target);
             
             Messenger.prefixedSend(player, "<gold>Has evocado los recuerdos de <yellow>" + target.getName() + "</yellow>. ¡Prepárate para luchar!</gold>");
-            SoundUtils.play(player, "entity.wither.spawn", 1.0f, 0.5f);
+            SoundUtils.playInRadius(player.getLocation(), "entity.wither.spawn", 10.0f, 0.5f);
         }
     }
 
