@@ -21,8 +21,26 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
+
 public class MissionBossBarManager implements Listener {
     private long tickCounter = 0;
+    
+    private static final Map<UUID, String> forcedMissions = new ConcurrentHashMap<>();
+    private static final Map<UUID, Long> forceUntil = new ConcurrentHashMap<>();
+
+    public static void forceShowMission(Player player, String missionId) {
+        if (player == null) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                forcedMissions.put(p.getUniqueId(), missionId);
+                forceUntil.put(p.getUniqueId(), System.currentTimeMillis() + 5000);
+            }
+        } else {
+            forcedMissions.put(player.getUniqueId(), missionId);
+            forceUntil.put(player.getUniqueId(), System.currentTimeMillis() + 5000);
+        }
+    }
 
     public MissionBossBarManager(JavaPlugin plugin) {
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
@@ -73,6 +91,17 @@ public class MissionBossBarManager implements Listener {
                     Messenger.hideBossBar(player, "timeline_day_bar");
                     
                     int index = (int) ((tickCounter / 30) % incompleteMissions.size());
+                    
+                    String forcedId = forcedMissions.get(player.getUniqueId());
+                    if (forcedId != null && forceUntil.getOrDefault(player.getUniqueId(), 0L) > System.currentTimeMillis()) {
+                        for (int i = 0; i < incompleteMissions.size(); i++) {
+                            if (incompleteMissions.get(i).getId().equals(forcedId)) {
+                                index = i;
+                                break;
+                            }
+                        }
+                    }
+                    
                     Mission mission = incompleteMissions.get(index);
                     
                     int currentProgress = 0;

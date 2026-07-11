@@ -45,6 +45,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import com.panita.tezzlar3.core.chat.actionbar.ActionBarManager;
 import com.panita.tezzlar3.core.chat.actionbar.ActionBarProvider;
 import com.panita.tezzlar3.core.util.Global;
+import com.panita.tezzlar3.missions.ui.MissionBossBarManager;
 
 public class MissionTracker implements Listener, ActionBarProvider {
     private final Map<UUID, Map<String, LinkedList<Long>>> timedKills = new HashMap<>();
@@ -136,6 +137,8 @@ public class MissionTracker implements Listener, ActionBarProvider {
                 Messenger.prefixedBroadcast(msg);
                 
                 MissionsModule.getDataManager().giveRewardToEveryone(missionId);
+            } else {
+                MissionBossBarManager.forceShowMission(null, missionId);
             }
         } else {
             if (player == null) return;
@@ -156,6 +159,7 @@ public class MissionTracker implements Listener, ActionBarProvider {
                 Messenger.prefixedBroadcast(msg);
             } else {
                 data.setProgress(missionId, newProgress);
+                MissionBossBarManager.forceShowMission(player, missionId);
             }
         }
     }
@@ -235,10 +239,13 @@ public class MissionTracker implements Listener, ActionBarProvider {
                     playerMissions.putIfAbsent(mission.getId(), new LinkedList<>());
                     
                     LinkedList<Long> kills = playerMissions.get(mission.getId());
-                    kills.add(now);
                     
-                    // Remove old kills outside the time window
-                    kills.removeIf(time -> (now - time) > timeLimitMs);
+                    // If time from the FIRST kill exceeded the limit, reset the whole streak
+                    if (!kills.isEmpty() && (now - kills.getFirst()) > timeLimitMs) {
+                        kills.clear();
+                    }
+                    
+                    kills.add(now);
                     
                     if (kills.size() >= mission.getObjectiveAmount()) {
                         advanceProgress(player, mission.getId(), mission.getObjectiveAmount());
@@ -291,12 +298,15 @@ public class MissionTracker implements Listener, ActionBarProvider {
             
             LinkedList<Long> kills = entry.getValue();
             long timeLimitMs = mission.getObjectiveTimeLimit() * 1000L;
-            kills.removeIf(time -> (now - time) > timeLimitMs);
             
             if (!kills.isEmpty()) {
                 long oldest = kills.getFirst();
                 long remainingMs = timeLimitMs - (now - oldest);
-                if (remainingMs < 0) remainingMs = 0;
+                
+                if (remainingMs <= 0) {
+                    kills.clear(); // Timer expired, reset
+                    continue;
+                }
                 
                 String timeStr = Global.formatTimeTicks((remainingMs / 1000) * 20L);
                 
@@ -410,6 +420,7 @@ public class MissionTracker implements Listener, ActionBarProvider {
                     
                     if (currentSub < target.getValue()) {
                         data.setProgress(subKey, currentSub + 1);
+                        MissionBossBarManager.forceShowMission(player, mission.getId());
                         
                         // Check if all targets are now fulfilled
                         int completedTargets = 0;
