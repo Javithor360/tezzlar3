@@ -72,6 +72,8 @@ import com.panita.tezzlar3.difficulty.mechanics.MagmaDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.TripledArrowDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubleTotemMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ZombieCameramanMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.WrongToolDamageMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.ColoredShulkerMechanic;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -205,6 +207,10 @@ public class DifficultyModule implements PluginModule {
         // Day 21
         mechanics.add(new DoubleTotemMechanic(plugin));
         mechanics.add(new ZombieCameramanMechanic(plugin));
+        
+        // Day 22
+        mechanics.add(new WrongToolDamageMechanic(plugin));
+        mechanics.add(new ColoredShulkerMechanic(plugin));
             
             initialized = true;
         }

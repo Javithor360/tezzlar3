@@ -54,20 +54,22 @@ public class EliteMobStatsMechanic extends DifficultyMechanic {
             // Mark as buffed
             entity.getPersistentDataContainer().set(ELITE_KEY, PersistentDataType.BYTE, (byte) 1);
             
-            // Double Health
+            // Multiply Health
             AttributeInstance healthAttr = entity.getAttribute(Attribute.MAX_HEALTH);
             if (healthAttr != null) {
-                double newHealth = healthAttr.getBaseValue() * 2.0;
+                double multiplier = TimeManager.getCurrentDay() >= 22 ? 3.0 : 2.0;
+                double newHealth = healthAttr.getBaseValue() * multiplier;
                 EntityUtils.trySetAttribute(entity, Attribute.MAX_HEALTH, newHealth);
                 try {
                     entity.setHealth(entity.getAttribute(Attribute.MAX_HEALTH).getValue());
                 } catch (Exception ignored) {}
             }
             
-            // Double Damage
+            // Multiply Damage
             AttributeInstance damageAttr = entity.getAttribute(Attribute.ATTACK_DAMAGE);
             if (damageAttr != null) {
-                EntityUtils.trySetAttribute(entity, Attribute.ATTACK_DAMAGE, damageAttr.getBaseValue() * 2.0);
+                double multiplier = TimeManager.getCurrentDay() >= 22 ? 4.0 : 2.0;
+                EntityUtils.trySetAttribute(entity, Attribute.ATTACK_DAMAGE, damageAttr.getBaseValue() * multiplier);
             }
         });
     }
