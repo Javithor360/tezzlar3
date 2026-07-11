@@ -91,14 +91,44 @@ missions:
       - id: "GIVE_ITEM"
         args: { material: "BLACK_SHULKER_BOX", amount: 1 }
         description: "1x Shulker Box Negra"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "life_saver", amount: 1 }
+        description: "1x 1UP"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "tezzlar_heartnt", amount: 1 }
+        description: "1x Descorazón de Tezzlar"
     punishments:
       - id: "REGENERATION_TO_WITHER"
       - id: "WITHER_SKELETON_SPAWN_ON_DAMAGE"
 
-  wither_rush:
-    name: "Cacería de Wither Skeleton"
+  mining_fever:
+    name: "Obra Minera"
     start_day: 11
     end_day: 11
+    scope: INDIVIDUAL
+    objective:
+      type: MINE_BLOCKS
+      targets:
+        DIAMOND_ORE,DEEPSLATE_DIAMOND_ORE: 32
+        EMERALD_ORE,DEEPSLATE_EMERALD_ORE: 5
+        GILDED_BLACKSTONE: 10
+        ANCIENT_DEBRIS: 16
+        NETHER_QUARTZ_ORE: 128
+    rewards:
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "premium_iron_pickaxe", amount: 1 }
+        description: "1x Pico de Hierro Prémium"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "life_saver", amount: 1 }
+        description: "1x 1UP"
+      - id: "GIVE_EXP"
+        args: { levels: 25 }
+        description: "25 Niveles de Experiencia"
+
+  wither_rush:
+    name: "Cacería de Wither Skeleton"
+    start_day: 12
+    end_day: 12
     scope: INDIVIDUAL
     objective:
       type: KILL_ENTITY_TIMED
@@ -106,26 +136,15 @@ missions:
       amount: 20
       time_limit: 45
     rewards:
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "feather_boots", amount: 1 }
+        description: "1x Botas de Pluma"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "life_saver", amount: 1 }
+        description: "1x 1UP"
       - id: "GIVE_EXP"
-        args: { levels: 15 }
-        description: "15 Niveles de Experiencia"
-
-  mining_fever:
-    name: "Obra Minera"
-    start_day: 12
-    end_day: 12
-    scope: INDIVIDUAL
-    objective:
-      type: MINE_BLOCKS
-      targets:
-        DIAMOND_ORE,DEEPSLATE_DIAMOND_ORE: 32
-        EMERALD_ORE,DEEPSLATE_EMERALD_ORE: 5
-        ANCIENT_DEBRIS: 16
-        NETHER_QUARTZ_ORE: 128
-    rewards:
-      - id: "GIVE_EXP"
-        args: { levels: 15 }
-        description: "15 Niveles de Experiencia"
+        args: { levels: 25 }
+        description: "25 Niveles de Experiencia"
 
   warden_spawn:
     name: "Traer un Warden al Spawn"

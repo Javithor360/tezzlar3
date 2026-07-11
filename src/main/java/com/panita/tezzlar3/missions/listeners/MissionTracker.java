@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
@@ -28,6 +29,7 @@ import org.bukkit.inventory.ItemStack;
 import com.panita.tezzlar3.core.util.CraftingUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
@@ -374,9 +376,15 @@ public class MissionTracker implements Listener, ActionBarProvider {
         return attemptAmount - remaining;
     }
 
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockPlace(BlockPlaceEvent event) {
+        event.getBlock().setMetadata("tezzlar_placed", new FixedMetadataValue(Tezzlar.getInstance(), true));
+    }
+
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (!hasActiveMissionObjective("MINE_BLOCKS")) return;
+        if (event.getBlock().hasMetadata("tezzlar_placed")) return;
         
         Player player = event.getPlayer();
         String blockName = event.getBlock().getType().name();
