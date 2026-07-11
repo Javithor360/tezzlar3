@@ -22,6 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -111,11 +112,51 @@ public class GigaMagmaCubeBoss {
                     attackCooldown--;
                 } else if (!nearbyPlayers.isEmpty()) {
                     executeRandomAttack(nearbyPlayers);
-                    attackCooldown = 10 + random.nextInt(51); // 10 to 60 seconds
+                    attackCooldown = 10 + random.nextInt(21); // 10 to 60 seconds
                 }
             }
         };
         this.task.runTaskTimer(plugin, 20L, 20L); // Every 1 second
+        
+        // Physics Task (Cobweb breaking)
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (boss.isDead() || !boss.isValid()) {
+                    this.cancel();
+                    return;
+                }
+                
+                if (boss.isOnGround()) {
+                   BoundingBox box = boss.getBoundingBox().expand(1.0);
+                    int minX = (int) Math.floor(box.getMinX());
+                    int minY = (int) Math.floor(box.getMinY() - 1); // Below it
+                    int minZ = (int) Math.floor(box.getMinZ());
+                    int maxX = (int) Math.ceil(box.getMaxX());
+                    int maxY = (int) Math.ceil(box.getMaxY());
+                    int maxZ = (int) Math.ceil(box.getMaxZ());
+                    
+                    org.bukkit.World w = boss.getWorld();
+                    boolean brokeAny = false;
+                    
+                    for (int x = minX; x <= maxX; x++) {
+                        for (int y = minY; y <= maxY; y++) {
+                            for (int z = minZ; z <= maxZ; z++) {
+                                org.bukkit.block.Block b = w.getBlockAt(x, y, z);
+                                if (b.getType() == Material.COBWEB) {
+                                    b.setType(Material.AIR);
+                                    brokeAny = true;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (brokeAny) {
+                        w.playSound(boss.getLocation(), Sound.ENTITY_SPIDER_DEATH, 1.0f, 0.5f);
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 5L); // Every 1/4 second
     }
     
     private void hideBossBarGlobal() {
@@ -150,9 +191,9 @@ public class GigaMagmaCubeBoss {
         
         options.add(() -> giveOrDropItems(p, Material.GOLDEN_APPLE, 1 + random.nextInt(31)));
         options.add(() -> giveOrDropItems(p, Material.ENCHANTED_GOLDEN_APPLE, 4));
-        options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, Integer.MAX_VALUE, 0)));
+        options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, PotionEffect.INFINITE_DURATION, 0)));
         options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 12 * 60 * 60 * 20, 0)));
-        options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 1)));
+        options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, PotionEffect.INFINITE_DURATION, 1)));
         options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 4 * 60 * 60 * 20, 2)));
         options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 8 * 60 * 60 * 20, 2)));
         options.add(() -> giveOrDropItems(p, Material.TOTEM_OF_UNDYING, 1 + random.nextInt(6)));
