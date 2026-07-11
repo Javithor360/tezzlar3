@@ -21,7 +21,7 @@ public class CopperDamageMechanic extends DifficultyMechanic {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.isDead() || player.isFlying() || !PlayerUtils.isSurvival(player)) continue;
                 
-                Block blockBelow = player.getLocation().getBlock().getRelative(BlockFace.DOWN);
+                Block blockBelow = player.getLocation().clone().subtract(0, 0.1, 0).getBlock();
                 if (isDamagingBlock(blockBelow.getType())) {
                     double currentHealth = player.getHealth();
                     if (currentHealth > 0) {
