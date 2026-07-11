@@ -7,6 +7,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.panita.tezzlar3.core.util.PlayerUtils;
+import com.panita.tezzlar3.core.util.SoundUtils;
 
 public class CopperDamageMechanic extends DifficultyMechanic {
 
@@ -21,20 +22,24 @@ public class CopperDamageMechanic extends DifficultyMechanic {
                 if (player.isDead() || player.isFlying() || !PlayerUtils.isSurvival(player)) continue;
                 
                 Block blockBelow = player.getLocation().getBlock().getRelative(BlockFace.DOWN);
-                if (isCopperBlock(blockBelow.getType())) {
+                if (isDamagingBlock(blockBelow.getType())) {
                     double currentHealth = player.getHealth();
                     if (currentHealth > 0) {
                         // Subtract health directly to pierce armor
                         player.setHealth(Math.max(0, currentHealth - 2.0)); 
                         // Trigger hurt animation and sound with microscopic damage
                         player.damage(0.00001); 
+                        
+                        SoundUtils.playInRadius(player.getLocation(), "entity.generic.burn", 10.0f, 1.0f);
                     }
                 }
             }
         }, 10L, 10L);
     }
     
-    private boolean isCopperBlock(Material material) {
-        return material.isBlock() && material.name().contains("COPPER");
+    private boolean isDamagingBlock(Material material) {
+        if (!material.isBlock()) return false;
+        String name = material.name();
+        return name.contains("COPPER") || name.contains("SLAB");
     }
 }

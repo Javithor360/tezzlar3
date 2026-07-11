@@ -67,6 +67,8 @@ import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SpawnerMobBuffMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.OverworldToxicityMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.SkeletonBowPowerMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.MagmaDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.TripledArrowDamageMechanic;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -148,12 +150,14 @@ public class DifficultyModule implements PluginModule {
         mechanics.add(new NetherBlazeSpawnsMechanic(plugin));
         mechanics.add(new CopperDamageMechanic(plugin));
         mechanics.add(new EliteMobStatsMechanic(plugin));
+        mechanics.add(new SkeletonBowPowerMechanic(plugin));
         
         // Day 12
         mechanics.add(new FastHungerMechanic(plugin));
         mechanics.add(new SlimeBanzaiMechanic(plugin));
         mechanics.add(new InvisibleChargedCreeperMechanic(plugin));
         mechanics.add(new CopperGolemLightningMechanic(plugin));
+        mechanics.add(new MagmaDamageMechanic(plugin));
         
         // Day 13
         mechanics.add(new WeavingSpiderMechanic(plugin));
