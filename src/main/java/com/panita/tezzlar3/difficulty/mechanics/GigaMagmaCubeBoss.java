@@ -1,8 +1,9 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
 import net.kyori.adventure.key.Key;
+import org.bukkit.*;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.NamespacedKey;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.Equippable;
 import com.panita.tezzlar3.core.chat.Messenger;
@@ -11,11 +12,6 @@ import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.qol.util.CustomItemManager;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
@@ -28,13 +24,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class GigaMagmaCubeBoss {
     private final MagmaCube boss;
@@ -63,13 +53,13 @@ public class GigaMagmaCubeBoss {
         // Add yellow glowing
         EntityUtils.setColoredGlowing(boss, NamedTextColor.YELLOW);
 
-        EntityUtils.trySetAttribute(boss, Attribute.MAX_HEALTH, 2500.0);
+        EntityUtils.trySetAttribute(boss, Attribute.MAX_HEALTH, 1500.0);
         EntityUtils.trySetAttribute(boss, Attribute.GRAVITY, 0.45);
         EntityUtils.trySetAttribute(boss, Attribute.ARMOR, 120.0);
         EntityUtils.trySetAttribute(boss, Attribute.ATTACK_DAMAGE, 25.0);
         EntityUtils.trySetAttribute(boss, Attribute.FOLLOW_RANGE, 100.0);
         
-        double maxHealth = 2500.0;
+        double maxHealth = 1500.0;
         if (boss.getAttribute(Attribute.MAX_HEALTH) != null) {
             maxHealth = boss.getAttribute(Attribute.MAX_HEALTH).getValue();
         }
@@ -98,7 +88,7 @@ public class GigaMagmaCubeBoss {
                 }
                 
                 // Update Bossbar
-                float progress = (float) (boss.getHealth() / 1000.0);
+                float progress = (float) (boss.getHealth() / 1500.0);
                 progress = Math.max(0.0f, Math.min(1.0f, progress));
                 
                 List<Player> nearbyPlayers = new ArrayList<>();
@@ -194,7 +184,7 @@ public class GigaMagmaCubeBoss {
     }
     
     private void executeRandomAttack(List<Player> players) {
-        int attackType = random.nextInt(8);
+        int attackType = random.nextInt(13);
         switch (attackType) {
             case 0:
                 executeChargedBeam(players);
@@ -219,6 +209,21 @@ public class GigaMagmaCubeBoss {
                 break;
             case 7:
                 executePyromaniacPiglins(players);
+                break;
+            case 8:
+                executeVolcanicQuake(players);
+                break;
+            case 9:
+                executeMagmaVortex(players);
+                break;
+            case 10:
+                executeMeteorShower(players);
+                break;
+            case 11:
+                executeThermalPrison(players);
+                break;
+            case 12:
+                executeHeatWave(players);
                 break;
         }
     }
@@ -440,5 +445,190 @@ public class GigaMagmaCubeBoss {
                 }
             }
         }
+    }
+
+    private void executeVolcanicQuake(List<Player> players) {
+        alertPlayers(players, "Terremoto Volcánico");
+        boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 3.0f, 0.5f);
+        boss.getWorld().spawnParticle(Particle.EXPLOSION, boss.getLocation(), 10, 2.0, 2.0, 2.0, 0.1);
+        
+        for (Player p : players) {
+            if (p.getLocation().distance(boss.getLocation()) <= 20) {
+                p.setVelocity(new Vector(0, 2.5, 0));
+                p.playSound(p.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
+            }
+        }
+    }
+
+    private void executeMagmaVortex(List<Player> players) {
+        alertPlayers(players, "Vórtice de Magma");
+        int durationTicks = (5 + random.nextInt(3)) * 20; // 5 to 7 seconds
+        
+        new BukkitRunnable() {
+            int ticks = 0;
+            @Override
+            public void run() {
+                if (boss.isDead() || ticks >= durationTicks) {
+                    this.cancel();
+                    return;
+                }
+                
+                for (Player p : players) {
+                    if (p.isOnline() && p.getLocation().distance(boss.getLocation()) <= 30) {
+                        Vector direction = boss.getLocation().toVector().subtract(p.getLocation().toVector()).normalize();
+                        // Pull them in
+                        p.setVelocity(p.getVelocity().add(direction.multiply(0.15)));
+                        
+                        // Consume hunger occasionally
+                        if (ticks % 20 == 0) {
+                            p.setFoodLevel(Math.max(0, p.getFoodLevel() - 1));
+                        }
+                    }
+                }
+                
+                // Spiral particles
+                double angle = ticks * 0.5;
+                double radius = 5.0 - ((double)ticks / durationTicks) * 4.0;
+                double x = Math.cos(angle) * radius;
+                double z = Math.sin(angle) * radius;
+                boss.getWorld().spawnParticle(Particle.FLAME, boss.getLocation().add(x, 1, z), 5, 0.1, 0.1, 0.1, 0.05);
+                
+                ticks++;
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+    }
+
+    private void executeMeteorShower(List<Player> players) {
+        alertPlayers(players, "Lluvia de Meteoritos");
+        
+        new BukkitRunnable() {
+            int count = 0;
+            int maxMeteors = 3 + random.nextInt(9); // 3 to 5 meteors per player
+            @Override
+            public void run() {
+                if (boss.isDead() || count >= maxMeteors) {
+                    this.cancel();
+                    return;
+                }
+                
+                for (Player p : players) {
+                    if (p.isOnline()) {
+                        Location spawnLoc = p.getLocation().add(0, 20, 0);
+                        LargeFireball fireball = (LargeFireball) p.getWorld().spawnEntity(spawnLoc, EntityType.FIREBALL);
+                        fireball.setDirection(new Vector(0, -1, 0)); // straight down
+                        fireball.setYield(3.0f);
+                        fireball.setIsIncendiary(true);
+                        fireball.setShooter(boss);
+                    }
+                }
+                count++;
+            }
+        }.runTaskTimer(plugin, 0L, 20L); // 1 meteor per second
+    }
+
+    private void executeThermalPrison(List<Player> players) {
+        if (players.isEmpty()) return;
+        alertPlayers(players, "Prisión Termal");
+        
+        Player target = players.get(random.nextInt(players.size()));
+        Location center = target.getLocation().getBlock().getLocation();
+        
+        Map<Location, BlockData> oldBlocks = new HashMap<>();
+        
+        // Build 3x3x4 hollow prison
+        for (int x = -1; x <= 1; x++) {
+            for (int y = -1; y <= 3; y++) {
+                for (int z = -1; z <= 1; z++) {
+                    Location loc = center.clone().add(x, y, z);
+                    org.bukkit.block.Block b = loc.getBlock();
+                    
+                    if (b.getType() != Material.AIR && b.getType() != Material.LAVA && b.getType() != Material.FIRE && b.getType() != Material.COBWEB) {
+                        // Skip replacing solid blocks that are already there, unless it's just air
+                        // Actually, we want to trap them, so let's overwrite anything except BEDROCK or obsidian.
+                        if (b.getType() == Material.BEDROCK || b.getType() == Material.OBSIDIAN) continue;
+                    }
+                    
+                    oldBlocks.put(loc, b.getBlockData().clone());
+                    
+                    if (y == -1) {
+                        // Floor
+                        b.setType(Material.MAGMA_BLOCK);
+                    } else if (y == 3) {
+                        // Roof
+                        if (x == 0 && z == 0) {
+                            b.setType(Material.LAVA); // Lava source in the middle of roof
+                        } else {
+                            b.setType(Material.MAGMA_BLOCK);
+                        }
+                    } else {
+                        // Walls
+                        if (x == -1 || x == 1 || z == -1 || z == 1) {
+                            if (random.nextBoolean()) {
+                                b.setType(Material.COBWEB);
+                            } else {
+                                b.setType(Material.MAGMA_BLOCK);
+                            }
+                        } else {
+                            // Inside
+                            if (y == 0) b.setType(Material.COBWEB); // Slow them down inside
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Revert after 20 seconds
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            for (java.util.Map.Entry<Location, org.bukkit.block.data.BlockData> entry : oldBlocks.entrySet()) {
+                entry.getKey().getBlock().setBlockData(entry.getValue());
+            }
+        }, 20 * 20L);
+    }
+
+    private void executeHeatWave(List<Player> players) {
+        alertPlayers(players, "Ola de Evaporación");
+        
+        Location origin = boss.getLocation().clone();
+        
+        new BukkitRunnable() {
+            double radius = 2.0;
+            double maxRadius = 30.0;
+            
+            @Override
+            public void run() {
+                if (boss.isDead() || radius >= maxRadius) {
+                    this.cancel();
+                    return;
+                }
+                
+                // Draw circle
+                for (double angle = 0; angle < 2 * Math.PI; angle += Math.PI / 16) {
+                    double x = Math.cos(angle) * radius;
+                    double z = Math.sin(angle) * radius;
+                    origin.getWorld().spawnParticle(Particle.FLAME, origin.clone().add(x, 1, z), 2, 0, 0, 0, 0);
+                    origin.getWorld().spawnParticle(Particle.LAVA, origin.clone().add(x, 1, z), 1, 0, 0, 0, 0);
+                }
+                
+                // Check players
+                for (Player p : players) {
+                    if (p.isOnline() && p.getWorld().equals(origin.getWorld())) {
+                        double distance = p.getLocation().distance(origin);
+                        // If player is on the edge of the wave (within 1.5 blocks of current radius)
+                        if (Math.abs(distance - radius) <= 1.5) {
+                            p.removePotionEffect(PotionEffectType.STRENGTH);
+                            p.removePotionEffect(PotionEffectType.RESISTANCE);
+                            p.removePotionEffect(PotionEffectType.REGENERATION);
+                            p.removePotionEffect(PotionEffectType.SPEED);
+                            p.removePotionEffect(PotionEffectType.NIGHT_VISION);
+                            p.removePotionEffect(PotionEffectType.FIRE_RESISTANCE); // Extra punishment
+                            
+                            p.setFireTicks(100); // 5 seconds
+                        }
+                    }
+                }
+                
+                radius += 1.5; // Expand fast
+            }
+        }.runTaskTimer(plugin, 0L, 2L);
     }
 }
