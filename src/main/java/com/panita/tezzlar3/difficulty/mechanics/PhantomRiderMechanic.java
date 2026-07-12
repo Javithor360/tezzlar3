@@ -1,15 +1,17 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
+import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Phantom;
-import org.bukkit.entity.Skeleton;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.panita.tezzlar3.core.util.EntityUtils;
@@ -35,14 +37,38 @@ public class PhantomRiderMechanic extends DifficultyMechanic {
 
     public void spawnManual(Location loc) {
         Phantom phantom = (Phantom) EntityUtils.spawnNatural(loc, EntityType.PHANTOM);
-        Skeleton skeleton = (Skeleton) EntityUtils.spawnNatural(loc, EntityType.SKELETON);
+        Shulker rider = (Shulker) EntityUtils.spawnNatural(loc, EntityType.SHULKER);
         
         phantom.getPersistentDataContainer().set(MOUNT_KEY, PersistentDataType.BYTE, (byte) 1);
-        skeleton.getPersistentDataContainer().set(RIDER_KEY, PersistentDataType.BYTE, (byte) 1);
+        rider.getPersistentDataContainer().set(RIDER_KEY, PersistentDataType.BYTE, (byte) 1);
         
-        EntityUtils.setCustomName(skeleton, "<#8A2BE2>Phantom Rider</#8A2BE2>", false);
+        EntityUtils.setCustomName(rider, "<#8A2BE2>Phantom Rider</#8A2BE2>", false);
         
-        phantom.addPassenger(skeleton);
+        phantom.addPassenger(rider);
+        
+        // Explicitly apply Elite stats to guarantee they get buffed
+        NamespacedKey ELITE_KEY = new NamespacedKey(plugin, "elite_buffed");
+        int currentDay = TimeManager.getCurrentDay();
+        double healthMultiplier = currentDay >= 22 ? 3.0 : 2.0;
+        double damageMultiplier = currentDay >= 22 ? 4.0 : 2.0;
+        
+        for (LivingEntity ent : new LivingEntity[]{phantom, rider}) {
+            if (ent.getPersistentDataContainer().has(ELITE_KEY, PersistentDataType.BYTE)) continue;
+            
+            ent.getPersistentDataContainer().set(ELITE_KEY, PersistentDataType.BYTE, (byte) 1);
+            
+            AttributeInstance healthAttr = ent.getAttribute(Attribute.MAX_HEALTH);
+            if (healthAttr != null) {
+                double newHealth = healthAttr.getBaseValue() * healthMultiplier;
+                EntityUtils.trySetAttribute(ent, Attribute.MAX_HEALTH, newHealth);
+                try { ent.setHealth(newHealth); } catch (Exception ignored) {}
+            }
+            
+            AttributeInstance damageAttr = ent.getAttribute(Attribute.ATTACK_DAMAGE);
+            if (damageAttr != null) {
+                EntityUtils.trySetAttribute(ent, Attribute.ATTACK_DAMAGE, damageAttr.getBaseValue() * damageMultiplier);
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -84,17 +110,41 @@ public class PhantomRiderMechanic extends DifficultyMechanic {
         
         if (event.getEntity() instanceof Phantom phantom) {
             if (phantom.getPersistentDataContainer().has(MOUNT_KEY, PersistentDataType.BYTE)) {
-                // Check if it has a Skeleton passenger
+                // Check if it has a Shulker passenger
                 for (Entity passenger : phantom.getPassengers()) {
-                    if (passenger instanceof Skeleton skeleton && skeleton.getPersistentDataContainer().has(RIDER_KEY, PersistentDataType.BYTE)) {
-                        if (!skeleton.isDead()) {
-                            // Cancel damage to phantom and redirect to skeleton
+                    if (passenger instanceof Shulker rider && rider.getPersistentDataContainer().has(RIDER_KEY, PersistentDataType.BYTE)) {
+                        if (!rider.isDead()) {
+                            // Cancel damage to phantom and redirect to shulker
                             event.setCancelled(true);
-                            skeleton.damage(event.getDamage());
+                            rider.damage(event.getDamage());
                             return; // Only redirect once
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onShulkerTeleport(EntityTeleportEvent event) {
+        if (!isActive()) return;
+        
+        if (event.getEntity() instanceof Shulker shulker) {
+            if (shulker.getPersistentDataContainer().has(RIDER_KEY, PersistentDataType.BYTE)) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onRiderBulletHit(EntityDamageByEntityEvent event) {
+        if (!isActive()) return;
+        
+        if (event.getDamager() instanceof org.bukkit.entity.ShulkerBullet bullet) {
+            if (bullet.getShooter() instanceof Shulker shulker && shulker.getPersistentDataContainer().has(RIDER_KEY, PersistentDataType.BYTE)) {
+                // Apply the EliteMobStats multiplier explicitly because Shulkers don't have melee ATTACK_DAMAGE
+                double multiplier = com.panita.tezzlar3.timeline.util.TimeManager.getCurrentDay() >= 22 ? 4.0 : 2.0;
+                event.setDamage(event.getDamage() * multiplier);
             }
         }
     }
