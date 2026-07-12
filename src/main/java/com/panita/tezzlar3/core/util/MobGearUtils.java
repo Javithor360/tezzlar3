@@ -156,6 +156,19 @@ public class MobGearUtils {
         eq.setBootsDropChance(0.01f);
         eq.setItemInMainHandDropChance(0.0f);
         eq.setItemInOffHandDropChance(0.15f);
+
+        // Skeleton Bow Power Mechanic (Day 11+)
+        if (isSkeleton && TimeManager.getCurrentDay() >= 11) {
+            ItemStack mainHand = eq.getItemInMainHand();
+            if (mainHand != null && mainHand.getType() == Material.BOW) {
+                int powerLevel = random.nextInt(16) + 5; // 5 to 20
+                org.bukkit.inventory.meta.ItemMeta meta = mainHand.getItemMeta();
+                if (meta != null) {
+                    meta.addEnchant(Enchantment.POWER, powerLevel, true);
+                    mainHand.setItemMeta(meta);
+                }
+            }
+        }
     }
 
     private static ItemStack getRandomArmor(Material[] options, GearTier tier) {

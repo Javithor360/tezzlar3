@@ -63,7 +63,6 @@ import com.panita.tezzlar3.difficulty.mechanics.ApocalypticZombieMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.OverworldToxicityMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SpawnerMobBuffMechanic;
-import com.panita.tezzlar3.difficulty.mechanics.SkeletonBowPowerMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.MagmaDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubledArrowDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubleTotemMechanic;
@@ -164,7 +163,6 @@ public class DifficultyModule implements PluginModule {
             mechanics.add(new NetherBlazeSpawnsMechanic(plugin));
             mechanics.add(new CopperDamageMechanic(plugin));
             mechanics.add(new EliteMobStatsMechanic(plugin));
-            mechanics.add(new SkeletonBowPowerMechanic(plugin));
 
             // Day 12
             mechanics.add(new FastHungerMechanic(plugin));
