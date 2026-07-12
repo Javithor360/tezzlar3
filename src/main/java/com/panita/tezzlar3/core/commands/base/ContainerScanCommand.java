@@ -11,8 +11,12 @@ import com.panita.tezzlar3.core.util.CommandUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.EntityType;
@@ -133,6 +137,23 @@ public class ContainerScanCommand implements AdvancedCommand, TabSuggestingComma
                     Block block = world.getBlockAt(x, y, z);
                     Material type = block.getType();
                     if (type == Material.CHEST || type == Material.BARREL || type == Material.TRAPPED_CHEST || type == Material.SPAWNER) {
+                        BlockState state = block.getState();
+                        if (state instanceof Container container) {
+                            // Ignore if it is NOT empty
+                            if (!container.getInventory().isEmpty()) {
+                                continue;
+                            }
+                            // Ignore if it has JustLootIt metadata
+                            NamespacedKey jliKey = new NamespacedKey("justlootit", "id");
+                            if (container.getPersistentDataContainer().getKeys().contains(jliKey)) {
+                                continue;
+                            }
+                        } else if (state instanceof CreatureSpawner spawner) {
+                            // Ignore if it has a mob assigned
+                            if (spawner.getSpawnedType() != null) {
+                                continue;
+                            }
+                        }
                         blocks.add(block);
                     }
                 }
