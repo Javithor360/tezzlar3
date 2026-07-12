@@ -1,8 +1,7 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import com.panita.tezzlar3.timeline.util.TimeManager;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -17,31 +16,48 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.NamespacedKey;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
 import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
-import org.bukkit.Location;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.world.ChunkLoadEvent;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class ChargedZombieMechanic extends DifficultyMechanic {
 
     private final NamespacedKey CHARGED_KEY;
+    private final Set<Zombie> activeChargedZombies = new HashSet<>();
 
     public ChargedZombieMechanic(JavaPlugin plugin) {
         super(plugin, 17);
         this.CHARGED_KEY = new NamespacedKey(plugin, "is_charged_zombie");
         
+        // Pre-populate loaded charged zombies
+        for (World world : Bukkit.getWorlds()) {
+            for (Zombie zombie : world.getEntitiesByClass(Zombie.class)) {
+                if (zombie.getPersistentDataContainer().has(CHARGED_KEY, PersistentDataType.BYTE)) {
+                    activeChargedZombies.add(zombie);
+                }
+            }
+        }
+
         // Aura particles task
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             if (!isActive()) return;
             
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                for (Entity entity : player.getNearbyEntities(32, 32, 32)) {
-                    if (entity instanceof Zombie zombie && zombie.getPersistentDataContainer().has(CHARGED_KEY, PersistentDataType.BYTE)) {
-                        // Spawn blue electric aura
-                        player.spawnParticle(Particle.ELECTRIC_SPARK, zombie.getLocation().add(0, 1, 0), 10, 0.5, 0.5, 0.5, 0.05);
-                    }
+            Iterator<Zombie> iterator = activeChargedZombies.iterator();
+            while (iterator.hasNext()) {
+                Zombie zombie = iterator.next();
+                if (!zombie.isValid() || zombie.isDead()) {
+                    iterator.remove();
+                    continue;
                 }
+                
+                // Spawn blue electric aura
+                zombie.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, zombie.getLocation().add(0, 1, 0), 10, 0.5, 0.5, 0.5, 0.05);
             }
         }, 10L, 10L); // Twice per second
         
@@ -66,6 +82,8 @@ public class ChargedZombieMechanic extends DifficultyMechanic {
         
         // Add custom identifier
         zombie.getPersistentDataContainer().set(CHARGED_KEY, PersistentDataType.BYTE, (byte) 1);
+        EntityUtils.setCustomName(zombie, "<#11A0FF>Zombi Cargado</#11A0FF>");
+        activeChargedZombies.add(zombie);
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -77,10 +95,20 @@ public class ChargedZombieMechanic extends DifficultyMechanic {
         if (event.getEntityType() == EntityType.ZOMBIE) {
             if (EntityUtils.isCustomMob(event.getEntity())) return;
             
-            // 3% probability
-            if (Math.random() < 0.03) {
-                Zombie zombie = (Zombie) event.getEntity();
-                transform(zombie);
+            if (event.getEntity() instanceof Zombie zombie) {
+                // 5% chance per zombie
+                if (Math.random() <= 0.05) {
+                    transform(zombie);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onChunkLoad(ChunkLoadEvent event) {
+        for (Entity e : event.getChunk().getEntities()) {
+            if (e instanceof Zombie zombie && zombie.getPersistentDataContainer().has(CHARGED_KEY, PersistentDataType.BYTE)) {
+                activeChargedZombies.add(zombie);
             }
         }
     }

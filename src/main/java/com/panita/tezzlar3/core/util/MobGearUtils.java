@@ -167,6 +167,13 @@ public class MobGearUtils {
                     meta.addEnchant(Enchantment.POWER, powerLevel, true);
                     mainHand.setItemMeta(meta);
                 }
+                
+                // Adjust drop chance based on power level
+                if (powerLevel > 7) {
+                    eq.setItemInMainHandDropChance(0.0f);
+                } else {
+                    eq.setItemInMainHandDropChance(0.01f);
+                }
             }
         }
     }

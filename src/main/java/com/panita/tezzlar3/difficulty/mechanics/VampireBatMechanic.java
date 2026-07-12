@@ -5,11 +5,7 @@ import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
 import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
 import com.panita.tezzlar3.qol.util.CustomItemManager;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Bat;
@@ -28,14 +24,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.Random;
+import org.bukkit.event.world.ChunkLoadEvent;
 
-public class VampireBatMechanic extends DifficultyMechanic {
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.Set;public class VampireBatMechanic extends DifficultyMechanic {
 
     private final NamespacedKey VAMPIRE_KEY;
     private final NamespacedKey LAST_BITE_KEY;
     private final NamespacedKey STOLEN_HEARTS_KEY;
     private final Random random = new Random();
+    private final Set<Bat> activeBats = new HashSet<>();
 
     public VampireBatMechanic(JavaPlugin plugin) {
         super(plugin, 24);
@@ -45,38 +45,51 @@ public class VampireBatMechanic extends DifficultyMechanic {
         
         CustomMobManager.register(CustomMobType.VAMPIRE_BAT, this::spawnManual);
 
+        // Pre-populate loaded bats
+        for (World world : Bukkit.getWorlds()) {
+            for (Bat bat : world.getEntitiesByClass(Bat.class)) {
+                if (bat.getPersistentDataContainer().has(VAMPIRE_KEY, PersistentDataType.BYTE)) {
+                    activeBats.add(bat);
+                }
+            }
+        }
+
         // Bat attack logic thread
         new BukkitRunnable() {
             @Override
             public void run() {
                 if (!isActive()) return;
                 
-                for (org.bukkit.World world : Bukkit.getWorlds()) {
-                    for (Bat bat : world.getEntitiesByClass(Bat.class)) {
-                        if (!bat.getPersistentDataContainer().has(VAMPIRE_KEY, PersistentDataType.BYTE)) continue;
-                        
-                        // Find closest player
-                        Player target = null;
-                        double closestDist = Double.MAX_VALUE;
-                        for (Entity e : bat.getNearbyEntities(16, 16, 16)) {
-                            if (e instanceof Player p && p.isValid() && !p.isDead()) {
-                                double dist = p.getLocation().distanceSquared(bat.getLocation());
-                                if (dist < closestDist) {
-                                    closestDist = dist;
-                                    target = p;
-                                }
+                Iterator<Bat> iterator = activeBats.iterator();
+                while (iterator.hasNext()) {
+                    Bat bat = iterator.next();
+                    if (!bat.isValid() || bat.isDead()) {
+                        iterator.remove();
+                        continue;
+                    }
+                    
+                    // Find closest player using mathematical distance
+                    Player target = null;
+                    double closestDistSq = 256.0; // 16 blocks radius
+                    
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        if (p.isValid() && !p.isDead() && p.getWorld().equals(bat.getWorld())) {
+                            double distSq = p.getLocation().distanceSquared(bat.getLocation());
+                            if (distSq < closestDistSq) {
+                                closestDistSq = distSq;
+                                target = p;
                             }
                         }
+                    }
+                    
+                    if (target != null) {
+                        // Homing missile logic
+                        Vector dir = target.getEyeLocation().toVector().subtract(bat.getLocation().toVector()).normalize();
+                        bat.setVelocity(dir.multiply(0.4)); // Fly aggressively towards player
                         
-                        if (target != null) {
-                            // Homing missile logic
-                            Vector dir = target.getEyeLocation().toVector().subtract(bat.getLocation().toVector()).normalize();
-                            bat.setVelocity(dir.multiply(0.4)); // Fly aggressively towards player
-                            
-                            // Check collision
-                            if (bat.getLocation().distance(target.getEyeLocation()) < 1.5) {
-                                executeBite(bat, target);
-                            }
+                        // Check collision
+                        if (bat.getLocation().distanceSquared(target.getEyeLocation()) < 2.25) { // 1.5 blocks
+                            executeBite(bat, target);
                         }
                     }
                 }
@@ -149,6 +162,7 @@ public class VampireBatMechanic extends DifficultyMechanic {
     private void makeVampire(Bat bat) {
         bat.getPersistentDataContainer().set(VAMPIRE_KEY, PersistentDataType.BYTE, (byte) 1);
         EntityUtils.setCustomName(bat, "&4Murciélago Vampiro");
+        activeBats.add(bat);
         
         Bukkit.getScheduler().runTask(plugin, () -> {
             if (!bat.isValid() || bat.isDead()) return;
@@ -158,6 +172,15 @@ public class VampireBatMechanic extends DifficultyMechanic {
                 bat.setHealth(24.0);
             }
         });
+    }
+
+    @EventHandler
+    public void onChunkLoad(ChunkLoadEvent event) {
+        for (Entity e : event.getChunk().getEntities()) {
+            if (e instanceof Bat bat && bat.getPersistentDataContainer().has(VAMPIRE_KEY, PersistentDataType.BYTE)) {
+                activeBats.add(bat);
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

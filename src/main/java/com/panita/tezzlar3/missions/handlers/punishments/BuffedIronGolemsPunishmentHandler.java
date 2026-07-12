@@ -25,19 +25,29 @@ public class BuffedIronGolemsPunishmentHandler implements PunishmentHandler, Lis
         this.BUFFED_KEY = new NamespacedKey(plugin, "golem_buffed");
 
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            java.util.List<Player> punishedPlayers = new java.util.ArrayList<>();
             for (Player player : Bukkit.getOnlinePlayers()) {
                 PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player);
                 if (data != null && data.hasPunishment(getId())) {
-                    for (Entity entity : player.getNearbyEntities(48, 48, 48)) {
-                        if (entity instanceof IronGolem golem) {
-                            if (!golem.getPersistentDataContainer().has(BUFFED_KEY, PersistentDataType.BYTE)) {
-                                AttributeInstance maxHealth = golem.getAttribute(Attribute.MAX_HEALTH);
-                                if (maxHealth != null) {
-                                    maxHealth.setBaseValue(maxHealth.getBaseValue() * 3);
-                                    golem.setHealth(maxHealth.getBaseValue());
-                                }
-                                golem.getPersistentDataContainer().set(BUFFED_KEY, PersistentDataType.BYTE, (byte) 1);
+                    punishedPlayers.add(player);
+                }
+            }
+            
+            if (punishedPlayers.isEmpty()) return;
+            
+            for (org.bukkit.World world : Bukkit.getWorlds()) {
+                for (IronGolem golem : world.getEntitiesByClass(IronGolem.class)) {
+                    if (golem.getPersistentDataContainer().has(BUFFED_KEY, PersistentDataType.BYTE)) continue;
+                    
+                    for (Player player : punishedPlayers) {
+                        if (player.getWorld().equals(golem.getWorld()) && player.getLocation().distanceSquared(golem.getLocation()) < 2304.0) { // 48 * 48
+                            AttributeInstance maxHealth = golem.getAttribute(Attribute.MAX_HEALTH);
+                            if (maxHealth != null) {
+                                maxHealth.setBaseValue(maxHealth.getBaseValue() * 3);
+                                golem.setHealth(maxHealth.getBaseValue());
                             }
+                            golem.getPersistentDataContainer().set(BUFFED_KEY, PersistentDataType.BYTE, (byte) 1);
+                            break;
                         }
                     }
                 }
