@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import com.panita.tezzlar3.timeline.util.TimeManager;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Random;
 
@@ -69,9 +70,7 @@ public class ZombieCavalryMechanic extends DifficultyMechanic {
                     if (mainHand != null && mainHand.getType().name().contains("SPEAR")) {
                         
                         EntityType mountType = MOUNTS[random.nextInt(MOUNTS.length)];
-                        EntityUtils.setForceSpawnReason(SpawnReason.CUSTOM);
                         LivingEntity mount = (LivingEntity) EntityUtils.spawnNatural(entity.getLocation(), mountType);
-                        EntityUtils.clearForceSpawnReason();
                         
                         if (mount != null) {
                             // Double the speed of the mount
@@ -79,6 +78,30 @@ public class ZombieCavalryMechanic extends DifficultyMechanic {
                             if (speed != null) speed.setBaseValue(speed.getBaseValue() * 2.0);
                             
                             mount.addPassenger(entity);
+
+                            // Sync mount with the zombie (bypasses teleport issues with SpawnAnimations)
+                            // Also kills the mount if the zombie dies (to prevent lag/empty mounts)
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    if (entity.isDead() || !entity.isValid()) {
+                                        if (mount.isValid()) mount.remove();
+                                        this.cancel();
+                                        return;
+                                    }
+                                    if (mount.isDead() || !mount.isValid()) {
+                                        if (entity.isValid()) entity.remove();
+                                        this.cancel();
+                                        return;
+                                    }
+                                    
+                                    // If datapack teleported the zombie, it dismounts. We force it back and teleport the mount.
+                                    if (!mount.getPassengers().contains(entity)) {
+                                        mount.teleport(entity.getLocation());
+                                        mount.addPassenger(entity);
+                                    }
+                                }
+                            }.runTaskTimer(plugin, 1L, 1L);
                         }
                     }
                 }
@@ -91,12 +114,12 @@ public class ZombieCavalryMechanic extends DifficultyMechanic {
     public void onZombieSuffocate(EntityDamageEvent event) {
         if (!isActive()) return;
         
-        if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION || event.getCause() == EntityDamageEvent.DamageCause.CRAMMING) {
             if (event.getEntity() instanceof Zombie zombie) {
                 // If it's a zombie, we make it immune to suffocation to prevent cavalry from dying in walls
                 event.setCancelled(true);
-            } else if (event.getEntity().getPassengers().stream().anyMatch(e -> e instanceof Zombie)) {
-                // If the entity is a mount carrying a zombie, make it immune to suffocation too
+            } else if (event.getEntity().getPersistentDataContainer().has(new org.bukkit.NamespacedKey(plugin, "is_cavalry_mount"), org.bukkit.persistence.PersistentDataType.BYTE)) {
+                // If the entity is a mount, make it immune to suffocation and cramming
                 event.setCancelled(true);
             }
         }

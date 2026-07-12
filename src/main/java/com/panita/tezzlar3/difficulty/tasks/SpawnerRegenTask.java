@@ -58,8 +58,12 @@ public class SpawnerRegenTask extends BukkitRunnable {
                     // Copy basic Bukkit properties
                     worldSpawner.setSpawnedType(storedSpawner.getSpawnedType());
                     worldSpawner.setDelay(storedSpawner.getDelay());
+                    
+                    // Safely assign min/max spawn delay to avoid IllegalArgumentException
+                    worldSpawner.setMaxSpawnDelay(Math.max(worldSpawner.getMaxSpawnDelay(), storedSpawner.getMaxSpawnDelay()));
                     worldSpawner.setMinSpawnDelay(storedSpawner.getMinSpawnDelay());
                     worldSpawner.setMaxSpawnDelay(storedSpawner.getMaxSpawnDelay());
+                    
                     worldSpawner.setSpawnCount(storedSpawner.getSpawnCount());
                     worldSpawner.setMaxNearbyEntities(storedSpawner.getMaxNearbyEntities());
                     worldSpawner.setRequiredPlayerRange(storedSpawner.getRequiredPlayerRange());
