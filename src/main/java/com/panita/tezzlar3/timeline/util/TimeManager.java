@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 public class TimeManager {
     private static int currentDay = 1;
     private static String lastIncrementDate = "";
+    private static int lastHour = -1;
 
     public static void init(JavaPlugin plugin) {
         currentDay = Config.raw().getInt("day", 1);
@@ -20,7 +21,16 @@ public class TimeManager {
         
         Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/Mexico_City"));
-            if (now.getHour() >= 14) {
+            
+            int currentHour = now.getHour();
+            if (lastHour == -1) {
+                lastHour = currentHour;
+            } else if (lastHour != currentHour) {
+                lastHour = currentHour;
+                Bukkit.getPluginManager().callEvent(new com.panita.tezzlar3.timeline.events.HourChangeEvent(currentHour));
+            }
+
+            if (currentHour >= 14) {
                 String todayDateStr = now.format(DateTimeFormatter.ISO_LOCAL_DATE);
                 if (!lastIncrementDate.equals(todayDateStr)) {
                     // Start of a new day!

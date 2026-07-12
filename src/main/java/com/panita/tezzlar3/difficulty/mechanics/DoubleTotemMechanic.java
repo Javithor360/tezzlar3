@@ -1,5 +1,6 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
+import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,15 +33,22 @@ public class DoubleTotemMechanic extends DifficultyMechanic {
             }
         }
         
-        // If they don't have at least 2 totems, cancel the resurrection
-        if (totalTotems < 2) {
+        // Determine required totems
+        int required = 2;
+        if (TimeManager.getCurrentDay() >= 27) {
+            required = 3;
+        }
+
+        // If they don't have enough, cancel the resurrection
+        if (totalTotems < required) {
             event.setCancelled(true);
             return;
         }
         
         // The game will automatically consume the totem the player holds in their hand.
-        // We must find a second totem in the inventory and consume it.
-        boolean removedExtra = false;
+        // We must find the additional totems in the inventory and consume them.
+        int toRemove = required - 1;
+        int removedCount = 0;
         
         // Check the inventory to remove an additional totem
         for (int i = 0; i < inv.getSize(); i++) {
@@ -54,14 +62,17 @@ public class DoubleTotemMechanic extends DifficultyMechanic {
                     continue; // It is the only totem in this hand, vanilla will consume it
                 }
                 
-                item.setAmount(item.getAmount() - 1);
-                removedExtra = true;
-                break;
+                int removeAmount = Math.min(item.getAmount(), toRemove - removedCount);
+                item.setAmount(item.getAmount() - removeAmount);
+                removedCount += removeAmount;
+                
+                if (removedCount >= toRemove) {
+                    break;
+                }
             }
         }
         
-        // Just in case it couldn't be removed (should be impossible since we verified >= 2)
-        if (!removedExtra) {
+        if (removedCount < toRemove) {
             event.setCancelled(true);
         }
     }

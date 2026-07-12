@@ -84,6 +84,8 @@ import com.panita.tezzlar3.difficulty.mechanics.GhastDeflectOnlyMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.AncestralRemainsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ElytraNerfMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PiglinDJMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.PyromaniacPiglinMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.HourlyPotionMechanic;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -239,6 +241,10 @@ public class DifficultyModule implements PluginModule {
             // Day 26
             mechanics.add(new ElytraNerfMechanic(plugin));
             mechanics.add(new PiglinDJMechanic(plugin));
+
+            // Day 27
+            mechanics.add(new PyromaniacPiglinMechanic(plugin));
+            mechanics.add(new HourlyPotionMechanic(plugin));
             
             initialized = true;
         }

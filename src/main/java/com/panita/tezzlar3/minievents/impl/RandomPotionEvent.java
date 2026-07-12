@@ -14,8 +14,7 @@ public class  RandomPotionEvent implements MiniEvent {
 
     private final Random random = new Random();
 
-    @Override
-    public void start(JavaPlugin plugin) {
+    public static PotionEffect generateRandomEffect(int durationTicks) {
         PotionEffectType[] randomEffects = {
                 PotionEffectType.ABSORPTION, PotionEffectType.UNLUCK, PotionEffectType.BAD_OMEN, PotionEffectType.BLINDNESS,
                 PotionEffectType.BREATH_OF_THE_NAUTILUS, PotionEffectType.CONDUIT_POWER, PotionEffectType.DARKNESS, PotionEffectType.DOLPHINS_GRACE,
@@ -28,11 +27,15 @@ public class  RandomPotionEvent implements MiniEvent {
                 PotionEffectType.STRENGTH, PotionEffectType.TRIAL_OMEN, PotionEffectType.WATER_BREATHING, PotionEffectType.WEAKNESS,
                 PotionEffectType.WEAVING, PotionEffectType.WIND_CHARGED, PotionEffectType.WITHER
         };
-        PotionEffectType chosen = randomEffects[random.nextInt(randomEffects.length)];
-        int level = random.nextInt(3); // 0, 1, 2, 4
-        
-        // 10 minutes
-        PotionEffect effect = new PotionEffect(chosen, 10 * 60 * 20, level);
+        Random r = new Random();
+        PotionEffectType chosen = randomEffects[r.nextInt(randomEffects.length)];
+        int level = r.nextInt(3); // 0, 1, 2
+        return new PotionEffect(chosen, durationTicks, level);
+    }
+
+    @Override
+    public void start(JavaPlugin plugin) {
+        PotionEffect effect = generateRandomEffect(10 * 60 * 20);
         
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (PlayerUtils.isSurvival(player)) {
@@ -44,6 +47,11 @@ public class  RandomPotionEvent implements MiniEvent {
     @Override
     public void stop(JavaPlugin plugin) {
         // Effect expires on its own
+    }
+
+    @Override
+    public boolean canExecute() {
+        return com.panita.tezzlar3.timeline.util.TimeManager.getCurrentDay() < 27;
     }
 
     @Override
