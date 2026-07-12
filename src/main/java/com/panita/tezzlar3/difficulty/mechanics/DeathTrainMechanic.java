@@ -129,7 +129,7 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener, 
     }
 
     @Override
-    public String getText(Player player) {
+    public java.util.List<String> getTexts(Player player) {
         if (!isActive() || remainingSeconds <= 0) return null;
         
         // Prevent overlap with other mechanics by pausing the DeathTrain
@@ -137,7 +137,7 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener, 
         if (MiniEventsModule.getManager() != null && MiniEventsModule.getManager().getActiveEvent() != null) return null;
         
         String timeStr = Global.formatTimeTicks(remainingSeconds * 20L);
-        return "<gray>DeathTrain activo por " + timeStr + "</gray>";
+        return java.util.Collections.singletonList("<gray>DeathTrain activo por " + timeStr + "</gray>");
     }
 
     public int getRemainingSeconds() {

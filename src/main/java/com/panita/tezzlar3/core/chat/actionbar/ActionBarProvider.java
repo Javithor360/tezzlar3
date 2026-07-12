@@ -2,6 +2,8 @@ package com.panita.tezzlar3.core.chat.actionbar;
 
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 public interface ActionBarProvider {
     /**
      * Gets the unique identifier for this provider.
@@ -10,13 +12,13 @@ public interface ActionBarProvider {
     String getId();
 
     /**
-     * Returns the text to display in the action bar for the given player.
-     * Return null or empty string if no message should be displayed.
+     * Returns the texts to display in the action bar for the given player.
+     * Return null or empty list if no message should be displayed.
      *
      * @param player the player
-     * @return the action bar text or null
+     * @return the action bar texts or null
      */
-    String getText(Player player);
+    List<String> getTexts(Player player);
 
     /**
      * Determines if this provider's message is urgent.

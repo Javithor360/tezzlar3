@@ -72,7 +72,7 @@ public class OverworldToxicityMechanic extends DifficultyMechanic implements Act
     }
 
     @Override
-    public String getText(Player player) {
+    public java.util.List<String> getTexts(Player player) {
         if (!isActive()) return null;
         if (!PlayerUtils.isSurvival(player)) return null;
         if (player.getWorld().getEnvironment() != World.Environment.NORMAL) return null;
@@ -86,9 +86,9 @@ public class OverworldToxicityMechanic extends DifficultyMechanic implements Act
             if (remaining <= 60) color = "<#FF5252>"; // Red
             
             String timeStr = Global.formatTimeTicks(remaining * 20L);
-            return "<gray>Contaminación en </gray>" + color + timeStr + "</" + color.substring(1,8) + ">";
+            return java.util.Collections.singletonList("<gray>Contaminación en </gray>" + color + timeStr + "</" + color.substring(1,8) + ">");
         } else {
-            return "<#FF5252><b>¡NIVELES DE CONTAMINACIÓN CRÍTICOS!</b></#FF5252>";
+            return java.util.Collections.singletonList("<#FF5252><b>¡NIVELES DE CONTAMINACIÓN CRÍTICOS!</b></#FF5252>");
         }
     }
 

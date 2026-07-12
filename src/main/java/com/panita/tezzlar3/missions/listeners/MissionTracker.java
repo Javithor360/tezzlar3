@@ -284,7 +284,7 @@ public class MissionTracker implements Listener, ActionBarProvider {
     }
 
     @Override
-    public String getText(Player player) {
+    public java.util.List<String> getTexts(Player player) {
         Map<String, LinkedList<Long>> playerMissions = timedKills.get(player.getUniqueId());
         if (playerMissions == null || playerMissions.isEmpty()) return null;
 
@@ -313,7 +313,7 @@ public class MissionTracker implements Listener, ActionBarProvider {
                 int n = kills.size();
                 int N = mission.getObjectiveAmount();
                 
-                return String.format("<#FFB732>Racha en progreso: <#FF5555>%d<#FFB732>/<#FF5555>%d <#FFB732>(%s)</#FFB732>", n, N, timeStr);
+                return java.util.Collections.singletonList(String.format("<#FFB732>Racha en progreso: <#FF5555>%d<#FFB732>/<#FF5555>%d <#FFB732>(%s)</#FFB732>", n, N, timeStr));
             }
         }
         return null;
@@ -321,7 +321,7 @@ public class MissionTracker implements Listener, ActionBarProvider {
 
     @Override
     public boolean isUrgent(Player player) {
-        return getText(player) != null;
+        return getTexts(player) != null;
     }
 
     @EventHandler

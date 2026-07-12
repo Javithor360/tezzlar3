@@ -108,7 +108,7 @@ public class BabyKillCurseMechanic extends DifficultyMechanic implements ActionB
     }
 
     @Override
-    public String getText(Player player) {
+    public java.util.List<String> getTexts(Player player) {
         if (!isActive()) return null;
         if (!PlayerUtils.isSurvival(player)) return null;
         if (!cursedPlayers.containsKey(player.getUniqueId())) return null;
@@ -120,6 +120,6 @@ public class BabyKillCurseMechanic extends DifficultyMechanic implements ActionB
         
         int remaining = (int) ((expiry - now) / 1000);
         String timeStr = String.format("%02d:%02d", remaining / 60, remaining % 60);
-        return "<gray>Tamaño reducido (" + timeStr + ")</gray>";
+        return java.util.Collections.singletonList("<gray>Tamaño reducido (" + timeStr + ")</gray>");
     }
 }

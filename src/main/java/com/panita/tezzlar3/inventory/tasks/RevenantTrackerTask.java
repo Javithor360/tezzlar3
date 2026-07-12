@@ -46,10 +46,10 @@ public class RevenantTrackerTask implements Runnable, ActionBarProvider {
     }
 
     @Override
-    public String getText(Player player) {
+    public java.util.List<String> getTexts(Player player) {
         Integer seconds = playerSecondsLeft.get(player.getUniqueId());
         if (seconds != null) {
-            return "<red><b>¡El Vestigio revivirá en " + seconds + " segundos!</b></red>";
+            return java.util.Collections.singletonList("<red><b>¡El Vestigio revivirá en " + seconds + " segundos!</b></red>");
         }
         return null;
     }

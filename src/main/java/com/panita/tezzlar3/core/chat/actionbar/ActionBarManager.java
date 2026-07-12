@@ -48,12 +48,12 @@ public class ActionBarManager {
 
                 for (ActionBarProvider provider : providers.values()) {
                     try {
-                        String text = provider.getText(player);
-                        if (text != null && !text.isEmpty()) {
+                        List<String> texts = provider.getTexts(player);
+                        if (texts != null && !texts.isEmpty()) {
                             if (provider.isUrgent(player)) {
-                                urgentMessages.add(text);
+                                urgentMessages.addAll(texts);
                             } else {
-                                backgroundMessages.add(text);
+                                backgroundMessages.addAll(texts);
                             }
                         }
                     } catch (Exception e) {

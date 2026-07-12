@@ -352,23 +352,23 @@ public class RefugeManager implements Listener, ActionBarProvider {
     }
 
     @Override
-    public String getText(Player player) {
+    public java.util.List<String> getTexts(Player player) {
         if (!isActive()) return null;
         if (!PlayerUtils.isSurvival(player)) return null;
         
         if (currentStage == Stage.STAGE_1) {
             String timeStr = Global.formatTimeTicks(timeLeft * 20L);
-            return "<red><b>Alerta:</b> Tienes " + timeStr + " para llegar al refugio.</red>";
+            return java.util.Collections.singletonList("<red><b>Alerta:</b> Tienes " + timeStr + " para llegar al refugio.</red>");
         } else if (currentStage == Stage.STAGE_2) {
             if (!player.getPersistentDataContainer().has(SURVIVOR_KEY, PersistentDataType.BYTE)) return null;
             
             boolean isSafe = isPlayerSafe(player);
             if (!isSafe) {
                 int outTime = abandonCounters.getOrDefault(player.getUniqueId(), 0);
-                return "<dark_red><b>¡PELIGRO!</b> Vuelve a ponerte a salvo (" + outTime + "/10s)</dark_red>";
+                return java.util.Collections.singletonList("<dark_red><b>¡PELIGRO!</b> Vuelve a ponerte a salvo (" + outTime + "/10s)</dark_red>");
             } else {
                 String timeStr = Global.formatTimeTicks(timeLeft * 20L);
-                return "<red><b>Alerta:</b> Sobrevive en el refugio " + timeStr + "</red>";
+                return java.util.Collections.singletonList("<red><b>Alerta:</b> Sobrevive en el refugio " + timeStr + "</red>");
             }
         }
         return null;

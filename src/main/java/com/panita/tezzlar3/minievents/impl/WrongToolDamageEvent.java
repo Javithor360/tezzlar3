@@ -95,9 +95,9 @@ public class WrongToolDamageEvent implements MiniEvent, Listener, ActionBarProvi
     }
 
     @Override
-    public String getText(Player player) {
+    public java.util.List<String> getTexts(Player player) {
         if (isUrgent(player)) {
-            return "<red>¡Usa la herramienta correcta!</red>";
+            return java.util.Collections.singletonList("<red>¡Usa la herramienta correcta!</red>");
         }
         return null;
     }

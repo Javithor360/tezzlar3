@@ -225,25 +225,29 @@ public class ZombieCameramanMechanic extends DifficultyMechanic implements Liste
     }
 
     @Override
-    public String getText(Player player) {
+    public List<String> getTexts(Player player) {
         if (!isActive()) return null;
         List<CameraEffect> effects = activeEffects.get(player.getUniqueId());
         if (effects == null || effects.isEmpty()) return null;
         
-        StringBuilder sb = new StringBuilder("&6&lCamarógrafo&8: ");
-        for (int i = 0; i < effects.size(); i++) {
-            CameraEffect e = effects.get(i);
+        List<String> msgs = new ArrayList<>();
+        for (CameraEffect e : effects) {
             long secs = e.getRemainingSeconds();
             String time = Global.formatTimeTicks(secs * 20L);
-            
             String sign = e.value > 0 ? "+" : "";
-            sb.append("&e").append(e.type.name()).append(" &c").append(sign).append(e.value)
-              .append(" &7(").append(time).append(")");
-              
-            if (i < effects.size() - 1) {
-                sb.append(" &8| ");
+            
+            // Format name to Title Case
+            String rawName = e.type.name().toLowerCase().replace('_', ' ');
+            StringBuilder titleCase = new StringBuilder();
+            for (String word : rawName.split(" ")) {
+                if (word.length() > 0) {
+                    titleCase.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1)).append(" ");
+                }
             }
+            String formattedName = titleCase.toString().trim();
+            
+            msgs.add("<gray>Atributo: <#BABABA>" + formattedName + " " + sign + e.value + "</#BABABA> (" + time + ")</gray>");
         }
-        return sb.toString();
+        return msgs;
     }
 }

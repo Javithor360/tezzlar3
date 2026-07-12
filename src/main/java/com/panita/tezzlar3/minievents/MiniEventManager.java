@@ -276,11 +276,11 @@ public class MiniEventManager implements ActionBarProvider {
     }
 
     @Override
-    public String getText(Player player) {
+    public java.util.List<String> getTexts(Player player) {
         if (activeEvent != null && activeEventRemainingTicks > 0) {
             String timeStr = Global.formatTimeTicks(activeEventRemainingTicks);
             String cleanName = MiniMessage.miniMessage().stripTags(activeEvent.getDisplayName());
-            return "<gray>" + cleanName + " (" + timeStr + ")</gray>";
+            return java.util.Collections.singletonList("<gray>" + cleanName + " (" + timeStr + ")</gray>");
         }
         return null;
     }
