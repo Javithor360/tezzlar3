@@ -7,9 +7,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class TripledArrowDamageMechanic extends DifficultyMechanic {
+public class DoubledArrowDamageMechanic extends DifficultyMechanic {
 
-    public TripledArrowDamageMechanic(JavaPlugin plugin) {
+    public DoubledArrowDamageMechanic(JavaPlugin plugin) {
         super(plugin, 10); // Day 10
     }
 

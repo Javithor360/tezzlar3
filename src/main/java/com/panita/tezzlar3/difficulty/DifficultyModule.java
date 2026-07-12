@@ -65,7 +65,7 @@ import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SpawnerMobBuffMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SkeletonBowPowerMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.MagmaDamageMechanic;
-import com.panita.tezzlar3.difficulty.mechanics.TripledArrowDamageMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.DoubledArrowDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DoubleTotemMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ZombieCameramanMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.WrongToolDamageMechanic;
@@ -157,7 +157,7 @@ public class DifficultyModule implements PluginModule {
             mechanics.add(new PlayerKillOnlyDropsMechanic(plugin));
             mechanics.add(new VillagerProfessionLossMechanic(plugin));
             mechanics.add(new GigaMagmaCubeMechanic(plugin));
-            mechanics.add(new TripledArrowDamageMechanic(plugin));
+            mechanics.add(new DoubledArrowDamageMechanic(plugin));
 
             // Day 11
             mechanics.add(new NightRainMechanic(plugin));
