@@ -1,15 +1,12 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
+import com.panita.tezzlar3.core.util.MobGearUtils;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Jukebox;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Piglin;
-import org.bukkit.entity.PiglinBrute;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -105,6 +102,8 @@ public class PiglinDJMechanic extends DifficultyMechanic {
                 
                 Piglin piglin = (Piglin) world.spawnEntity(spawnLoc, EntityType.PIGLIN);
                 piglin.setImmuneToZombification(true);
+                piglin.setAdult(); // Ensure they are adults
+                MobGearUtils.equipRandomGear(piglin); // Equip gear
             }
 
             // Find a solid block below to place the Jukebox
@@ -130,7 +129,7 @@ public class PiglinDJMechanic extends DifficultyMechanic {
             // Final variables for the task
             final Block finalBlock = block;
             
-            // Schedule to break the jukebox after 5 seconds (100 ticks)
+            // Schedule to break the jukebox after 10 seconds (200 ticks)
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (finalBlock.getType() == Material.JUKEBOX) {
                     if (finalBlock.getState(false) instanceof Jukebox jukebox) {
@@ -141,11 +140,18 @@ public class PiglinDJMechanic extends DifficultyMechanic {
                     finalBlock.setType(oldMaterial); // Revert
                 }
                 
+                // Stop the manually played sound for nearby players
+                for (Player p : world.getPlayers()) {
+                    if (p.getLocation().distanceSquared(finalBlock.getLocation()) < 10000) { // 100 blocks radius
+                        p.stopSound(Sound.MUSIC_DISC_PIGSTEP);
+                    }
+                }
+                
                 // Drop the items safely
                 world.dropItemNaturally(finalBlock.getLocation().add(0.5, 0.5, 0.5), new ItemStack(Material.MUSIC_DISC_PIGSTEP));
                 world.dropItemNaturally(finalBlock.getLocation().add(0.5, 0.5, 0.5), new ItemStack(Material.JUKEBOX));
                 
-            }, 100L); // 5 seconds = 100 ticks
+            }, 200L); // 10 seconds = 200 ticks
         }
     }
 }
