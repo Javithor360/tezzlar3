@@ -83,6 +83,9 @@ import com.panita.tezzlar3.difficulty.mechanics.PiglinDJMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PyromaniacPiglinMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.HourlyPotionMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ArabWanderingTraderMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.SpawnerRegenMechanic;
+import com.panita.tezzlar3.difficulty.tasks.SpawnerRegenTask;
+import com.panita.tezzlar3.difficulty.util.SpawnerRegenManager;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -95,6 +98,9 @@ public class DifficultyModule implements PluginModule {
     
     private final List<DifficultyMechanic> mechanics = new ArrayList<>();
     private boolean initialized = false;
+    
+    private SpawnerRegenManager spawnerRegenManager;
+    private SpawnerRegenTask spawnerRegenTask;
 
     @Override
     public String id() {
@@ -109,6 +115,8 @@ public class DifficultyModule implements PluginModule {
     @Override
     public void onEnable(JavaPlugin plugin) {
         if (!initialized) {
+            spawnerRegenManager = new SpawnerRegenManager();
+            
             // Day 1
             mechanics.add(new PremiumArmorSetMechanic(plugin));
         
@@ -163,6 +171,7 @@ public class DifficultyModule implements PluginModule {
             mechanics.add(new NetherBlazeSpawnsMechanic(plugin));
             mechanics.add(new CopperDamageMechanic(plugin));
             mechanics.add(new EliteMobStatsMechanic(plugin));
+            mechanics.add(new SpawnerRegenMechanic(plugin, spawnerRegenManager));
 
             // Day 12
             mechanics.add(new FastHungerMechanic(plugin));
@@ -259,6 +268,12 @@ public class DifficultyModule implements PluginModule {
             plugin.getServer().getPluginManager().registerEvents(mechanic, plugin);
         }
         
+        if (spawnerRegenTask != null) {
+            spawnerRegenTask.cancel();
+        }
+        spawnerRegenTask = new SpawnerRegenTask(spawnerRegenManager, 20L);
+        spawnerRegenTask.runTaskTimer(plugin, 20L, 20L);
+        
         enabled = true;
     }
 
@@ -271,6 +286,13 @@ public class DifficultyModule implements PluginModule {
     public void onDisable(JavaPlugin plugin) {
         for (DifficultyMechanic mechanic : mechanics) {
             HandlerList.unregisterAll(mechanic);
+        }
+        if (spawnerRegenTask != null) {
+            spawnerRegenTask.cancel();
+            spawnerRegenTask = null;
+        }
+        if (spawnerRegenManager != null) {
+            spawnerRegenManager.save();
         }
         enabled = false;
     }
