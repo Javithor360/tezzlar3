@@ -20,7 +20,8 @@ public enum CustomMobType {
     VAMPIRE_BAT(Material.BAT_SPAWN_EGG, "&4Murciélago Vampiro", 24.0, "Te ataca y te roba un contenedor de vida máxima."),
     ANCESTRAL_REMAINS(Material.PIGLIN_SPAWN_EGG, "<#803522>Restos Ancestrales</#803522>", 60.0, "Piglin con armadura de héroe caído."),
     PIGLIN_DJ(Material.PIGLIN_BRUTE_SPAWN_EGG, "&d&lPiglin DJ", 40.0, "- Lleva armadura completa de Netherite<newline>- Al morir suelta su disco y rockola"),
-    PYROMANIAC_PIGLIN(Material.PIGLIN_SPAWN_EGG, "<#FFA500>Piglin Pirómano Demente</#FFA500>", 40.0, "- Sus flechas explotan (Rompe bloques)");
+    PYROMANIAC_PIGLIN(Material.PIGLIN_SPAWN_EGG, "<#FFA500>Piglin Pirómano Demente</#FFA500>", 40.0, "- Sus flechas explotan (Rompe bloques)"),
+    ARAB_WANDERING_TRADER(Material.WANDERING_TRADER_SPAWN_EGG, "<#FFD700>Wandering Trader Árabe</#FFD700>", 20.0, "- Explota en 10 mins si no se le compra nada.");
 
     private final Material icon;
     private final String customName;
