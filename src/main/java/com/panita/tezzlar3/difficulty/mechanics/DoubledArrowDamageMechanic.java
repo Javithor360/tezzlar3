@@ -20,7 +20,7 @@ public class DoubledArrowDamageMechanic extends DifficultyMechanic {
         if (event.getEntity() instanceof Player) {
             if (event.getDamager() instanceof Arrow arrow) {
                 if (!(arrow.getShooter() instanceof Player)) {
-                    event.setDamage(event.getDamage() * 3.0);
+                    event.setDamage(event.getDamage() * 2.0);
                 }
             }
         }
