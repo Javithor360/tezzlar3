@@ -71,6 +71,14 @@ public class EliteMobStatsMechanic extends DifficultyMechanic {
                 double multiplier = TimeManager.getCurrentDay() >= 22 ? 4.0 : 2.0;
                 EntityUtils.trySetAttribute(entity, Attribute.ATTACK_DAMAGE, damageAttr.getBaseValue() * multiplier);
             }
+            
+            // Multiply Follow Range (Starting Day 22)
+            if (TimeManager.getCurrentDay() >= 22) {
+                AttributeInstance followRangeAttr = entity.getAttribute(Attribute.FOLLOW_RANGE);
+                if (followRangeAttr != null) {
+                    EntityUtils.trySetAttribute(entity, Attribute.FOLLOW_RANGE, followRangeAttr.getBaseValue() * 2.0);
+                }
+            }
         });
     }
 }

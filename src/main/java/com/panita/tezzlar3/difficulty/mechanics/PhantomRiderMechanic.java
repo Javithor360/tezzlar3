@@ -64,9 +64,16 @@ public class PhantomRiderMechanic extends DifficultyMechanic {
                 try { ent.setHealth(newHealth); } catch (Exception ignored) {}
             }
             
-            AttributeInstance damageAttr = ent.getAttribute(Attribute.ATTACK_DAMAGE);
+            org.bukkit.attribute.AttributeInstance damageAttr = ent.getAttribute(org.bukkit.attribute.Attribute.ATTACK_DAMAGE);
             if (damageAttr != null) {
-                EntityUtils.trySetAttribute(ent, Attribute.ATTACK_DAMAGE, damageAttr.getBaseValue() * damageMultiplier);
+                EntityUtils.trySetAttribute(ent, org.bukkit.attribute.Attribute.ATTACK_DAMAGE, damageAttr.getBaseValue() * damageMultiplier);
+            }
+            
+            if (currentDay >= 22) {
+                org.bukkit.attribute.AttributeInstance followRangeAttr = ent.getAttribute(org.bukkit.attribute.Attribute.FOLLOW_RANGE);
+                if (followRangeAttr != null) {
+                    EntityUtils.trySetAttribute(ent, org.bukkit.attribute.Attribute.FOLLOW_RANGE, followRangeAttr.getBaseValue() * 2.0);
+                }
             }
         }
     }
