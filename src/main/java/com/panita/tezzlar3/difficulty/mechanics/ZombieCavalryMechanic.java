@@ -68,7 +68,7 @@ public class ZombieCavalryMechanic extends DifficultyMechanic {
                     ItemStack mainHand = eq.getItemInMainHand();
                     // If carrying a spear, grant a guaranteed mount
                     if (mainHand != null && mainHand.getType().name().contains("SPEAR")) {
-                        // Add a 6-second grace period (120 ticks) to let the "Spawn Animations" datapack finish.
+                        // Add a 4-second grace period (80 ticks) to let the "Spawn Animations" datapack finish.
                         Bukkit.getScheduler().runTaskLater(plugin, () -> {
                             if (!entity.isValid() || entity.isDead()) return;
                             
@@ -106,7 +106,7 @@ public class ZombieCavalryMechanic extends DifficultyMechanic {
                                     }
                                 }.runTaskTimer(plugin, 1L, 1L);
                             }
-                        }, 120L);
+                        }, 80L);
                     }
                 }
             }, 2L);

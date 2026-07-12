@@ -5,6 +5,7 @@ import com.panita.tezzlar3.core.util.MobGearUtils;
 import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -12,6 +13,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Random;
@@ -52,6 +54,20 @@ public class WitherSkeletonEliteGearMechanic extends DifficultyMechanic {
             
             MobGearUtils.GearTier tier = MobGearUtils.getTier(TimeManager.getCurrentDay());
             newWeapon = MobGearUtils.applyRandomEnchantments(newWeapon, tier);
+            
+            if (newWeapon != null) {
+                ItemMeta meta = newWeapon.getItemMeta();
+                if (meta != null) {
+                    if (newMat == Material.BOW) {
+                        int powerLevel = random.nextInt(16) + 10; // 10 to 25
+                        meta.addEnchant(Enchantment.POWER, powerLevel, true);
+                    } else {
+                        int sharpnessLevel = random.nextInt(11) + 5; // 5 to 15
+                        meta.addEnchant(Enchantment.SHARPNESS, sharpnessLevel, true);
+                    }
+                    newWeapon.setItemMeta(meta);
+                }
+            }
             
             eq.setItemInMainHand(newWeapon);
             eq.setItemInMainHandDropChance(0.0f);
