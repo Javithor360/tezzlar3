@@ -22,6 +22,11 @@ public class SpawnerRegenMechanic extends DifficultyMechanic {
         if (!isActive()) return;
 
         if (event.getBlock().getType() == Material.SPAWNER) {
+            // Allow admins to break spawners permanently while sneaking
+            if (event.getPlayer().isSneaking() && (event.getPlayer().isOp() || event.getPlayer().hasPermission("tezzlar.admin"))) {
+                return;
+            }
+
             BlockState state = event.getBlock().getState();
             if (state instanceof CreatureSpawner spawner) {
                 // Triple the experience dropped
