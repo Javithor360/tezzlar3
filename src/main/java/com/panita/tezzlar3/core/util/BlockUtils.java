@@ -1,8 +1,19 @@
 package com.panita.tezzlar3.core.util;
 
+import org.bukkit.Color;
 import org.bukkit.Material;
 
 public class BlockUtils {
+
+    public static Color getContainerColor(Material material) {
+        return switch (material) {
+            case CHEST -> Color.YELLOW;
+            case BARREL -> Color.fromRGB(139, 69, 19); // Brown
+            case SPAWNER -> Color.GRAY;
+            case TRAPPED_CHEST -> Color.RED;
+            default -> Color.WHITE;
+        };
+    }
 
     public static boolean isInstaBreak(Material material) {
         String name = material.name();
