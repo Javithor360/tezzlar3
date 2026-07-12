@@ -105,22 +105,25 @@ public class ContainerScanCommand implements AdvancedCommand, TabSuggestingComma
             int y = block.getY();
             int z = block.getZ();
 
-            String tpButton = "<click:run_command:'/tp " + x + " " + y + " " + z + "'><hover:show_text:'Teletransportarse a " + x + ", " + y + ", " + z + "'>&8[&a&lTP&r&8]</hover></click>";
-            String line = "&7" + (i + 1) + ". &b" + materialName + " &7en &e" + x + ", " + y + ", " + z + " " + tpButton;
+            String tpButton = "<click:run_command:'/tp " + x + " " + y + " " + z + "'><hover:show_text:'Teletransportarse a " + x + ", " + y + ", " + z + "'><dark_gray>[<green><bold>TP</bold></green>]</dark_gray></hover></click>";
+            String line = "<gray>" + (i + 1) + ". <aqua>" + materialName + " <gray>en <yellow>" + x + ", " + y + ", " + z + " " + tpButton;
             Messenger.send(player, line);
         }
 
-        // Pagination buttons
-        String buttons = "";
-        if (page > 1) {
-            buttons += "<click:run_command:'/tezzlar containerscan " + radius + " " + (page - 1) + "'>&8[&e<&8]</click> ";
-        }
-        if (page < totalPages) {
-            buttons += "<click:run_command:'/tezzlar containerscan " + radius + " " + (page + 1) + "'>&8[&e>&8]</click>";
-        }
+        // Pagination footer
+        if (totalPages > 1) {
+            String prevButton = "<dark_gray>[<gray><</gray>]</dark_gray>";
+            if (page > 1) {
+                prevButton = "<click:run_command:'/tezzlar containerscan " + radius + " " + (page - 1) + "'><hover:show_text:'<yellow>Página anterior'><dark_gray>[<yellow><</yellow>]</dark_gray></hover></click>";
+            }
 
-        if (!buttons.isEmpty()) {
-            Messenger.send(player, buttons);
+            String nextButton = "<dark_gray>[<gray>></gray>]</dark_gray>";
+            if (page < totalPages) {
+                nextButton = "<click:run_command:'/tezzlar containerscan " + radius + " " + (page + 1) + "'><hover:show_text:'<yellow>Siguiente página'><dark_gray>[<yellow>></yellow>]</dark_gray></hover></click>";
+            }
+
+            String footer = "<dark_gray><strikethrough>---------------</strikethrough></dark_gray>  " + prevButton + "   " + nextButton + "  <dark_gray><strikethrough>---------------</strikethrough></dark_gray>";
+            Messenger.send(player, footer);
         }
     }
 
