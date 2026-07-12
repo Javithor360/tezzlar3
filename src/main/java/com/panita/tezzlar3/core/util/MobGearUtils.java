@@ -157,6 +157,14 @@ public class MobGearUtils {
         eq.setItemInMainHandDropChance(0.0f);
         eq.setItemInOffHandDropChance(0.15f);
 
+        // Netherite items have 0% drop chance
+        if (eq.getHelmet() != null && eq.getHelmet().getType().name().contains("NETHERITE")) eq.setHelmetDropChance(0.0f);
+        if (eq.getChestplate() != null && eq.getChestplate().getType().name().contains("NETHERITE")) eq.setChestplateDropChance(0.0f);
+        if (eq.getLeggings() != null && eq.getLeggings().getType().name().contains("NETHERITE")) eq.setLeggingsDropChance(0.0f);
+        if (eq.getBoots() != null && eq.getBoots().getType().name().contains("NETHERITE")) eq.setBootsDropChance(0.0f);
+        if (eq.getItemInMainHand() != null && eq.getItemInMainHand().getType().name().contains("NETHERITE")) eq.setItemInMainHandDropChance(0.0f);
+        if (eq.getItemInOffHand() != null && eq.getItemInOffHand().getType().name().contains("NETHERITE")) eq.setItemInOffHandDropChance(0.0f);
+
         // Skeleton Bow Power Mechanic (Day 11+)
         if (isSkeleton && TimeManager.getCurrentDay() >= 11) {
             ItemStack mainHand = eq.getItemInMainHand();

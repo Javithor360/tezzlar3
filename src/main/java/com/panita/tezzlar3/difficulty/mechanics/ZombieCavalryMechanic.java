@@ -69,13 +69,17 @@ public class ZombieCavalryMechanic extends DifficultyMechanic {
                     if (mainHand != null && mainHand.getType().name().contains("SPEAR")) {
                         
                         EntityType mountType = MOUNTS[random.nextInt(MOUNTS.length)];
+                        EntityUtils.setForceSpawnReason(SpawnReason.CUSTOM);
                         LivingEntity mount = (LivingEntity) EntityUtils.spawnNatural(entity.getLocation(), mountType);
+                        EntityUtils.clearForceSpawnReason();
                         
-                        // Double the speed of the mount
-                        AttributeInstance speed = mount.getAttribute(Attribute.MOVEMENT_SPEED);
-                        if (speed != null) speed.setBaseValue(speed.getBaseValue() * 2.0);
-                        
-                        mount.addPassenger(entity);
+                        if (mount != null) {
+                            // Double the speed of the mount
+                            AttributeInstance speed = mount.getAttribute(Attribute.MOVEMENT_SPEED);
+                            if (speed != null) speed.setBaseValue(speed.getBaseValue() * 2.0);
+                            
+                            mount.addPassenger(entity);
+                        }
                     }
                 }
             }, 2L);
@@ -90,6 +94,9 @@ public class ZombieCavalryMechanic extends DifficultyMechanic {
         if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
             if (event.getEntity() instanceof Zombie zombie) {
                 // If it's a zombie, we make it immune to suffocation to prevent cavalry from dying in walls
+                event.setCancelled(true);
+            } else if (event.getEntity().getPassengers().stream().anyMatch(e -> e instanceof Zombie)) {
+                // If the entity is a mount carrying a zombie, make it immune to suffocation too
                 event.setCancelled(true);
             }
         }
