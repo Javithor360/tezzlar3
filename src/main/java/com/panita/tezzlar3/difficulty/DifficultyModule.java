@@ -10,7 +10,6 @@ import com.panita.tezzlar3.difficulty.mechanics.GhastExplosionMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.NightRainMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DifficultyMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.DeathTrainMechanic;
-
 import com.panita.tezzlar3.difficulty.mechanics.DoubleFallDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EliteMobStatsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.FastDrowningMechanic;
@@ -25,7 +24,6 @@ import com.panita.tezzlar3.difficulty.mechanics.ParasiticSilverfishMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PhantomRideMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.LightningSkeletonMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.NaturalRavagerMechanic;
-
 import com.panita.tezzlar3.difficulty.mechanics.PlayerKillOnlyDropsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PremiumArmorSetMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.CopperDamageMechanic;
@@ -65,8 +63,6 @@ import com.panita.tezzlar3.difficulty.mechanics.ApocalypticZombieMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.OverworldToxicityMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SpawnerMobBuffMechanic;
-import com.panita.tezzlar3.difficulty.mechanics.OverworldToxicityMechanic;
-import com.panita.tezzlar3.difficulty.mechanics.EnderGuardianMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SkeletonBowPowerMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.MagmaDamageMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.TripledArrowDamageMechanic;
@@ -82,6 +78,7 @@ import com.panita.tezzlar3.difficulty.mechanics.VampireBatMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.EndermanNerfMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.GhastDeflectOnlyMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.AncestralRemainsMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.CropGrowthMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ElytraNerfMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PiglinDJMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PyromaniacPiglinMechanic;
@@ -171,6 +168,13 @@ public class DifficultyModule implements PluginModule {
 
             // Day 12
             mechanics.add(new FastHungerMechanic(plugin));
+            mechanics.add(new SlimeBanzaiMechanic(plugin));
+            mechanics.add(new InvisibleChargedCreeperMechanic(plugin));
+            mechanics.add(new CopperGolemLightningMechanic(plugin));
+            mechanics.add(new MagmaDamageMechanic(plugin));
+            mechanics.add(new CropGrowthMechanic(plugin));
+
+            // Day 13
             mechanics.add(new SlimeBanzaiMechanic(plugin));
             mechanics.add(new InvisibleChargedCreeperMechanic(plugin));
             mechanics.add(new CopperGolemLightningMechanic(plugin));
