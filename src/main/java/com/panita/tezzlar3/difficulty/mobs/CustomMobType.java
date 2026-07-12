@@ -22,6 +22,7 @@ public enum CustomMobType {
     ANCESTRAL_REMAINS(Material.PIGLIN_SPAWN_EGG, "<#803522>Restos Ancestrales</#803522>", 60.0, "Piglin con armadura de héroe caído."),
     PIGLIN_DJ(Material.PIGLIN_BRUTE_SPAWN_EGG, "&d&lPiglin DJ", 40.0, "- Lleva armadura completa de Netherite<newline>- Al morir suelta su disco y rockola"),
     PYROMANIAC_PIGLIN(Material.PIGLIN_SPAWN_EGG, "<#FFA500>Piglin Pirómano Demente</#FFA500>", 40.0, "- Sus flechas explotan (Rompe bloques)"),
+    TOTEM_RAVAGER(Material.RAVAGER_SPAWN_EGG, "<#3A9451>Tótem Ravager</#3A9451>", 50.0, "- 5 Ravagers apilados<newline>- El de arriba suelta un tótem aleatorio"),
     ARAB_WANDERING_TRADER(Material.WANDERING_TRADER_SPAWN_EGG, "<#FFD700>Wandering Trader Árabe</#FFD700>", 20.0, "- Explota en 10 mins si no se le compra nada.");
 
     private final Material icon;

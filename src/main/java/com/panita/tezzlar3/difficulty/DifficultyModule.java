@@ -261,6 +261,11 @@ public class DifficultyModule implements PluginModule {
             // Day 29
             mechanics.add(new ArabWanderingTraderMechanic(plugin));
             
+            // Day 28
+            mechanics.add(new com.panita.tezzlar3.difficulty.mechanics.EnderpearlTeleportMechanic(plugin));
+            mechanics.add(new com.panita.tezzlar3.difficulty.mechanics.CopperAppleDropMechanic(plugin));
+            mechanics.add(new com.panita.tezzlar3.difficulty.mechanics.TotemRavagerMechanic(plugin));
+            
             initialized = true;
         }
         

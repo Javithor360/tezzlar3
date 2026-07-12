@@ -54,31 +54,35 @@ public class EliteMobStatsMechanic extends DifficultyMechanic {
             // Mark as buffed
             entity.getPersistentDataContainer().set(ELITE_KEY, PersistentDataType.BYTE, (byte) 1);
             
-            // Multiply Health
-            AttributeInstance healthAttr = entity.getAttribute(Attribute.MAX_HEALTH);
-            if (healthAttr != null) {
-                double multiplier = TimeManager.getCurrentDay() >= 22 ? 3.0 : 2.0;
-                double newHealth = healthAttr.getBaseValue() * multiplier;
-                EntityUtils.trySetAttribute(entity, Attribute.MAX_HEALTH, newHealth);
-                try {
-                    entity.setHealth(entity.getAttribute(Attribute.MAX_HEALTH).getValue());
-                } catch (Exception ignored) {}
-            }
-            
-            // Multiply Damage
-            AttributeInstance damageAttr = entity.getAttribute(Attribute.ATTACK_DAMAGE);
-            if (damageAttr != null) {
-                double multiplier = TimeManager.getCurrentDay() >= 22 ? 4.0 : 2.0;
-                EntityUtils.trySetAttribute(entity, Attribute.ATTACK_DAMAGE, damageAttr.getBaseValue() * multiplier);
-            }
-            
-            // Multiply Follow Range (Starting Day 22)
-            if (TimeManager.getCurrentDay() >= 22) {
-                AttributeInstance followRangeAttr = entity.getAttribute(Attribute.FOLLOW_RANGE);
-                if (followRangeAttr != null) {
-                    EntityUtils.trySetAttribute(entity, Attribute.FOLLOW_RANGE, followRangeAttr.getBaseValue() * 2.0);
-                }
-            }
+            applyEliteBuffs(entity);
         });
+    }
+
+    public static void applyEliteBuffs(LivingEntity entity) {
+        // Multiply Health
+        AttributeInstance healthAttr = entity.getAttribute(Attribute.MAX_HEALTH);
+        if (healthAttr != null) {
+            double multiplier = TimeManager.getCurrentDay() >= 22 ? 3.0 : 2.0;
+            double newHealth = healthAttr.getBaseValue() * multiplier;
+            EntityUtils.trySetAttribute(entity, Attribute.MAX_HEALTH, newHealth);
+            try {
+                entity.setHealth(entity.getAttribute(Attribute.MAX_HEALTH).getValue());
+            } catch (Exception ignored) {}
+        }
+        
+        // Multiply Damage
+        AttributeInstance damageAttr = entity.getAttribute(Attribute.ATTACK_DAMAGE);
+        if (damageAttr != null) {
+            double multiplier = TimeManager.getCurrentDay() >= 22 ? 4.0 : 2.0;
+            EntityUtils.trySetAttribute(entity, Attribute.ATTACK_DAMAGE, damageAttr.getBaseValue() * multiplier);
+        }
+        
+        // Multiply Follow Range (Starting Day 22)
+        if (TimeManager.getCurrentDay() >= 22) {
+            AttributeInstance followRangeAttr = entity.getAttribute(Attribute.FOLLOW_RANGE);
+            if (followRangeAttr != null) {
+                EntityUtils.trySetAttribute(entity, Attribute.FOLLOW_RANGE, followRangeAttr.getBaseValue() * 2.0);
+            }
+        }
     }
 }
