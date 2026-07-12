@@ -1,6 +1,7 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
 import com.panita.tezzlar3.core.util.Global;
+import com.panita.tezzlar3.core.util.MobGearUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -147,6 +148,9 @@ public class ZombieCameramanMechanic extends DifficultyMechanic implements Liste
             zombie.setHealth(40.0);
         }
         
+        // Equip with standard gear first
+        MobGearUtils.equipRandomGear(zombie);
+
         // Generate custom head
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) head.getItemMeta();
