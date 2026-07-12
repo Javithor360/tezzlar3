@@ -129,15 +129,34 @@ public class EntityUtils {
                reason == SpawnReason.SPAWNER_EGG;
     }
 
+    private static final ThreadLocal<SpawnReason> FORCE_SPAWN_REASON = new ThreadLocal<>();
+
     /**
-     * Spawns an entity using SpawnReason.NATURAL, but suppresses Tezzlar custom mechanics
-     * from triggering recursively on this specific spawn.
+     * Sets a forced spawn reason for the current thread. 
+     * Useful for bypassing natural limits when manually spawning custom mobs via commands.
+     */
+    public static void setForceSpawnReason(SpawnReason reason) {
+        FORCE_SPAWN_REASON.set(reason);
+    }
+
+    /**
+     * Clears the forced spawn reason for the current thread.
+     */
+    public static void clearForceSpawnReason() {
+        FORCE_SPAWN_REASON.remove();
+    }
+
+    /**
+     * Spawns an entity, optionally overriding the spawn reason if a forced one is set.
+     * Otherwise defaults to SpawnReason.NATURAL but suppresses Tezzlar custom mechanics.
      */
     @SuppressWarnings("unchecked")
     public static <T extends Entity> T spawnNatural(Location loc, EntityType type) {
         isPluginSpawning = true;
         try {
-            return (T) loc.getWorld().spawnEntity(loc, type, SpawnReason.NATURAL);
+            SpawnReason reason = FORCE_SPAWN_REASON.get();
+            if (reason == null) reason = SpawnReason.NATURAL;
+            return (T) loc.getWorld().spawnEntity(loc, type, reason);
         } finally {
             isPluginSpawning = false;
         }

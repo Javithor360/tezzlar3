@@ -19,7 +19,12 @@ public class CustomMobManager {
 
     public static void spawn(CustomMobType type, Location loc) {
         if (spawners.containsKey(type)) {
-            spawners.get(type).spawnManual(loc);
+            com.panita.tezzlar3.core.util.EntityUtils.setForceSpawnReason(org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.CUSTOM);
+            try {
+                spawners.get(type).spawnManual(loc);
+            } finally {
+                com.panita.tezzlar3.core.util.EntityUtils.clearForceSpawnReason();
+            }
         }
     }
 }

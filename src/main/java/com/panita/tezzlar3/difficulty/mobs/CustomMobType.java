@@ -17,6 +17,7 @@ public enum CustomMobType {
     APOCALYPTIC_ZOMBIE(Material.BLACK_BANNER, "<gradient:#DB7A56:#F84E49>Zombie Apocalíptico</gradient>", 20.0, "- Fuerza II permanente<newline>- Invoca horda al acercarse"),
     ENDER_GUARDIAN(Material.ENDERMAN_SPAWN_EGG, "<#6b54ff>EnderGuardian</#6b54ff>", 40.0, "- Enderman con un Guardián montado<newline>- El guardián se teletransporta con él"),
     ZOMBIE_CAMERAMAN(Material.PLAYER_HEAD, "&aZombie Camarografo", 40.0, "Te aplica un modificador aleatorio al golpearte."),
+    PHANTOM_RIDER(Material.PHANTOM_SPAWN_EGG, "<#8A2BE2>Phantom Rider</#8A2BE2>", 20.0, "- Esqueleto volador que lanza flechas desde el cielo."),
     VAMPIRE_BAT(Material.BAT_SPAWN_EGG, "&4Murciélago Vampiro", 24.0, "Te ataca y te roba un contenedor de vida máxima."),
     ANCESTRAL_REMAINS(Material.PIGLIN_SPAWN_EGG, "<#803522>Restos Ancestrales</#803522>", 60.0, "Piglin con armadura de héroe caído."),
     PIGLIN_DJ(Material.PIGLIN_BRUTE_SPAWN_EGG, "&d&lPiglin DJ", 40.0, "- Lleva armadura completa de Netherite<newline>- Al morir suelta su disco y rockola"),

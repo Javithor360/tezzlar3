@@ -59,7 +59,7 @@ public class NetherOverworldSpawnsMechanic extends DifficultyMechanic {
                 // Spawn it naturally so other mechanics (like ZombieBeekeeper) can intercept and modify it
                 plugin.getServer().getScheduler().runTask(plugin, () -> {
                     if (event.getLocation().getChunk().isLoaded()) {
-                        event.getLocation().getWorld().spawnEntity(event.getLocation(), replacement);
+                        event.getLocation().getWorld().spawnEntity(event.getLocation(), replacement, SpawnReason.NATURAL);
                     }
                 });
             }

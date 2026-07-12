@@ -5,15 +5,17 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Phantom;
-import org.bukkit.entity.Shulker;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityTeleportEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
+import org.bukkit.Location;
 
 import java.util.Random;
 
@@ -27,12 +29,26 @@ public class PhantomRiderMechanic extends DifficultyMechanic {
         super(plugin, 23);
         RIDER_KEY = new NamespacedKey(plugin, "phantom_rider_shulker");
         MOUNT_KEY = new NamespacedKey(plugin, "phantom_rider_mount");
+        
+        CustomMobManager.register(CustomMobType.PHANTOM_RIDER, this::spawnManual);
+    }
+
+    public void spawnManual(Location loc) {
+        Phantom phantom = (Phantom) EntityUtils.spawnNatural(loc, EntityType.PHANTOM);
+        Skeleton skeleton = (Skeleton) EntityUtils.spawnNatural(loc, EntityType.SKELETON);
+        
+        phantom.getPersistentDataContainer().set(MOUNT_KEY, PersistentDataType.BYTE, (byte) 1);
+        skeleton.getPersistentDataContainer().set(RIDER_KEY, PersistentDataType.BYTE, (byte) 1);
+        
+        EntityUtils.setCustomName(skeleton, "<#8A2BE2>Phantom Rider</#8A2BE2>", false);
+        
+        phantom.addPassenger(skeleton);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSpawn(CreatureSpawnEvent event) {
         if (!isActive()) return;
-        if (event.getSpawnReason() != SpawnReason.NATURAL && event.getSpawnReason() != SpawnReason.DEFAULT) return;
+        if (!EntityUtils.isValidNaturalSpawn(event.getSpawnReason())) return;
 
         World.Environment env = event.getLocation().getWorld().getEnvironment();
         EntityType type = event.getEntityType();
@@ -57,13 +73,7 @@ public class PhantomRiderMechanic extends DifficultyMechanic {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 if (!event.getLocation().getChunk().isLoaded()) return;
                 
-                Phantom phantom = (Phantom) event.getLocation().getWorld().spawnEntity(event.getLocation(), EntityType.PHANTOM);
-                Shulker shulker = (Shulker) event.getLocation().getWorld().spawnEntity(event.getLocation(), EntityType.SHULKER);
-                
-                phantom.getPersistentDataContainer().set(MOUNT_KEY, PersistentDataType.BYTE, (byte) 1);
-                shulker.getPersistentDataContainer().set(RIDER_KEY, PersistentDataType.BYTE, (byte) 1);
-                
-                phantom.addPassenger(shulker);
+                spawnManual(event.getLocation());
             });
         }
     }
@@ -74,29 +84,17 @@ public class PhantomRiderMechanic extends DifficultyMechanic {
         
         if (event.getEntity() instanceof Phantom phantom) {
             if (phantom.getPersistentDataContainer().has(MOUNT_KEY, PersistentDataType.BYTE)) {
-                // Check if it has a Shulker passenger
+                // Check if it has a Skeleton passenger
                 for (Entity passenger : phantom.getPassengers()) {
-                    if (passenger instanceof Shulker shulker && shulker.getPersistentDataContainer().has(RIDER_KEY, PersistentDataType.BYTE)) {
-                        if (!shulker.isDead()) {
-                            // Cancel damage to phantom and redirect to shulker
+                    if (passenger instanceof Skeleton skeleton && skeleton.getPersistentDataContainer().has(RIDER_KEY, PersistentDataType.BYTE)) {
+                        if (!skeleton.isDead()) {
+                            // Cancel damage to phantom and redirect to skeleton
                             event.setCancelled(true);
-                            shulker.damage(event.getDamage());
+                            skeleton.damage(event.getDamage());
                             return; // Only redirect once
                         }
                     }
                 }
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onTeleport(EntityTeleportEvent event) {
-        if (!isActive()) return;
-        
-        if (event.getEntity() instanceof Shulker shulker) {
-            if (shulker.getPersistentDataContainer().has(RIDER_KEY, PersistentDataType.BYTE)) {
-                // Prevent the Shulker from teleporting so it doesn't dismount
-                event.setCancelled(true);
             }
         }
     }

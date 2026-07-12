@@ -1,12 +1,9 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Jukebox;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -110,30 +107,43 @@ public class PiglinDJMechanic extends DifficultyMechanic {
                 piglin.setImmuneToZombification(true);
             }
 
-            // Find a solid block below to place the Jukebox, or just place it at deathLoc
+            // Find a solid block below to place the Jukebox
             Block block = deathLoc.getBlock();
+            while (block.getType() == Material.AIR && block.getY() > block.getWorld().getMinHeight()) {
+                block = block.getRelative(BlockFace.DOWN);
+            }
+            if (block.getType() != Material.AIR) {
+                block = block.getRelative(BlockFace.UP);
+            }
+            
             Material oldMaterial = block.getType();
             block.setType(Material.JUKEBOX);
             
-            if (block.getState() instanceof Jukebox jukebox) {
+            if (block.getState(false) instanceof Jukebox jukebox) {
                 jukebox.setRecord(new ItemStack(Material.MUSIC_DISC_PIGSTEP));
-                jukebox.update();
+                jukebox.update(true);
             }
-
+            
+            // Play sound manually
+            world.playSound(block.getLocation(), Sound.MUSIC_DISC_PIGSTEP, 3.0f, 1.0f);
+            
+            // Final variables for the task
+            final Block finalBlock = block;
+            
             // Schedule to break the jukebox after 5 seconds (100 ticks)
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (block.getType() == Material.JUKEBOX) {
-                    if (block.getState() instanceof Jukebox jukebox) {
-                        jukebox.stopPlaying(); // Stops the music
-                        jukebox.setRecord(null); // Clear the record inside so it doesn't pop out when setting to air
-                        jukebox.update();
+                if (finalBlock.getType() == Material.JUKEBOX) {
+                    if (finalBlock.getState(false) instanceof Jukebox jukebox) {
+                        jukebox.stopPlaying();
+                        jukebox.setRecord(null);
+                        jukebox.update(true);
                     }
-                    block.setType(oldMaterial); // Revert to old material (probably AIR)
+                    finalBlock.setType(oldMaterial); // Revert
                 }
                 
-                // Drop the items
-                world.dropItemNaturally(deathLoc, new ItemStack(Material.MUSIC_DISC_PIGSTEP));
-                world.dropItemNaturally(deathLoc, new ItemStack(Material.JUKEBOX));
+                // Drop the items safely
+                world.dropItemNaturally(finalBlock.getLocation().add(0.5, 0.5, 0.5), new ItemStack(Material.MUSIC_DISC_PIGSTEP));
+                world.dropItemNaturally(finalBlock.getLocation().add(0.5, 0.5, 0.5), new ItemStack(Material.JUKEBOX));
                 
             }, 100L); // 5 seconds = 100 ticks
         }
