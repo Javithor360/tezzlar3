@@ -66,7 +66,7 @@ public class ContainerScanCommand implements AdvancedCommand, TabSuggestingComma
             }
         }
 
-        if (radius > 150) {
+        if (radius > 300) {
             Messenger.prefixedSend(player, "&cEl radio máximo permitido es 150.");
             return;
         }
@@ -178,6 +178,6 @@ public class ContainerScanCommand implements AdvancedCommand, TabSuggestingComma
 
     @Override
     public void applySuggestions(CommandMeta meta) {
-        meta.setArgumentSuggestion(0, context -> List.of("10", "20", "30", "50", "100", "150"));
+        meta.setArgumentSuggestion(0, context -> List.of("10", "20", "30", "50", "100", "150", "200", "250", "300"));
     }
 }
