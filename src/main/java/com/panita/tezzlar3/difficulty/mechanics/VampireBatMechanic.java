@@ -73,7 +73,7 @@ import java.util.Set;public class VampireBatMechanic extends DifficultyMechanic 
                     double closestDistSq = 256.0; // 16 blocks radius
                     
                     for (Player p : Bukkit.getOnlinePlayers()) {
-                        if (p.isValid() && !p.isDead() && p.getWorld().equals(bat.getWorld())) {
+                        if (p.isValid() && !p.isDead() && p.getWorld().equals(bat.getWorld()) && com.panita.tezzlar3.core.util.PlayerUtils.isSurvival(p)) {
                             double distSq = p.getLocation().distanceSquared(bat.getLocation());
                             if (distSq < closestDistSq) {
                                 closestDistSq = distSq;
