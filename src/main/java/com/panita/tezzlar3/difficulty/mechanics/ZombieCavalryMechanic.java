@@ -68,41 +68,45 @@ public class ZombieCavalryMechanic extends DifficultyMechanic {
                     ItemStack mainHand = eq.getItemInMainHand();
                     // If carrying a spear, grant a guaranteed mount
                     if (mainHand != null && mainHand.getType().name().contains("SPEAR")) {
-                        
-                        EntityType mountType = MOUNTS[random.nextInt(MOUNTS.length)];
-                        LivingEntity mount = (LivingEntity) EntityUtils.spawnNatural(entity.getLocation(), mountType);
-                        
-                        if (mount != null) {
-                            // Double the speed of the mount
-                            AttributeInstance speed = mount.getAttribute(Attribute.MOVEMENT_SPEED);
-                            if (speed != null) speed.setBaseValue(speed.getBaseValue() * 2.0);
+                        // Add a 6-second grace period (120 ticks) to let the "Spawn Animations" datapack finish.
+                        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                            if (!entity.isValid() || entity.isDead()) return;
                             
-                            mount.addPassenger(entity);
+                            EntityType mountType = MOUNTS[random.nextInt(MOUNTS.length)];
+                            LivingEntity mount = (LivingEntity) EntityUtils.spawnNatural(entity.getLocation(), mountType);
+                            
+                            if (mount != null) {
+                                // Double the speed of the mount
+                                AttributeInstance speed = mount.getAttribute(Attribute.MOVEMENT_SPEED);
+                                if (speed != null) speed.setBaseValue(speed.getBaseValue() * 2.0);
+                                
+                                mount.addPassenger(entity);
 
-                            // Sync mount with the zombie (bypasses teleport issues with SpawnAnimations)
-                            // Also kills the mount if the zombie dies (to prevent lag/empty mounts)
-                            new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    if (entity.isDead() || !entity.isValid()) {
-                                        if (mount.isValid()) mount.remove();
-                                        this.cancel();
-                                        return;
+                                // Sync mount with the zombie (bypasses teleport issues with SpawnAnimations)
+                                // Also kills the mount if the zombie dies (to prevent lag/empty mounts)
+                                new org.bukkit.scheduler.BukkitRunnable() {
+                                    @Override
+                                    public void run() {
+                                        if (entity.isDead() || !entity.isValid()) {
+                                            if (mount.isValid()) mount.remove();
+                                            this.cancel();
+                                            return;
+                                        }
+                                        if (mount.isDead() || !mount.isValid()) {
+                                            if (entity.isValid()) entity.remove();
+                                            this.cancel();
+                                            return;
+                                        }
+                                        
+                                        // If datapack teleported the zombie, it dismounts. We force it back and teleport the mount.
+                                        if (!mount.getPassengers().contains(entity)) {
+                                            mount.teleport(entity.getLocation());
+                                            mount.addPassenger(entity);
+                                        }
                                     }
-                                    if (mount.isDead() || !mount.isValid()) {
-                                        if (entity.isValid()) entity.remove();
-                                        this.cancel();
-                                        return;
-                                    }
-                                    
-                                    // If datapack teleported the zombie, it dismounts. We force it back and teleport the mount.
-                                    if (!mount.getPassengers().contains(entity)) {
-                                        mount.teleport(entity.getLocation());
-                                        mount.addPassenger(entity);
-                                    }
-                                }
-                            }.runTaskTimer(plugin, 1L, 1L);
-                        }
+                                }.runTaskTimer(plugin, 1L, 1L);
+                            }
+                        }, 120L);
                     }
                 }
             }, 2L);
