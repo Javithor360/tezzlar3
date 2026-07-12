@@ -101,6 +101,20 @@ public class BabyKillCurseMechanic extends DifficultyMechanic implements ActionB
             }
         }
     }
+
+    @EventHandler
+    public void onPlayerQuit(org.bukkit.event.player.PlayerQuitEvent event) {
+        if (!isActive()) return;
+        
+        Player player = event.getPlayer();
+        if (cursedPlayers.containsKey(player.getUniqueId())) {
+            cursedPlayers.remove(player.getUniqueId());
+            AttributeInstance scale = player.getAttribute(Attribute.SCALE);
+            if (scale != null) {
+                scale.setBaseValue(1.0);
+            }
+        }
+    }
     
     @Override
     public String getId() {

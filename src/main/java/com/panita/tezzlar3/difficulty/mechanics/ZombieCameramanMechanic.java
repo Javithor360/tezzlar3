@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
@@ -222,6 +223,22 @@ public class ZombieCameramanMechanic extends DifficultyMechanic implements Liste
     @Override
     public String getId() {
         return "zombie_cameraman_effects";
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        if (!isActive()) return;
+        
+        Player player = event.getPlayer();
+        List<CameraEffect> effects = activeEffects.remove(player.getUniqueId());
+        if (effects != null) {
+            for (CameraEffect effect : effects) {
+                AttributeInstance inst = player.getAttribute(effect.type.getAttribute());
+                if (inst != null) {
+                    inst.removeModifier(effect.modifier);
+                }
+            }
+        }
     }
 
     @Override
