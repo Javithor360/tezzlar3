@@ -15,6 +15,7 @@ import com.panita.tezzlar3.difficulty.mechanics.EliteMobStatsMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.FastDrowningMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.FastStriderMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.GigaMagmaCubeMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.GlacialBonebreakerMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.GoatHornParalyzeMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.InfraredSkeletonMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.LavaDepthStriderMechanic;
@@ -223,6 +224,7 @@ public class DifficultyModule implements PluginModule {
             // Day 19
             mechanics.add(new DoubleDamageMechanic(plugin));
             mechanics.add(new ApocalypticZombieMechanic(plugin));
+            mechanics.add(new GlacialBonebreakerMechanic(plugin));
 
             // Day 20
             mechanics.add(new OverworldToxicityMechanic(plugin));

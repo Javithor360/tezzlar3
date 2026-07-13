@@ -42,6 +42,10 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
     public static void removeActiveBoss(UUID uuid) {
         activeBosses.remove(uuid);
     }
+    
+    public static GigaMagmaCubeBoss getBoss(UUID uuid) {
+        return activeBosses.get(uuid);
+    }
 
     public GigaMagmaCubeMechanic(JavaPlugin plugin) {
         super(plugin, 10); // Day 10

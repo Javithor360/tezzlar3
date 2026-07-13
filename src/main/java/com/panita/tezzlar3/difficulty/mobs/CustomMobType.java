@@ -10,6 +10,7 @@ public enum CustomMobType {
     SHINY_PIGLIN(Material.PIGLIN_HEAD, "&6Piglin Brillante", 100.0, "- Tiene mucha vida y buen arma<newline>- Suelta mucho oro al morir"),
     LIGHTNING_SKELETON(Material.SKELETON_SKULL, "<#894B0A>Esqueleto Relámpago</#894B0A>", 20.0, "Dispara flechas que invocan rayos eléctricos."),
     GIGA_MAGMA_CUBE(Material.MAGMA_CREAM, "<#E88331><b>Giga Magma Cube</b></#E88331>", 1000.0, "<red>No se recomienda invocar</red><newline>- Mini Jefe con múltiples ataques<newline>- Diseñado para multijugador"),
+    GLACIAL_BONEBREAKER(Material.STRAY_SPAWN_EGG, "<#00FFFF><b>Quebrantahuesos Glacial</b></#00FFFF>", 1500.0, "<red>Jefe de Hielo</red><newline>- Múltiples ataques congelantes y de zona<newline>- Exige tácticas de separación"),
     SLIME_BANZAI(Material.SLIME_BALL, "<#7EF7B6>Slime Banzai</#7EF7B6>", 20.0, "Una variante muy resbalosa"),
     PERUVIAN_VINDICATOR(Material.VINDICATOR_SPAWN_EGG, "<gradient:#E43434:#FFFFFF>Vindi</gradient><gradient:#FFFFFF:#FFFFFF>cator Pe</gradient><gradient:#FFFFFF:#E43434>ruano</gradient>", 35.0, "- Montado en una llama<newline>- Con arma letal"),
     ZOMBIE_RATATOUILLE(Material.ZOMBIE_HEAD, "<#FFA35C>Zombie Ratatouille</#FFA35C>", 20.0, "Controlado por un conejo que lo hace inmune."),
