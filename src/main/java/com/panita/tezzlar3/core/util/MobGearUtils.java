@@ -45,11 +45,17 @@ public class MobGearUtils {
     private static final Material[] LEGGINGS = {Material.LEATHER_LEGGINGS, Material.COPPER_LEGGINGS, Material.CHAINMAIL_LEGGINGS, Material.IRON_LEGGINGS, Material.GOLDEN_LEGGINGS, Material.DIAMOND_LEGGINGS};
     private static final Material[] BOOTS = {Material.LEATHER_BOOTS, Material.COPPER_BOOTS, Material.CHAINMAIL_BOOTS, Material.IRON_BOOTS, Material.GOLDEN_BOOTS, Material.DIAMOND_BOOTS};
 
-    // Elite & Master Armor Materials (Day 11+)
+    // Elite Armor Materials (Day 11-21)
     private static final Material[] ELITE_HELMETS = {Material.IRON_HELMET, Material.DIAMOND_HELMET, Material.NETHERITE_HELMET};
     private static final Material[] ELITE_CHESTPLATES = {Material.IRON_CHESTPLATE, Material.DIAMOND_CHESTPLATE, Material.NETHERITE_CHESTPLATE};
     private static final Material[] ELITE_LEGGINGS = {Material.IRON_LEGGINGS, Material.DIAMOND_LEGGINGS, Material.NETHERITE_LEGGINGS};
     private static final Material[] ELITE_BOOTS = {Material.IRON_BOOTS, Material.DIAMOND_BOOTS, Material.NETHERITE_BOOTS};
+
+    // Master Armor Materials (Day 22+)
+    private static final Material[] MASTER_HELMETS = {Material.DIAMOND_HELMET, Material.NETHERITE_HELMET};
+    private static final Material[] MASTER_CHESTPLATES = {Material.DIAMOND_CHESTPLATE, Material.NETHERITE_CHESTPLATE};
+    private static final Material[] MASTER_LEGGINGS = {Material.DIAMOND_LEGGINGS, Material.NETHERITE_LEGGINGS};
+    private static final Material[] MASTER_BOOTS = {Material.DIAMOND_BOOTS, Material.NETHERITE_BOOTS};
 
     // Weapon Materials
     private static final Material[] MELEE_WEAPONS = {
@@ -61,7 +67,7 @@ public class MobGearUtils {
             Material.FISHING_ROD, Material.TRIDENT, Material.MACE
     };
 
-    // Elite & Master Weapon Materials (Day 11+)
+    // Elite Weapon Materials (Day 11-21)
     private static final Material[] ELITE_MELEE_WEAPONS = {
             Material.IRON_SWORD, Material.DIAMOND_SWORD, Material.NETHERITE_SWORD,
             Material.IRON_AXE, Material.DIAMOND_AXE, Material.NETHERITE_AXE,
@@ -69,6 +75,13 @@ public class MobGearUtils {
             Material.IRON_SHOVEL, Material.DIAMOND_SHOVEL, Material.NETHERITE_SHOVEL,
             Material.IRON_SPEAR, Material.DIAMOND_SPEAR, Material.NETHERITE_SPEAR,
             Material.TRIDENT, Material.MACE
+    };
+
+    // Master Weapon Materials (Day 22+)
+    private static final Material[] MASTER_MELEE_WEAPONS = {
+            Material.DIAMOND_SWORD, Material.NETHERITE_SWORD, Material.DIAMOND_AXE, Material.NETHERITE_AXE,
+            Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE, Material.DIAMOND_SHOVEL, Material.NETHERITE_SHOVEL,
+            Material.DIAMOND_SPEAR, Material.NETHERITE_SPEAR, Material.TRIDENT, Material.MACE
     };
 
     // Offhand Materials
@@ -96,10 +109,10 @@ public class MobGearUtils {
         double legsChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.75 : 0.30);
         double bootsChance = tier == GearTier.MASTER ? 0.95 : (tier == GearTier.ELITE ? 0.80 : 0.40);
 
-        Material[] hPool = tier == GearTier.BASIC ? HELMETS : ELITE_HELMETS;
-        Material[] cPool = tier == GearTier.BASIC ? CHESTPLATES : ELITE_CHESTPLATES;
-        Material[] lPool = tier == GearTier.BASIC ? LEGGINGS : ELITE_LEGGINGS;
-        Material[] bPool = tier == GearTier.BASIC ? BOOTS : ELITE_BOOTS;
+        Material[] hPool = tier == GearTier.MASTER ? MASTER_HELMETS : (tier == GearTier.ELITE ? ELITE_HELMETS : HELMETS);
+        Material[] cPool = tier == GearTier.MASTER ? MASTER_CHESTPLATES : (tier == GearTier.ELITE ? ELITE_CHESTPLATES : CHESTPLATES);
+        Material[] lPool = tier == GearTier.MASTER ? MASTER_LEGGINGS : (tier == GearTier.ELITE ? ELITE_LEGGINGS : LEGGINGS);
+        Material[] bPool = tier == GearTier.MASTER ? MASTER_BOOTS : (tier == GearTier.ELITE ? ELITE_BOOTS : BOOTS);
 
         if (random.nextDouble() < helmetChance) eq.setHelmet(applyRandomEnchantments(getRandomArmor(hPool, tier), tier));
         if (random.nextDouble() < chestChance) eq.setChestplate(applyRandomEnchantments(getRandomArmor(cPool, tier), tier));
@@ -125,7 +138,7 @@ public class MobGearUtils {
             
             // If ranged wasn't chosen or allowed, assign melee weapon
             if (weapon == null) {
-                Material[] pool = tier == GearTier.BASIC ? MELEE_WEAPONS : ELITE_MELEE_WEAPONS;
+                Material[] pool = tier == GearTier.MASTER ? MASTER_MELEE_WEAPONS : (tier == GearTier.ELITE ? ELITE_MELEE_WEAPONS : MELEE_WEAPONS);
                 Material meleeMat = getWeightedMaterial(pool, tier);
                 
                 // Skeletons cannot use SPEARS
