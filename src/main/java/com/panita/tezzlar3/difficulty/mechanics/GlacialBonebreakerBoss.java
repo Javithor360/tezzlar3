@@ -293,8 +293,22 @@ public class GlacialBonebreakerBoss {
 
     public void fireHomingToAll() {
         boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.5f);
-        List<Player> targets = getNearbyPlayers(40);
-        for (Player target : targets) {
+        
+        List<LivingEntity> targets = new ArrayList<>(getNearbyPlayers(40));
+        
+        if (boss.getTarget() != null && !(boss.getTarget() instanceof Player) && !targets.contains(boss.getTarget())) {
+            targets.add(boss.getTarget());
+        }
+        
+        for (Entity e : boss.getNearbyEntities(40, 40, 40)) {
+            if (e instanceof Mob mob) {
+                if (mob.getTarget() != null && mob.getTarget().equals(boss) && !targets.contains(mob)) {
+                    targets.add(mob);
+                }
+            }
+        }
+        
+        for (LivingEntity target : targets) {
             Snowball projectile = boss.launchProjectile(Snowball.class);
             if (projectile == null) continue;
             projectile.getPersistentDataContainer().set(GlacialBonebreakerMechanic.PROJECTILE_KEY, PersistentDataType.BYTE, (byte) 1);
@@ -312,7 +326,7 @@ public class GlacialBonebreakerBoss {
                 int ticks = 0;
                 @Override
                 public void run() {
-                    if (projectile.isDead() || !projectile.isValid() || ticks > 100 || !target.isOnline()) {
+                    if (projectile.isDead() || !projectile.isValid() || ticks > 100 || !target.isValid() || target.isDead()) {
                         if (projectile.isValid()) projectile.remove();
                         id.remove();
                         this.cancel();
@@ -628,8 +642,10 @@ public class GlacialBonebreakerBoss {
                 
                 Player target = players.get(random.nextInt(players.size()));
                 
-                Location spawn = boss.getLocation().add(0, 2.5, 0);
-                Vector dir = target.getLocation().toVector().subtract(spawn.toVector()).normalize().multiply(1.5).add(new Vector(0, 0.3, 0));
+                double offsetX = (random.nextDouble() - 0.5) * 10.0; // -5 to 5
+                double offsetZ = (random.nextDouble() - 0.5) * 10.0; // -5 to 5
+                Location spawn = target.getLocation().add(offsetX, 15 + random.nextDouble() * 5, offsetZ);
+                Vector dir = new Vector(0, -1.5, 0);
                 
                 Snowball snowball = (Snowball) spawn.getWorld().spawnEntity(spawn, EntityType.SNOWBALL);
                 snowball.setVelocity(dir);
@@ -644,7 +660,7 @@ public class GlacialBonebreakerBoss {
                 
                 snowball.addPassenger(display);
                 
-                boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_SNOW_GOLEM_SHOOT, 1.5f, 0.5f);
+                boss.getWorld().playSound(target.getLocation(), Sound.ENTITY_SNOW_GOLEM_SHOOT, 1.5f, 0.5f);
                 
                 count[0]++;
                 if (count[0] < totalTimes) {

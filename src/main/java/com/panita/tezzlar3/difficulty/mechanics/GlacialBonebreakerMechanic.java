@@ -93,6 +93,11 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
         if (event.getEntity().getPersistentDataContainer().has(BOSS_KEY, PersistentDataType.BYTE)) return;
         if (event.getEntity().getPersistentDataContainer().has(FAKE_CLONE_KEY, PersistentDataType.BYTE)) return;
         
+        String biome = event.getLocation().getBlock().getBiome().name();
+        if (!biome.contains("SNOW") && !biome.contains("ICE") && !biome.contains("FROZEN") && !biome.contains("JAGGED_PEAKS") && !biome.contains("GROVE")) {
+            return;
+        }
+        
         // 1 in 1000 chance to spawn naturally
         if (random.nextInt(1000) != 0) return;
         
@@ -157,10 +162,10 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
         
         // Handle Boss Melee Attack (20% chance to spawn assistant horde)
         if (event.getDamager().getPersistentDataContainer().has(BOSS_KEY, PersistentDataType.BYTE)) {
-            if (event.getEntity() instanceof Player p) {
-                if (Math.random() < 0.20) {
-                    GlacialBonebreakerBoss bossLogic = activeBosses.get(event.getDamager().getUniqueId());
-                    if (bossLogic != null) {
+            if (event.getEntity() instanceof Player p && event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK) {
+                GlacialBonebreakerBoss bossLogic = activeBosses.get(event.getDamager().getUniqueId());
+                if (bossLogic != null && bossLogic.isMeleePhase()) {
+                    if (Math.random() < 0.20) {
                         bossLogic.spawnAssistantHorde(p);
                     }
                 }
@@ -224,14 +229,26 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
             if (snowball.getPersistentDataContainer().has(GIANT_SNOWBALL_KEY, PersistentDataType.BYTE)) {
                 for (Entity passenger : snowball.getPassengers()) passenger.remove();
                 
-                if (event.getHitEntity() instanceof Player p) {
-                    if (snowball.getShooter() instanceof Entity shooter) {
-                        p.damage(4.0, shooter);
-                    } else {
-                        p.damage(4.0);
+                snowball.getWorld().spawnParticle(Particle.SNOWFLAKE, snowball.getLocation(), 100, 2.0, 2.0, 2.0, 0.1);
+                snowball.getWorld().playSound(snowball.getLocation(), Sound.BLOCK_SNOW_BREAK, 2.0f, 0.5f);
+                
+                Entity shooter = snowball.getShooter() instanceof Entity ? (Entity) snowball.getShooter() : null;
+                
+                for (Entity e : snowball.getNearbyEntities(5.0, 5.0, 5.0)) {
+                    if (e instanceof Player p) {
+                        if (shooter != null) {
+                            p.damage(4.0, shooter);
+                        } else {
+                            p.damage(4.0);
+                        }
+                        
+                        Location loc = p.getLocation();
+                        loc.setYaw(random.nextFloat() * 360f);
+                        p.teleport(loc);
+                        
+                        Vector bounce = new Vector(random.nextDouble() - 0.5, 0.1, random.nextDouble() - 0.5).normalize().multiply(2.5);
+                        p.setVelocity(bounce);
                     }
-                    Vector bounce = new Vector(random.nextDouble() - 0.5, 0.5 + random.nextDouble(), random.nextDouble() - 0.5).normalize().multiply(1.8);
-                    p.setVelocity(bounce);
                 }
             } else if (snowball.getPersistentDataContainer().has(PROJECTILE_KEY, PersistentDataType.BYTE)) {
                 if (event.getHitEntity() instanceof Player p) {
