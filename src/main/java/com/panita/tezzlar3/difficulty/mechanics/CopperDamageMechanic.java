@@ -25,10 +25,17 @@ public class CopperDamageMechanic extends DifficultyMechanic {
                 if (isDamagingBlock(blockBelow.getType())) {
                     double currentHealth = player.getHealth();
                     if (currentHealth > 0) {
-                        // Subtract health directly to pierce armor
-                        player.setHealth(Math.max(0, currentHealth - 2.0)); 
-                        // Trigger hurt animation and sound with microscopic damage
-                        player.damage(0.00001); 
+                        if (currentHealth <= 2.0) {
+                            // Set health to 0.1 and deal a small fatal blow to trigger Totems natively
+                            // This prevents destroying their armor durability from massive damage numbers.
+                            player.setHealth(0.1);
+                            player.damage(10.0);
+                        } else {
+                            // Subtract health directly to pierce armor
+                            player.setHealth(currentHealth - 2.0); 
+                            // Trigger hurt animation and sound with microscopic damage
+                            player.damage(0.00001); 
+                        }
                         
                         SoundUtils.playInRadius(player.getLocation(), "entity.generic.burn", 10.0f, 1.0f);
                     }
