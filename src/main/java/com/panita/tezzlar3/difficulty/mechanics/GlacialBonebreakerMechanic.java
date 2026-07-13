@@ -208,9 +208,9 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
         if (event.getEntity() instanceof Snowball snowball && event.getHitEntity() instanceof Player p) {
             if (snowball.getPersistentDataContainer().has(PROJECTILE_KEY, PersistentDataType.BYTE)) {
                 if (snowball.getShooter() instanceof Entity shooter) {
-                    p.damage(10.0, shooter);
+                    p.damage(5.0, shooter);
                 } else {
-                    p.damage(10.0);
+                    p.damage(5.0);
                 }
                 p.setFreezeTicks(Math.min(p.getMaxFreezeTicks(), p.getFreezeTicks() + 60));
             }
@@ -221,12 +221,12 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
     public void onShieldHit(EntityDamageByEntityEvent event) {
         if (!isActive()) return;
         if (event.getEntity() instanceof Slime slime) {
-            if (slime.getPersistentDataContainer().has(SHIELD_KEY, org.bukkit.persistence.PersistentDataType.BYTE)) {
+            if (slime.getPersistentDataContainer().has(SHIELD_KEY, PersistentDataType.BYTE)) {
                 event.setCancelled(true);
                 Entity vehicle = slime.getVehicle();
                 if (vehicle != null) {
-                    vehicle.getWorld().spawnParticle(org.bukkit.Particle.BLOCK, vehicle.getLocation(), 50, 0.5, 0.5, 0.5, org.bukkit.Bukkit.createBlockData(org.bukkit.Material.BLUE_ICE));
-                    vehicle.getWorld().playSound(vehicle.getLocation(), org.bukkit.Sound.BLOCK_GLASS_BREAK, 2.0f, 1.0f);
+                    vehicle.getWorld().spawnParticle(Particle.BLOCK, vehicle.getLocation(), 50, 0.5, 0.5, 0.5, Bukkit.createBlockData(org.bukkit.Material.BLUE_ICE));
+                    vehicle.getWorld().playSound(vehicle.getLocation(), Sound.BLOCK_GLASS_BREAK, 2.0f, 1.0f);
                     vehicle.remove();
                 }
                 slime.remove();

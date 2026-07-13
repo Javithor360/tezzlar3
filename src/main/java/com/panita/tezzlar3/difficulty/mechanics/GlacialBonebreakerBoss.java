@@ -42,6 +42,9 @@ public class GlacialBonebreakerBoss {
     private boolean invulnerable = false;
     private boolean meleePhase = false;
     private boolean blizzardActive = false;
+    private boolean shield1000 = false;
+    private boolean shield500 = false;
+    private boolean shield30 = false;
     private final Map<BlockDisplay, double[]> orbitalShields = new HashMap<>();
     
     public GlacialBonebreakerBoss(Stray boss, JavaPlugin plugin, boolean isNewSpawn) {
@@ -117,8 +120,22 @@ public class GlacialBonebreakerBoss {
                     return;
                 }
                 
-                float progress = (float) (boss.getHealth() / (boss.getAttribute(Attribute.MAX_HEALTH) != null ? boss.getAttribute(Attribute.MAX_HEALTH).getValue() : 1500.0));
+                double currentHp = boss.getHealth();
+                float progress = (float) (currentHp / (boss.getAttribute(Attribute.MAX_HEALTH) != null ? boss.getAttribute(Attribute.MAX_HEALTH).getValue() : 1500.0));
                 progress = Math.max(0.0f, Math.min(1.0f, progress));
+                
+                if (currentHp <= 1000 && !shield1000) {
+                    shield1000 = true;
+                    executeOrbitalShields();
+                }
+                if (currentHp <= 500 && !shield500) {
+                    shield500 = true;
+                    executeOrbitalShields();
+                }
+                if (currentHp <= 30 && !shield30) {
+                    shield30 = true;
+                    executeOrbitalShields();
+                }
                 
                 List<Player> nearby = getNearbyPlayers(100);
                 for (Player p : Bukkit.getOnlinePlayers()) {
@@ -345,7 +362,11 @@ public class GlacialBonebreakerBoss {
 
     private void alert(String msg) {
         for (Player p : getNearbyPlayers(100)) {
-            Messenger.prefixedSend(p, "<#FF5252>❄ <#00FFFF>" + msg + "</#00FFFF></#FF5252>");
+            if (msg.startsWith("¡Cambio")) {
+                Messenger.prefixedSend(p, "<#FF5252>❄ <#00FFFF>" + msg + "</#00FFFF></#FF5252>");
+            } else {
+                Messenger.prefixedSend(p, "<#FF5252>❄ <#00FFFF>El Quebrantahuesos Glacial está lanzando " + msg + "</#00FFFF></#FF5252>");
+            }
             SoundUtils.play(p, "entity.wither.ambient", 1, 0.5f);
         }
     }
@@ -355,7 +376,7 @@ public class GlacialBonebreakerBoss {
     }
     
     private void executeRadialShockwave() {
-        alert("Onda de Choque Radial");
+        alert("una Onda de Choque Radial");
         Location center = boss.getLocation().clone();
         center.setY(Math.floor(center.getY()));
         
@@ -404,7 +425,7 @@ public class GlacialBonebreakerBoss {
 
     private void executeInertialCharge(List<Player> players) {
         if (players.isEmpty()) return;
-        alert("Carga Inercial");
+        alert("una Carga Inercial");
         Player target = players.get(random.nextInt(players.size()));
         
         Vector dir = target.getLocation().toVector().subtract(boss.getLocation().toVector());
@@ -440,7 +461,7 @@ public class GlacialBonebreakerBoss {
 
     private void executeFreezingSlash(List<Player> players) {
         if (players.isEmpty()) return;
-        alert("Tajo Congelante");
+        alert("un Tajo Congelante");
         Player target = players.get(random.nextInt(players.size()));
         Vector dir = target.getLocation().toVector().subtract(boss.getLocation().toVector()).setY(0).normalize();
         Location current = boss.getLocation().clone();
@@ -464,7 +485,7 @@ public class GlacialBonebreakerBoss {
 
     private void executeWhiteShadowAssault(List<Player> players) {
         if (players.isEmpty()) return;
-        alert("Asalto de Sombra Blanca");
+        alert("un Asalto de Sombra Blanca");
         boss.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 60, 0, false, false));
         boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 2, false, false));
         
@@ -493,7 +514,7 @@ public class GlacialBonebreakerBoss {
 
     private void executeImpalerStalagmite(List<Player> players) {
         if (players.isEmpty()) return;
-        alert("¡Bosque de Estalagmitas Empaladoras!");
+        alert("un Bosque de Estalagmitas Empaladoras");
         Player target = players.get(random.nextInt(players.size()));
         Location center = target.getLocation().clone();
         
@@ -573,7 +594,16 @@ public class GlacialBonebreakerBoss {
     }
 
     private void executeOrbitalShields() {
-        alert("Escudo de Fractales Orbitales");
+        if (invulnerable) {
+            for (BlockDisplay bd : orbitalShields.keySet()) {
+                if (bd.isValid()) bd.remove();
+                for (Entity passenger : bd.getPassengers()) {
+                    if (passenger.isValid()) passenger.remove();
+                }
+            }
+            orbitalShields.clear();
+        }
+        alert("un Escudo de Fractales Orbitales");
         invulnerable = true;
         int count = 3 + random.nextInt(7); // 3 to 9
         for (int i = 0; i < count; i++) {
@@ -609,7 +639,7 @@ public class GlacialBonebreakerBoss {
     }
 
     private void executeMirageClones() {
-        alert("Clones Espejismo");
+        alert("unos Clones Espejismo");
         int count = 3 + random.nextInt(8); // 3 to 10
         List<Stray> clones = new ArrayList<>();
         
@@ -692,7 +722,7 @@ public class GlacialBonebreakerBoss {
     }
 
     private void executeBlizzardWall() {
-        alert("Muro de Ventisca Rotatorio");
+        alert("un Muro de Ventisca Rotatorio");
         Location center = boss.getLocation().clone();
         blizzardActive = true;
         new BukkitRunnable() {
@@ -750,13 +780,13 @@ public class GlacialBonebreakerBoss {
     }
 
     private void executeZeroFrictionFloor(List<Player> targets) {
-        alert("Suelo de Fricción Cero");
+        alert("un Suelo de Fricción Cero");
         Map<Location, BlockData> old = replaceFloor(Material.BLUE_ICE, targets);
         Bukkit.getScheduler().runTaskLater(plugin, () -> restoreFloor(old), 15 * 20L); // 15 seconds
     }
 
     private void executeFragileFloor(List<Player> targets) {
-        alert("Suelo Quebradizo");
+        alert("un Suelo Quebradizo");
         Map<Location, BlockData> old = replaceFloor(Material.POWDER_SNOW, targets);
         Bukkit.getScheduler().runTaskLater(plugin, () -> restoreFloor(old), 15 * 20L); // 15 seconds
     }
@@ -816,7 +846,7 @@ public class GlacialBonebreakerBoss {
     }
 
     private void executeBlizzardGhosts(List<Player> players) {
-        alert("Fantasmas de la Ventisca");
+        alert("unos Fantasmas de la Ventisca");
         for (Player p : players) {
             int count = 3 + random.nextInt(6); // 3 to 8
             for (int i = 0; i < count; i++) {
@@ -824,6 +854,7 @@ public class GlacialBonebreakerBoss {
                 Vex vex = (Vex) EntityUtils.spawnNatural(spawn, EntityType.VEX);
                 if (vex != null) {
                     vex.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
+                    EntityUtils.setCustomName(vex, "&bFantasma de la Ventisca");
                     if (vex.getEquipment() != null) {
                         vex.getEquipment().setHelmet(new ItemStack(Material.BLUE_ICE));
                         
@@ -842,17 +873,19 @@ public class GlacialBonebreakerBoss {
     }
 
     private void executeSnowMines(List<Player> players) {
-        alert("Minas de Nieve");
+        alert("unas Minas de Nieve");
         for (Player p : players) {
             Location loc = p.getLocation().add(random.nextInt(10) - 5, 0, random.nextInt(10) - 5);
             Snowman sm = (Snowman) EntityUtils.spawnNatural(loc, EntityType.SNOW_GOLEM);
             if (sm != null) {
                 sm.setAI(false); // Static
                 sm.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
+                EntityUtils.setCustomName(sm, "&bMina de Nieve");
                 Creeper creeper = (Creeper) EntityUtils.spawnNatural(loc, EntityType.CREEPER);
                 if (creeper != null) {
                     creeper.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, PotionEffect.INFINITE_DURATION, 0, false, false));
                     creeper.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
+                    EntityUtils.setCustomName(creeper, "&bMina de Nieve");
                     sm.addPassenger(creeper);
                 }
             }
@@ -860,17 +893,19 @@ public class GlacialBonebreakerBoss {
     }
 
     private void executeVortexCavalry(List<Player> players) {
-        alert("Caballería del Vórtice");
+        alert("una Caballería del Vórtice");
         for (Player p : players) {
             for (int i = 0; i < 2; i++) { // Spawn 2 per player
                 Location loc = p.getLocation().add(random.nextInt(10) - 5, 10, random.nextInt(10) - 5);
                 Phantom phantom = (Phantom) EntityUtils.spawnNatural(loc, EntityType.PHANTOM);
                 if (phantom != null) {
                     phantom.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
+                    EntityUtils.setCustomName(phantom, "&bCaballero del Vórtice");
                     
                     Stray stray = (Stray) EntityUtils.spawnNatural(loc, EntityType.STRAY);
                     if (stray != null) {
                         stray.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
+                        EntityUtils.setCustomName(stray, "&bJinete del Vórtice");
                         phantom.addPassenger(stray);
                         
                         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -887,14 +922,17 @@ public class GlacialBonebreakerBoss {
     }
 
     private void executeTundraAmbush(List<Player> players) {
-        alert("Emboscada de Tundra");
+        alert("una Emboscada de Leñadores");
         for (Player p : players) {
             if (random.nextBoolean()) {
                 Vindicator vindicator = (Vindicator) EntityUtils.spawnNatural(p.getLocation(), EntityType.VINDICATOR);
                 if (vindicator != null) {
                     vindicator.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
+                    EntityUtils.setCustomName(vindicator, "&bLeñador Glacial");
                     if (vindicator.getEquipment() != null) {
-                        vindicator.getEquipment().setItemInMainHand(new ItemStack(Material.DIAMOND_AXE));
+                        ItemStack axe = new ItemStack(Material.DIAMOND_AXE);
+                        axe.addUnsafeEnchantment(Enchantment.SHARPNESS, 3);
+                        vindicator.getEquipment().setItemInMainHand(axe);
                     }
                 }
             }
@@ -903,7 +941,7 @@ public class GlacialBonebreakerBoss {
 
     private void executeStatusDebuffs(List<Player> players) {
         if (random.nextBoolean()) {
-            alert("Apagón de la Tundra");
+            alert("un Apagón de la Tundra");
             for (Player p : players) {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 0));
                 p.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 2));
@@ -916,13 +954,13 @@ public class GlacialBonebreakerBoss {
             }, 40L);
         } else {
             if (random.nextBoolean()) {
-                alert("Hipotermia");
+                alert("una Hipotermia");
                 Player target = players.get(random.nextInt(players.size()));
                 target.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 100, 0));
                 target.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1));
                 target.setFreezeTicks(Math.min(target.getMaxFreezeTicks(), target.getFreezeTicks() + 100));
             } else {
-                alert("Cuerdas Congeladas");
+                alert("unas Cuerdas Congeladas");
                 for (Player p : players) {
                     p.getPersistentDataContainer().set(GlacialBonebreakerMechanic.FROZEN_BOW_KEY, PersistentDataType.BYTE, (byte) 1);
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
