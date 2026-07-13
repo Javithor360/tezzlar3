@@ -40,7 +40,7 @@ public class GlacialBonebreakerBoss {
     private final String bossId;
     private boolean invulnerable = false;
     private boolean meleePhase = false;
-    private final List<BlockDisplay> orbitalShields = new ArrayList<>();
+    private final Map<BlockDisplay, double[]> orbitalShields = new HashMap<>();
     
     public GlacialBonebreakerBoss(Stray boss, JavaPlugin plugin, boolean isNewSpawn) {
         this.boss = boss;
@@ -53,6 +53,7 @@ public class GlacialBonebreakerBoss {
         EntityUtils.setColoredGlowing(boss, NamedTextColor.AQUA);
 
         // Attributes
+        boss.setRemoveWhenFarAway(false);
         EntityUtils.trySetAttribute(boss, Attribute.MAX_HEALTH, 1500.0);
         EntityUtils.trySetAttribute(boss, Attribute.ARMOR, 80.0);
         EntityUtils.trySetAttribute(boss, Attribute.ATTACK_DAMAGE, 30.0);
@@ -142,20 +143,24 @@ public class GlacialBonebreakerBoss {
 
                 // Orbital Shields
                 if (invulnerable && !orbitalShields.isEmpty()) {
-                    orbitalShields.removeIf(shield -> shield.isDead() || !shield.isValid());
+                    orbitalShields.keySet().removeIf(shield -> shield.isDead() || !shield.isValid());
                     if (orbitalShields.isEmpty()) {
                         invulnerable = false;
                         boss.getWorld().playSound(boss.getLocation(), Sound.BLOCK_GLASS_BREAK, 2.0f, 0.5f);
                     } else {
-                        double angleStep = (2 * Math.PI) / orbitalShields.size();
-                        double angleOffset = (ticks * 0.03) % (2 * Math.PI);
-                        for (int i = 0; i < orbitalShields.size(); i++) {
-                            BlockDisplay shield = orbitalShields.get(i);
-                            double angle = angleOffset + (i * angleStep);
-                            double x = Math.cos(angle) * 8.0;
-                            double z = Math.sin(angle) * 8.0;
+                        for (Map.Entry<BlockDisplay, double[]> entry : orbitalShields.entrySet()) {
+                            BlockDisplay shield = entry.getKey();
+                            double[] data = entry.getValue();
+                            double radius = data[0];
+                            double height = data[1];
+                            double speed = data[2];
+                            double startAngle = data[3];
                             
-                            Location dest = boss.getLocation().add(x, boss.getHeight() / 2, z);
+                            double angle = startAngle + (ticks * speed);
+                            double x = Math.cos(angle) * radius;
+                            double z = Math.sin(angle) * radius;
+                            
+                            Location dest = boss.getLocation().add(x, height, z);
                             shield.teleport(dest);
                         }
                     }
@@ -552,17 +557,20 @@ public class GlacialBonebreakerBoss {
     private void executeOrbitalShields() {
         alert("Escudo de Fractales Orbitales");
         invulnerable = true;
-        for (int i = 0; i < 4; i++) {
+        int count = 3 + random.nextInt(7); // 3 to 9
+        for (int i = 0; i < count; i++) {
             BlockDisplay bd = (BlockDisplay) boss.getWorld().spawnEntity(boss.getLocation(), EntityType.BLOCK_DISPLAY);
             bd.setBlock(Bukkit.createBlockData(Material.BLUE_ICE));
             bd.setTeleportDuration(3);
             
+            float size = 1.0f + random.nextFloat() * 1.5f; // 1.0 to 2.5 scale
+            
             Transformation t = bd.getTransformation();
-            t.getScale().set(2.0f, 2.0f, 2.0f);
+            t.getScale().set(size, size, size);
             bd.setTransformation(t);
             
             Slime slime = (Slime) boss.getWorld().spawnEntity(boss.getLocation(), EntityType.SLIME);
-            slime.setSize(4);
+            slime.setSize(Math.max(1, (int)(size * 2)));
             slime.setInvisible(true);
             slime.setAI(false);
             slime.setGravity(false);
@@ -570,7 +578,14 @@ public class GlacialBonebreakerBoss {
             slime.getPersistentDataContainer().set(GlacialBonebreakerMechanic.SHIELD_KEY, PersistentDataType.BYTE, (byte) 1);
             bd.addPassenger(slime);
             
-            orbitalShields.add(bd);
+            double radius = 10.0 + random.nextDouble() * 10.0; // 10 to 20 blocks
+            double height = 2.0 + random.nextDouble() * 6.0; // 2 to 8 blocks height
+            // Speed between 0.03 and 0.06 (closer shields orbit slightly faster or just varied)
+            double speed = 0.03 + (random.nextDouble() * 0.03); 
+            if (random.nextBoolean()) speed *= -1; // some orbit in reverse
+            double startAngle = random.nextDouble() * 2 * Math.PI;
+            
+            orbitalShields.put(bd, new double[]{radius, height, speed, startAngle});
         }
     }
 
@@ -767,7 +782,7 @@ public class GlacialBonebreakerBoss {
         }
         if (mainTask != null) mainTask.cancel();
         
-        for (BlockDisplay bd : orbitalShields) {
+        for (BlockDisplay bd : orbitalShields.keySet()) {
             if (bd.isValid()) bd.remove();
         }
         orbitalShields.clear();
