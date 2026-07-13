@@ -183,7 +183,7 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
         if (event.getEntity().getPersistentDataContainer().has(BOSS_KEY, PersistentDataType.BYTE)) {
             event.setCancelled(true);
             GlacialBonebreakerBoss bossLogic = activeBosses.get(event.getEntity().getUniqueId());
-            if (bossLogic != null) {
+            if (bossLogic != null && !bossLogic.isBlizzardActive()) {
                 bossLogic.fireHomingToAll();
             }
             return;

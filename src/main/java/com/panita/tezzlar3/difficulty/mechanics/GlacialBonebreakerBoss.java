@@ -40,6 +40,7 @@ public class GlacialBonebreakerBoss {
     private final String bossId;
     private boolean invulnerable = false;
     private boolean meleePhase = false;
+    private boolean blizzardActive = false;
     private final Map<BlockDisplay, double[]> orbitalShields = new HashMap<>();
     
     public GlacialBonebreakerBoss(Stray boss, JavaPlugin plugin, boolean isNewSpawn) {
@@ -175,6 +176,12 @@ public class GlacialBonebreakerBoss {
         schedulePhaseChange();
     }
     
+    public boolean isMeleePhase() { return meleePhase; }
+    
+    public boolean isBlizzardActive() { return blizzardActive; }
+
+    public Location getSpawnLocation() { return boss.getLocation(); }
+    
     private void scheduleAttackTask() {
         new BukkitRunnable() {
             @Override
@@ -182,7 +189,7 @@ public class GlacialBonebreakerBoss {
                 if (boss.isDead() || !boss.isValid()) return;
                 
                 List<Player> targets = getNearbyPlayers(50);
-                if (!targets.isEmpty() && !invulnerable) {
+                if (!targets.isEmpty() && !invulnerable && !blizzardActive) {
                     executeRandomAttack(targets);
                 }
                 
@@ -202,7 +209,7 @@ public class GlacialBonebreakerBoss {
             @Override
             public void run() {
                 if (boss.isDead() || !boss.isValid()) return;
-                
+
                 meleePhase = !meleePhase;
                 EntityEquipment eq = boss.getEquipment();
                 if (meleePhase) {
@@ -686,31 +693,56 @@ public class GlacialBonebreakerBoss {
     private void executeBlizzardWall() {
         alert("Muro de Ventisca Rotatorio");
         Location center = boss.getLocation().clone();
+        blizzardActive = true;
         new BukkitRunnable() {
             int ticks = 0;
             @Override
             public void run() {
-                if (ticks > 200 || boss.isDead()) {
+                if (ticks > 400 || boss.isDead()) {
+                    blizzardActive = false;
                     this.cancel();
                     return;
                 }
-                double angle = ticks * 0.1;
+                double angle = ticks * 0.015; // Even slower rotation
+                
+                // 1. Draw the massive vertical wall
                 for (int d = 0; d < 2; d++) {
                     double offset = d * Math.PI;
-                    for (double r = 1; r < 20; r += 0.5) {
+                    for (double r = 1; r < 50; r += 1.0) { // Step by 1 to halve particle count per tick
                         double x = Math.cos(angle + offset) * r;
                         double z = Math.sin(angle + offset) * r;
-                        Location pLoc = center.clone().add(x, 1, z);
-                        pLoc.getWorld().spawnParticle(Particle.SNOWFLAKE, pLoc, 5, 0.2, 1.0, 0.2, 0);
-                        
-                        for (Player p : getNearbyPlayers(25)) {
-                            if (p.getLocation().distance(pLoc) < 1.0) {
-                                p.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 40, 1));
-                                p.setVelocity(new Vector(x, 0.5, z).normalize().multiply(1.5));
+                        // Reduced height to save particles, deltaY = 2.0
+                        Location pLoc = center.clone().add(x, 2, z);
+                        pLoc.getWorld().spawnParticle(Particle.SNOWFLAKE, pLoc, 5, 0.5, 2.0, 0.5, 0);
+                        pLoc.getWorld().spawnParticle(Particle.CLOUD, pLoc, 1, 0.5, 2.0, 0.5, 0);
+                    }
+                }
+                
+                // 2. Y-agnostic collision (Infinite Y hitbox)
+                for (Player p : getNearbyPlayers(55)) {
+                    Vector diff = p.getLocation().toVector().subtract(center.toVector());
+                    diff.setY(0);
+                    if (diff.length() < 50.0) {
+                        double distToLine = Math.abs(Math.sin(angle) * diff.getX() - Math.cos(angle) * diff.getZ());
+                        if (distToLine < 1.5) { // 1.5 block thick hitbox
+                            if (p.getNoDamageTicks() < 10) { // Avoid instant death from tick-spam
+                                p.damage(25.0, boss);
+                                p.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1));
+                                p.setFreezeTicks(Math.min(p.getMaxFreezeTicks(), p.getFreezeTicks() + 100));
+                                
+                                double dot = diff.getX() * Math.cos(angle) + diff.getZ() * Math.sin(angle);
+                                Vector pushDir;
+                                if (dot > 0) {
+                                    pushDir = new Vector(-Math.sin(angle), 0, Math.cos(angle));
+                                } else {
+                                    pushDir = new Vector(Math.sin(angle), 0, -Math.cos(angle));
+                                }
+                                p.setVelocity(pushDir.normalize().multiply(1.8).setY(0.6));
                             }
                         }
                     }
                 }
+                
                 ticks++;
             }
         }.runTaskTimer(plugin, 0L, 1L);
