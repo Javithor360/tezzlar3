@@ -171,7 +171,6 @@ public class DifficultyModule implements PluginModule {
             mechanics.add(new NetherBlazeSpawnsMechanic(plugin));
             mechanics.add(new CopperDamageMechanic(plugin));
             mechanics.add(new EliteMobStatsMechanic(plugin));
-            mechanics.add(new SpawnerRegenMechanic(plugin, spawnerRegenManager));
 
             // Day 12
             mechanics.add(new FastHungerMechanic(plugin));
@@ -203,6 +202,7 @@ public class DifficultyModule implements PluginModule {
             mechanics.add(new MutatedSpiderMechanic(plugin));
             mechanics.add(new EternalNightMechanic(plugin));
             mechanics.add(new ZombieRatatouilleMechanic(plugin));
+            mechanics.add(new SpawnerRegenMechanic(plugin, spawnerRegenManager));
 
             // Day 16
             mechanics.add(new IllagerGuardianMechanic(plugin));

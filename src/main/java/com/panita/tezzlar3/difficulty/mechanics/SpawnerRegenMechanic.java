@@ -13,7 +13,7 @@ public class SpawnerRegenMechanic extends DifficultyMechanic {
     private final SpawnerRegenManager manager;
 
     public SpawnerRegenMechanic(JavaPlugin plugin, SpawnerRegenManager manager) {
-        super(plugin, 11); // Active from day 11
+        super(plugin, 15); // Active from day 15
         this.manager = manager;
     }
 
