@@ -7,6 +7,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
@@ -135,6 +136,20 @@ public class GlacialBonebreakerBoss {
                 if (currentHp <= 30 && !shield30) {
                     shield30 = true;
                     executeOrbitalShields();
+                }
+                
+                Block bossBlock = boss.getLocation().getBlock();
+                if (bossBlock.getType() == Material.COBWEB) {
+                    bossBlock.setType(Material.AIR);
+                    boss.getWorld().playSound(bossBlock.getLocation(), Sound.BLOCK_COBWEB_BREAK, 1.0f, 1.0f);
+                }
+                if (bossBlock.getType() == Material.LAVA || bossBlock.getRelative(BlockFace.DOWN).getType() == Material.LAVA) {
+                    List<Player> tpNearby = getNearbyPlayers(100);
+                    if (!tpNearby.isEmpty()) {
+                        Player tpTarget = tpNearby.get(random.nextInt(tpNearby.size()));
+                        boss.teleport(tpTarget.getLocation().add(0, 1, 0));
+                        boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.5f, 0.5f);
+                    }
                 }
                 
                 List<Player> nearby = getNearbyPlayers(100);
@@ -318,7 +333,7 @@ public class GlacialBonebreakerBoss {
         List<Player> targets = getNearbyPlayers(50);
         if (!targets.isEmpty()) {
             if (meleePhase) {
-                if (attackId < 0 || attackId >= 4) attackId = random.nextInt(4);
+                if (attackId < 0 || attackId >= 5) attackId = random.nextInt(5);
                 executeSpecificMeleeAttack(targets, attackId);
             } else {
                 if (attackId < 0 || attackId >= 11) attackId = random.nextInt(11);
@@ -329,7 +344,7 @@ public class GlacialBonebreakerBoss {
 
     private void executeRandomAttack(List<Player> players) {
         if (meleePhase) {
-            executeSpecificMeleeAttack(players, random.nextInt(4));
+            executeSpecificMeleeAttack(players, random.nextInt(5));
         } else {
             executeSpecificRangedAttack(players, random.nextInt(11));
         }
@@ -337,10 +352,11 @@ public class GlacialBonebreakerBoss {
 
     private void executeSpecificMeleeAttack(List<Player> players, int r) {
         switch (r) {
-            case 0: executeRadialShockwave(); break;
+            case 0: executeRadialShockwave(players); break;
             case 1: executeInertialCharge(players); break;
             case 2: executeFreezingSlash(players); break;
             case 3: executeWhiteShadowAssault(players); break;
+            case 4: executeSnowballFight(players); break;
         }
     }
 
@@ -375,129 +391,207 @@ public class GlacialBonebreakerBoss {
         return invulnerable;
     }
     
-    private void executeRadialShockwave() {
+    private void executeRadialShockwave(List<Player> players) {
         alert("una Onda de Choque Radial");
-        Location center = boss.getLocation().clone();
-        center.setY(Math.floor(center.getY()));
+        if (players.isEmpty()) return;
         
-        new BukkitRunnable() {
-            int radius = 1;
+        int totalTimes = 2 + random.nextInt(4); // 2 to 5
+        int[] count = {0};
+        
+        Runnable task = new Runnable() {
             @Override
             public void run() {
-                if (radius > 15 || boss.isDead()) {
-                    this.cancel();
-                    return;
-                }
+                if (count[0] >= totalTimes || boss.isDead() || !boss.isValid()) return;
                 
-                int points = radius * 8;
-                for (int i = 0; i < points; i++) {
-                    double angle = 2 * Math.PI * i / points;
-                    double x = Math.cos(angle) * radius;
-                    double z = Math.sin(angle) * radius;
-                    Location loc = center.clone().add(x, 0, z);
-                    
-                    BlockDisplay bd = (BlockDisplay) loc.getWorld().spawnEntity(loc, EntityType.BLOCK_DISPLAY);
-                    bd.setBlock(Bukkit.createBlockData(Material.PACKED_ICE));
-                    Transformation t = bd.getTransformation();
-                    t.getScale().set(0.5f, 2.0f, 0.5f);
-                    bd.setTransformation(t);
-                    
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        if (bd.isValid()) {
-                            bd.getWorld().spawnParticle(Particle.BLOCK, bd.getLocation().add(0, 1, 0), 10, 0.2, 0.2, 0.2, Bukkit.createBlockData(Material.PACKED_ICE));
-                            bd.remove();
-                        }
-                    }, 10L);
-                }
+                Player target = players.get(random.nextInt(players.size()));
+                boss.teleport(target.getLocation());
+                boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.5f, 0.5f);
                 
-                for (Player p : getNearbyPlayers(20)) {
-                    if (p.getLocation().distance(center) <= radius && p.getLocation().distance(center) > radius - 1.5) {
-                        if (p.getLocation().getY() - center.getY() < 2.0) {
-                            p.damage(20.0, boss);
-                            p.setVelocity(new Vector(0, 1.5, 0));
+                Location center = boss.getLocation().clone();
+                center.setY(Math.floor(center.getY()));
+                
+                new BukkitRunnable() {
+                    int radius = 1;
+                    @Override
+                    public void run() {
+                        if (radius > 15 || boss.isDead()) {
+                            this.cancel();
+                            return;
                         }
+                        
+                        int points = radius * 8;
+                        for (int i = 0; i < points; i++) {
+                            double angle = 2 * Math.PI * i / points;
+                            double x = Math.cos(angle) * radius;
+                            double z = Math.sin(angle) * radius;
+                            Location loc = center.clone().add(x, 0, z);
+                            
+                            BlockDisplay bd = (BlockDisplay) loc.getWorld().spawnEntity(loc, EntityType.BLOCK_DISPLAY);
+                            bd.setBlock(Bukkit.createBlockData(Material.PACKED_ICE));
+                            Transformation t = bd.getTransformation();
+                            t.getScale().set(0.5f, 2.0f, 0.5f);
+                            bd.setTransformation(t);
+                            
+                            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                                if (bd.isValid()) {
+                                    bd.getWorld().spawnParticle(Particle.BLOCK, bd.getLocation().add(0, 1, 0), 10, 0.2, 0.2, 0.2, Bukkit.createBlockData(Material.PACKED_ICE));
+                                    bd.remove();
+                                }
+                            }, 10L);
+                        }
+                        
+                        for (Player p : getNearbyPlayers(20)) {
+                            if (p.getLocation().distance(center) <= radius && p.getLocation().distance(center) > radius - 1.5) {
+                                if (p.getLocation().getY() - center.getY() < 2.0) {
+                                    p.damage(20.0, boss);
+                                    p.setVelocity(new Vector(0, 1.5, 0));
+                                }
+                            }
+                        }
+                        radius++;
                     }
+                }.runTaskTimer(plugin, 0L, 2L);
+                
+                count[0]++;
+                if (count[0] < totalTimes) {
+                    Bukkit.getScheduler().runTaskLater(plugin, this, 20L + random.nextInt(41)); // 1 to 3 seconds
                 }
-                radius++;
             }
-        }.runTaskTimer(plugin, 0L, 2L);
+        };
+        
+        Bukkit.getScheduler().runTaskLater(plugin, task, 20L + random.nextInt(41));
     }
 
     private void executeInertialCharge(List<Player> players) {
         if (players.isEmpty()) return;
         alert("una Carga Inercial");
-        Player target = players.get(random.nextInt(players.size()));
-        
-        Vector dir = target.getLocation().toVector().subtract(boss.getLocation().toVector());
-        dir.setY(0).normalize();
         
         new BukkitRunnable() {
             int ticks = 0;
             @Override
             public void run() {
-                if (ticks > 20 || boss.isDead()) {
+                if (boss.isDead() || !boss.isValid()) {
                     this.cancel();
                     return;
                 }
-                boss.setVelocity(dir.clone().multiply(2.5));
-                boss.getWorld().spawnParticle(Particle.SNOWFLAKE, boss.getLocation(), 20, 1, 1, 1, 0.1);
                 
-                for (Player p : getNearbyPlayers(3)) {
-                    p.damage(25.0, boss);
-                    p.setVelocity(dir.clone().multiply(3.0).setY(1.0));
-                }
-                
-                if (ticks > 2 && boss.getVelocity().lengthSquared() < 0.1) {
-                    // Hit a wall
-                    boss.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 5));
-                    boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 2.0f, 0.5f);
+                if (ticks >= 160) { // 8 seconds
                     this.cancel();
+                    
+                    Player target = players.get(random.nextInt(players.size()));
+                    Vector dir = target.getLocation().toVector().subtract(boss.getLocation().toVector());
+                    dir.setY(0).normalize();
+                    
+                    new BukkitRunnable() {
+                        int dashTicks = 0;
+                        @Override
+                        public void run() {
+                            if (dashTicks > 20 || boss.isDead() || !boss.isValid()) {
+                                this.cancel();
+                                return;
+                            }
+                            boss.setVelocity(dir.clone().multiply(2.5));
+                            boss.getWorld().spawnParticle(Particle.SNOWFLAKE, boss.getLocation(), 20, 1, 1, 1, 0.1);
+                            
+                            for (Player p : getNearbyPlayers(3)) {
+                                p.damage(25.0, boss);
+                                Vector pushDir = p.getLocation().toVector().subtract(boss.getLocation().toVector()).normalize().multiply(3.0).setY(1.0);
+                                p.setVelocity(pushDir);
+                            }
+                            
+                            if (dashTicks > 2 && (boss.getVelocity().lengthSquared() < 0.1 || boss.getLocation().add(boss.getVelocity().normalize().multiply(1.5)).getBlock().getType().isSolid())) {
+                                boss.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 5));
+                                boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 2.0f, 0.5f);
+                                this.cancel();
+                                return;
+                            }
+                            dashTicks++;
+                        }
+                    }.runTaskTimer(plugin, 0L, 2L);
+                    
                     return;
                 }
+                
+                for (Player p : getNearbyPlayers(30)) {
+                    Vector pull = boss.getLocation().toVector().subtract(p.getLocation().toVector()).normalize().multiply(0.12).setY(0.05);
+                    p.setVelocity(p.getVelocity().add(pull));
+                }
+                if (ticks % 20 == 0) {
+                    boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
+                }
+                
                 ticks++;
             }
         }.runTaskTimer(plugin, 0L, 1L);
     }
 
     private void executeFreezingSlash(List<Player> players) {
-        if (players.isEmpty()) return;
         alert("un Tajo Congelante");
-        Player target = players.get(random.nextInt(players.size()));
-        Vector dir = target.getLocation().toVector().subtract(boss.getLocation().toVector()).setY(0).normalize();
-        Location current = boss.getLocation().clone();
+        if (players.isEmpty()) return;
         
-        new BukkitRunnable() {
-            int steps = 0;
+        int[] count = {0};
+        
+        Runnable task = new Runnable() {
             @Override
             public void run() {
-                if (steps > 20 || boss.isDead()) {
-                    this.cancel();
+                if (count[0] >= 3 || boss.isDead() || !boss.isValid()) {
                     return;
                 }
-                current.add(dir.clone().multiply(1.5));
-                current.setY(current.getWorld().getHighestBlockYAt(current) + 1);
-                current.getWorld().spawnEntity(current, EntityType.EVOKER_FANGS);
-                current.getWorld().spawnParticle(Particle.SNOWFLAKE, current, 10, 0.5, 0.5, 0.5, 0.1);
-                steps++;
+                
+                Player target = players.get(random.nextInt(players.size()));
+                Location center = target.getLocation().clone();
+                center.setY(Math.floor(center.getY()));
+                boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_EVOKER_PREPARE_ATTACK, 1.5f, 1.0f);
+                
+                new BukkitRunnable() {
+                    int dist = 12;
+                    @Override
+                    public void run() {
+                        if (dist < 0 || boss.isDead() || !boss.isValid()) {
+                            this.cancel();
+                            return;
+                        }
+                        
+                        for (int i = 0; i < 8; i++) {
+                            double angle = i * (Math.PI / 4);
+                            double x = Math.cos(angle) * dist;
+                            double z = Math.sin(angle) * dist;
+                            Location loc = center.clone().add(x, 0, z);
+                            loc.setY(loc.getWorld().getHighestBlockYAt(loc));
+                            
+                            loc.getWorld().spawnEntity(loc, EntityType.EVOKER_FANGS);
+                            loc.getWorld().spawnParticle(Particle.SNOWFLAKE, loc, 10, 0.5, 0.5, 0.5, 0.1);
+                        }
+                        
+                        dist -= 1;
+                    }
+                }.runTaskTimer(plugin, 0L, 2L);
+                
+                count[0]++;
+                if (count[0] < 3) {
+                    Bukkit.getScheduler().runTaskLater(plugin, this, 20L + random.nextInt(41)); // 1 to 3 sec delay
+                }
             }
-        }.runTaskTimer(plugin, 0L, 1L);
+        };
+        
+        Bukkit.getScheduler().runTaskLater(plugin, task, 20L + random.nextInt(41));
     }
 
     private void executeWhiteShadowAssault(List<Player> players) {
         if (players.isEmpty()) return;
         alert("un Asalto de Sombra Blanca");
-        boss.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 60, 0, false, false));
-        boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60, 2, false, false));
+        boss.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 160, 0, false, false));
+        boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 160, 2, false, false));
         
-        new BukkitRunnable() {
-            int strikes = 0;
+        int[] count = {0};
+        Runnable task = new Runnable() {
             @Override
             public void run() {
-                if (strikes > 3 || boss.isDead() || players.isEmpty()) {
+                if (count[0] >= 3 || boss.isDead() || players.isEmpty()) {
                     boss.removePotionEffect(PotionEffectType.INVISIBILITY);
-                    this.cancel();
                     return;
                 }
+                
                 Player p = players.get(random.nextInt(players.size()));
                 if (p.isOnline()) {
                     Vector look = p.getLocation().getDirection().setY(0).normalize();
@@ -507,9 +601,59 @@ public class GlacialBonebreakerBoss {
                     boss.getWorld().spawnParticle(Particle.SNOWFLAKE, boss.getLocation(), 50, 1, 1, 1, 0.1);
                     p.damage(20.0, boss);
                 }
-                strikes++;
+                
+                count[0]++;
+                if (count[0] < 3) {
+                    Bukkit.getScheduler().runTaskLater(plugin, this, 20L + random.nextInt(41));
+                } else {
+                    boss.removePotionEffect(PotionEffectType.INVISIBILITY);
+                }
             }
-        }.runTaskTimer(plugin, 10L, 10L);
+        };
+        
+        Bukkit.getScheduler().runTaskLater(plugin, task, 20L + random.nextInt(41));
+    }
+    
+    private void executeSnowballFight(List<Player> players) {
+        alert("una Guerra de Nieve");
+        if (players.isEmpty()) return;
+        
+        int totalTimes = 15 + random.nextInt(11); // 15 to 25 giant snowballs
+        int[] count = {0};
+        
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                if (count[0] >= totalTimes || boss.isDead() || !boss.isValid()) return;
+                
+                Player target = players.get(random.nextInt(players.size()));
+                
+                Location spawn = boss.getLocation().add(0, 2.5, 0);
+                Vector dir = target.getLocation().toVector().subtract(spawn.toVector()).normalize().multiply(1.5).add(new Vector(0, 0.3, 0));
+                
+                Snowball snowball = (Snowball) spawn.getWorld().spawnEntity(spawn, EntityType.SNOWBALL);
+                snowball.setVelocity(dir);
+                snowball.setShooter(boss);
+                snowball.getPersistentDataContainer().set(GlacialBonebreakerMechanic.GIANT_SNOWBALL_KEY, PersistentDataType.BYTE, (byte) 1);
+                
+                ItemDisplay display = (ItemDisplay) spawn.getWorld().spawnEntity(spawn, EntityType.ITEM_DISPLAY);
+                display.setItemStack(new ItemStack(Material.SNOWBALL));
+                Transformation t = display.getTransformation();
+                t.getScale().set(4.0f, 4.0f, 4.0f);
+                display.setTransformation(t);
+                
+                snowball.addPassenger(display);
+                
+                boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_SNOW_GOLEM_SHOOT, 1.5f, 0.5f);
+                
+                count[0]++;
+                if (count[0] < totalTimes) {
+                    Bukkit.getScheduler().runTaskLater(plugin, this, 5L); // every 5 ticks
+                }
+            }
+        };
+        
+        Bukkit.getScheduler().runTaskLater(plugin, task, 10L);
     }
 
     private void executeImpalerStalagmite(List<Player> players) {
@@ -792,6 +936,35 @@ public class GlacialBonebreakerBoss {
     }
 
     private Map<Location, BlockData> replaceFloor(Material newMat, List<Player> targets) {
+        return replaceFloor(newMat, 25, 10, targets);
+    }
+    
+    public void spawnAssistantHorde(Player target) {
+        int count = 2 + random.nextInt(3); // 2 to 4
+        for (int i = 0; i < count; i++) {
+            Location loc = boss.getLocation().add(random.nextInt(6) - 3, 1, random.nextInt(6) - 3);
+            Skeleton skel = (Skeleton) EntityUtils.spawnNatural(loc, EntityType.SKELETON);
+            if (skel != null) {
+                skel.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
+                EntityUtils.setCustomName(skel, "&bAsistente Óseo");
+
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if (skel.isValid()) {
+                        MobGearUtils.equipRandomGear(skel);
+                        if (skel.getEquipment() != null) {
+                            ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+                            sword.addUnsafeEnchantment(Enchantment.SHARPNESS, 5);
+                            skel.getEquipment().setItemInMainHand(sword);
+                            skel.getEquipment().setItemInMainHandDropChance(0.0f);
+                        }
+                    }
+                }, 2L);
+                skel.setTarget(target);
+            }
+        }
+    }
+
+    private Map<Location, BlockData> replaceFloor(Material newMat, int bossRadius, int playerRadius, List<Player> targets) {
         Map<Location, BlockData> old = new HashMap<>();
         
         // Boss area (radius 25)

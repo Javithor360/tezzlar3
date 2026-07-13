@@ -18,6 +18,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +33,7 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
     public static NamespacedKey FAKE_CLONE_KEY;
     public static NamespacedKey PROJECTILE_KEY;
     public static NamespacedKey SHIELD_KEY;
+    public static NamespacedKey GIANT_SNOWBALL_KEY;
 
     private static final Map<UUID, GlacialBonebreakerBoss> activeBosses = new HashMap<>();
 
@@ -54,6 +56,7 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
         FAKE_CLONE_KEY = new NamespacedKey(plugin, "glacial_fake_clone");
         PROJECTILE_KEY = new NamespacedKey(plugin, "glacial_projectile");
         SHIELD_KEY = new NamespacedKey(plugin, "glacial_shield");
+        GIANT_SNOWBALL_KEY = new NamespacedKey(plugin, "glacial_giant_snowball");
 
         CustomMobManager.register(CustomMobType.GLACIAL_BONEBREAKER, this::spawnManual);
 
@@ -152,6 +155,18 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
             }
         }
         
+        // Handle Boss Melee Attack (20% chance to spawn assistant horde)
+        if (event.getDamager().getPersistentDataContainer().has(BOSS_KEY, PersistentDataType.BYTE)) {
+            if (event.getEntity() instanceof Player p) {
+                if (Math.random() < 0.20) {
+                    GlacialBonebreakerBoss bossLogic = activeBosses.get(event.getDamager().getUniqueId());
+                    if (bossLogic != null) {
+                        bossLogic.spawnAssistantHorde(p);
+                    }
+                }
+            }
+        }
+        
         // Handle Fake Clone logic
         if (event.getEntity().getPersistentDataContainer().has(FAKE_CLONE_KEY, PersistentDataType.BYTE)) {
             event.setCancelled(true);
@@ -205,14 +220,28 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onProjectileHit(ProjectileHitEvent event) {
         if (!isActive()) return;
-        if (event.getEntity() instanceof Snowball snowball && event.getHitEntity() instanceof Player p) {
-            if (snowball.getPersistentDataContainer().has(PROJECTILE_KEY, PersistentDataType.BYTE)) {
-                if (snowball.getShooter() instanceof Entity shooter) {
-                    p.damage(5.0, shooter);
-                } else {
-                    p.damage(5.0);
+        if (event.getEntity() instanceof Snowball snowball) {
+            if (snowball.getPersistentDataContainer().has(GIANT_SNOWBALL_KEY, PersistentDataType.BYTE)) {
+                for (Entity passenger : snowball.getPassengers()) passenger.remove();
+                
+                if (event.getHitEntity() instanceof Player p) {
+                    if (snowball.getShooter() instanceof Entity shooter) {
+                        p.damage(4.0, shooter);
+                    } else {
+                        p.damage(4.0);
+                    }
+                    Vector bounce = new Vector(random.nextDouble() - 0.5, 0.5 + random.nextDouble(), random.nextDouble() - 0.5).normalize().multiply(1.8);
+                    p.setVelocity(bounce);
                 }
-                p.setFreezeTicks(Math.min(p.getMaxFreezeTicks(), p.getFreezeTicks() + 60));
+            } else if (snowball.getPersistentDataContainer().has(PROJECTILE_KEY, PersistentDataType.BYTE)) {
+                if (event.getHitEntity() instanceof Player p) {
+                    if (snowball.getShooter() instanceof Entity shooter) {
+                        p.damage(2.0, shooter);
+                    } else {
+                        p.damage(2.0);
+                    }
+                    p.setFreezeTicks(Math.min(p.getMaxFreezeTicks(), p.getFreezeTicks() + 60));
+                }
             }
         }
     }
