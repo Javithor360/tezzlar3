@@ -34,7 +34,6 @@ public class GlacialBonebreakerBoss {
     private final Stray boss;
     private final JavaPlugin plugin;
     private final BukkitRunnable mainTask;
-    private final BukkitRunnable attackTask;
     private final Set<UUID> attackers = new HashSet<>();
     private final Random random = new Random();
     
@@ -149,7 +148,7 @@ public class GlacialBonebreakerBoss {
                         boss.getWorld().playSound(boss.getLocation(), Sound.BLOCK_GLASS_BREAK, 2.0f, 0.5f);
                     } else {
                         double angleStep = (2 * Math.PI) / orbitalShields.size();
-                        double angleOffset = (ticks * 0.1) % (2 * Math.PI);
+                        double angleOffset = (ticks * 0.03) % (2 * Math.PI);
                         for (int i = 0; i < orbitalShields.size(); i++) {
                             BlockDisplay shield = orbitalShields.get(i);
                             double angle = angleOffset + (i * angleStep);
@@ -167,14 +166,15 @@ public class GlacialBonebreakerBoss {
         };
         this.mainTask.runTaskTimer(plugin, 1L, 1L);
 
-        // Attack Task
-        this.attackTask = new BukkitRunnable() {
+        scheduleAttackTask();
+        schedulePhaseChange();
+    }
+    
+    private void scheduleAttackTask() {
+        new BukkitRunnable() {
             @Override
             public void run() {
-                if (boss.isDead() || !boss.isValid()) {
-                    this.cancel();
-                    return;
-                }
+                if (boss.isDead() || !boss.isValid()) return;
                 
                 List<Player> targets = getNearbyPlayers(50);
                 if (!targets.isEmpty() && !invulnerable) {
@@ -182,13 +182,14 @@ public class GlacialBonebreakerBoss {
                 }
                 
                 int nextCooldown = 20 * (15 + random.nextInt(46)); // 15 to 60 seconds
-                this.cancel();
-                attackTask.runTaskLater(plugin, nextCooldown);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        scheduleAttackTask();
+                    }
+                }.runTaskLater(plugin, nextCooldown);
             }
-        };
-        this.attackTask.runTaskLater(plugin, 20 * 10);
-        
-        schedulePhaseChange();
+        }.runTaskLater(plugin, 20 * 10);
     }
     
     private void schedulePhaseChange() {
@@ -273,37 +274,49 @@ public class GlacialBonebreakerBoss {
         }
     }
     
-    public void forceRandomAttack() {
+    public void forceAttack(int attackId) {
         List<Player> targets = getNearbyPlayers(50);
         if (!targets.isEmpty()) {
-            executeRandomAttack(targets);
+            if (meleePhase) {
+                if (attackId < 0 || attackId >= 4) attackId = random.nextInt(4);
+                executeSpecificMeleeAttack(targets, attackId);
+            } else {
+                if (attackId < 0 || attackId >= 11) attackId = random.nextInt(11);
+                executeSpecificRangedAttack(targets, attackId);
+            }
         }
     }
 
     private void executeRandomAttack(List<Player> players) {
         if (meleePhase) {
-            int r = random.nextInt(4);
-            switch (r) {
-                case 0: executeRadialShockwave(); break;
-                case 1: executeInertialCharge(players); break;
-                case 2: executeFreezingSlash(players); break;
-                case 3: executeWhiteShadowAssault(players); break;
-            }
+            executeSpecificMeleeAttack(players, random.nextInt(4));
         } else {
-            int r = random.nextInt(11);
-            switch (r) {
-                case 0: executeImpalerStalagmite(players); break;
-                case 1: executeOrbitalShields(); break;
-                case 2: executeMirageClones(); break;
-                case 3: executeBlizzardWall(); break;
-                case 4: executeZeroFrictionFloor(); break;
-                case 5: executeFragileFloor(); break;
-                case 6: executeBlizzardGhosts(); break;
-                case 7: executeSnowMines(players); break;
-                case 8: executeVortexCavalry(); break;
-                case 9: executeTundraAmbush(players); break;
-                case 10: executeStatusDebuffs(players); break;
-            }
+            executeSpecificRangedAttack(players, random.nextInt(11));
+        }
+    }
+
+    private void executeSpecificMeleeAttack(List<Player> players, int r) {
+        switch (r) {
+            case 0: executeRadialShockwave(); break;
+            case 1: executeInertialCharge(players); break;
+            case 2: executeFreezingSlash(players); break;
+            case 3: executeWhiteShadowAssault(players); break;
+        }
+    }
+
+    private void executeSpecificRangedAttack(List<Player> players, int r) {
+        switch (r) {
+            case 0: executeImpalerStalagmite(players); break;
+            case 1: executeOrbitalShields(); break;
+            case 2: executeMirageClones(); break;
+            case 3: executeBlizzardWall(); break;
+            case 4: executeZeroFrictionFloor(); break;
+            case 5: executeFragileFloor(); break;
+            case 6: executeBlizzardGhosts(); break;
+            case 7: executeSnowMines(players); break;
+            case 8: executeVortexCavalry(); break;
+            case 9: executeTundraAmbush(players); break;
+            case 10: executeStatusDebuffs(players); break;
         }
     }
 
@@ -457,36 +470,75 @@ public class GlacialBonebreakerBoss {
 
     private void executeImpalerStalagmite(List<Player> players) {
         if (players.isEmpty()) return;
-        alert("Estalagmita Empaladora");
+        alert("¡Bosque de Estalagmitas Empaladoras!");
         Player target = players.get(random.nextInt(players.size()));
-        Location loc = target.getLocation().clone();
-        loc.setY(Math.floor(loc.getY()));
+        Location center = target.getLocation().clone();
+        
+        List<Location> stalagmiteLocs = new ArrayList<>();
+        stalagmiteLocs.add(center.clone());
+        
+        for (int i = 0; i < 15; i++) {
+            double offsetX = (random.nextDouble() - 0.5) * 10; // 5 block radius (10x10 area)
+            double offsetZ = (random.nextDouble() - 0.5) * 10;
+            Location loc = center.clone().add(offsetX, 0, offsetZ);
+            
+            boolean found = false;
+            for (int y = 5; y >= -10; y--) {
+                if (loc.clone().add(0, y, 0).getBlock().getType().isSolid()) {
+                    loc.add(0, y + 1, 0);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) loc.setY(Math.floor(center.getY()));
+            
+            stalagmiteLocs.add(loc);
+        }
         
         new BukkitRunnable() {
             int ticks = 0;
             @Override
             public void run() {
                 if (ticks < 40) {
-                    loc.getWorld().spawnParticle(Particle.SNOWFLAKE, loc, 10, 1.0, 0.1, 1.0, 0);
-                } else if (ticks == 40) {
-                    loc.getWorld().playSound(loc, Sound.BLOCK_GLASS_BREAK, 2.0f, 0.5f);
-                    for (int y = 0; y < 4; y++) {
-                        BlockDisplay bd = (BlockDisplay) loc.getWorld().spawnEntity(loc.clone().add(0, y, 0), EntityType.BLOCK_DISPLAY);
-                        bd.setBlock(Bukkit.createBlockData(Material.BLUE_ICE));
-                        Transformation t = bd.getTransformation();
-                        t.getScale().set(1.0f - (y * 0.2f), 1.0f, 1.0f - (y * 0.2f));
-                        bd.setTransformation(t);
-                        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                            if (bd.isValid()) {
-                                bd.getWorld().spawnParticle(Particle.BLOCK, bd.getLocation(), 10, 0.5, 0.5, 0.5, Bukkit.createBlockData(Material.BLUE_ICE));
-                                bd.remove();
-                            }
-                        }, 40L);
+                    for (Location loc : stalagmiteLocs) {
+                        loc.getWorld().spawnParticle(Particle.SNOWFLAKE, loc, 5, 0.5, 0.1, 0.5, 0);
+                        loc.getWorld().spawnParticle(Particle.BLOCK, loc, 2, 0.3, 0.1, 0.3, Bukkit.createBlockData(Material.ICE));
                     }
-                    for (Player p : getNearbyPlayers(20)) {
-                        if (p.getLocation().distance(loc) < 2.0) {
-                            p.damage(30.0, boss);
-                            p.setVelocity(new Vector(0, 2.5, 0));
+                } else if (ticks == 40) {
+                    center.getWorld().playSound(center, Sound.BLOCK_GLASS_BREAK, 3.0f, 0.5f);
+                    for (Location loc : stalagmiteLocs) {
+                        int height = 3 + random.nextInt(4); // 3 to 6
+                        float baseScale = 0.8f + random.nextFloat() * 0.7f; // 0.8 to 1.5
+                        
+                        for (int y = 0; y < height; y++) {
+                            BlockDisplay bd = (BlockDisplay) loc.getWorld().spawnEntity(loc.clone().add(0, y, 0), EntityType.BLOCK_DISPLAY);
+                            Material mat = random.nextBoolean() ? Material.BLUE_ICE : Material.PACKED_ICE;
+                            bd.setBlock(Bukkit.createBlockData(mat));
+                            
+                            Transformation t = bd.getTransformation();
+                            float scaleX = baseScale * (1.0f - ((float)y / height));
+                            float scaleZ = baseScale * (1.0f - ((float)y / height));
+                            t.getScale().set(scaleX, 1.0f, scaleZ);
+                            t.getTranslation().set((1.0f - scaleX) / 2.0f, 0.0f, (1.0f - scaleZ) / 2.0f);
+                            bd.setTransformation(t);
+                            
+                            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                                if (bd.isValid()) {
+                                    bd.getWorld().spawnParticle(Particle.BLOCK, bd.getLocation(), 10, 0.5, 0.5, 0.5, Bukkit.createBlockData(mat));
+                                    bd.remove();
+                                }
+                            }, 60L + random.nextInt(20));
+                        }
+                    }
+                    
+                    for (Player p : getNearbyPlayers(50)) {
+                        for (Location loc : stalagmiteLocs) {
+                            if (p.getWorld().equals(loc.getWorld()) && p.getLocation().distance(loc) < 2.5) {
+                                p.damage(25.0, boss);
+                                p.setVelocity(new Vector(0, 1.5, 0));
+                                p.setFreezeTicks(Math.min(p.getMaxFreezeTicks(), p.getFreezeTicks() + 100));
+                                break;
+                            }
                         }
                     }
                 } else if (ticks > 45) {
@@ -503,7 +555,21 @@ public class GlacialBonebreakerBoss {
         for (int i = 0; i < 4; i++) {
             BlockDisplay bd = (BlockDisplay) boss.getWorld().spawnEntity(boss.getLocation(), EntityType.BLOCK_DISPLAY);
             bd.setBlock(Bukkit.createBlockData(Material.BLUE_ICE));
-            bd.getPersistentDataContainer().set(GlacialBonebreakerMechanic.PROJECTILE_KEY, PersistentDataType.BYTE, (byte) 1);
+            bd.setTeleportDuration(3);
+            
+            Transformation t = bd.getTransformation();
+            t.getScale().set(2.0f, 2.0f, 2.0f);
+            bd.setTransformation(t);
+            
+            Slime slime = (Slime) boss.getWorld().spawnEntity(boss.getLocation(), EntityType.SLIME);
+            slime.setSize(4);
+            slime.setInvisible(true);
+            slime.setAI(false);
+            slime.setGravity(false);
+            slime.setSilent(true);
+            slime.getPersistentDataContainer().set(GlacialBonebreakerMechanic.SHIELD_KEY, PersistentDataType.BYTE, (byte) 1);
+            bd.addPassenger(slime);
+            
             orbitalShields.add(bd);
         }
     }
@@ -700,7 +766,6 @@ public class GlacialBonebreakerBoss {
             Messenger.hideBossBar(p, bossId);
         }
         if (mainTask != null) mainTask.cancel();
-        if (attackTask != null) attackTask.cancel();
         
         for (BlockDisplay bd : orbitalShields) {
             if (bd.isValid()) bd.remove();

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @CommandSpec(
         name = "bossattack",
         description = "Fuerza a un boss cercano a ejecutar un ataque especial.",
-        syntax = "/bossattack <boss_name>",
+        syntax = "/bossattack <boss_name> [attack_id]",
         permission = "tezzlar.command.bossattack"
 )
 public class BossAttackCommand implements AdvancedCommand, TabSuggestingCommand {
@@ -70,19 +70,26 @@ public class BossAttackCommand implements AdvancedCommand, TabSuggestingCommand 
             return;
         }
 
+        int attackId = -1;
+        if (args.length > 1) {
+            try {
+                attackId = Integer.parseInt(args[1]);
+            } catch (NumberFormatException ignored) {}
+        }
+
         if (bossName.equals("GIGA_MAGMA_CUBE")) {
             GigaMagmaCubeBoss bossLogic = GigaMagmaCubeMechanic.getBoss(nearestBoss.getUniqueId());
             if (bossLogic != null) {
-                bossLogic.forceRandomAttack();
-                Messenger.prefixedSend(sender, "&aSe ha forzado un ataque aleatorio del Giga Magma Cube.");
+                bossLogic.forceAttack(attackId);
+                Messenger.prefixedSend(sender, "&aSe ha forzado un ataque del Giga Magma Cube. (ID: " + attackId + ")");
             } else {
                 Messenger.prefixedSend(sender, "&cError: El boss existe físicamente pero no está registrado lógicamente.");
             }
         } else if (bossName.equals("GLACIAL_BONEBREAKER")) {
             GlacialBonebreakerBoss bossLogic = GlacialBonebreakerMechanic.getBoss(nearestBoss.getUniqueId());
             if (bossLogic != null) {
-                bossLogic.forceRandomAttack();
-                Messenger.prefixedSend(sender, "&aSe ha forzado un ataque aleatorio del Quebrantahuesos Glacial.");
+                bossLogic.forceAttack(attackId);
+                Messenger.prefixedSend(sender, "&aSe ha forzado un ataque del Quebrantahuesos Glacial. (ID: " + attackId + ")");
             } else {
                 Messenger.prefixedSend(sender, "&cError: El boss existe físicamente pero no está registrado lógicamente.");
             }

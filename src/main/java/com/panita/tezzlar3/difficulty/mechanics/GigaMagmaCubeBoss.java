@@ -224,7 +224,7 @@ public class GigaMagmaCubeBoss {
         SoundUtils.play(p, "entity.player.levelup", 1, 2);
     }
     
-    public void forceRandomAttack() {
+    public void forceAttack(int attackId) {
         List<Player> nearby = new ArrayList<>();
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (p.getWorld().equals(boss.getWorld()) && p.getLocation().distance(boss.getLocation()) <= 50) {
@@ -232,13 +232,17 @@ public class GigaMagmaCubeBoss {
             }
         }
         if (!nearby.isEmpty()) {
-            executeRandomAttack(nearby);
+            if (attackId < 0 || attackId >= 13) attackId = random.nextInt(13);
+            executeSpecificAttack(nearby, attackId);
             attackCooldown = 10 + random.nextInt(21);
         }
     }
     
     private void executeRandomAttack(List<Player> players) {
-        int attackType = random.nextInt(13);
+        executeSpecificAttack(players, random.nextInt(13));
+    }
+    
+    private void executeSpecificAttack(List<Player> players, int attackType) {
         switch (attackType) {
             case 0:
                 executeChargedBeam(players);

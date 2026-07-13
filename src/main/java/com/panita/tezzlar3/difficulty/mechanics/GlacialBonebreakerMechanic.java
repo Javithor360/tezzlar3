@@ -31,6 +31,7 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
     public static NamespacedKey MINION_KEY;
     public static NamespacedKey FAKE_CLONE_KEY;
     public static NamespacedKey PROJECTILE_KEY;
+    public static NamespacedKey SHIELD_KEY;
 
     private static final Map<UUID, GlacialBonebreakerBoss> activeBosses = new HashMap<>();
 
@@ -52,6 +53,7 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
         MINION_KEY = new NamespacedKey(plugin, "glacial_minion");
         FAKE_CLONE_KEY = new NamespacedKey(plugin, "glacial_fake_clone");
         PROJECTILE_KEY = new NamespacedKey(plugin, "glacial_projectile");
+        SHIELD_KEY = new NamespacedKey(plugin, "glacial_shield");
 
         CustomMobManager.register(CustomMobType.GLACIAL_BONEBREAKER, this::spawnManual);
 
@@ -196,6 +198,38 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
                     snowball.setVelocity(event.getProjectile().getVelocity().multiply(0.5));
                 }
                 p.playSound(p.getLocation(), Sound.ENTITY_SNOWBALL_THROW, 1.0f, 1.0f);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onProjectileHit(ProjectileHitEvent event) {
+        if (!isActive()) return;
+        if (event.getEntity() instanceof Snowball snowball && event.getHitEntity() instanceof Player p) {
+            if (snowball.getPersistentDataContainer().has(PROJECTILE_KEY, PersistentDataType.BYTE)) {
+                if (snowball.getShooter() instanceof Entity shooter) {
+                    p.damage(10.0, shooter);
+                } else {
+                    p.damage(10.0);
+                }
+                p.setFreezeTicks(Math.min(p.getMaxFreezeTicks(), p.getFreezeTicks() + 60));
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onShieldHit(EntityDamageByEntityEvent event) {
+        if (!isActive()) return;
+        if (event.getEntity() instanceof Slime slime) {
+            if (slime.getPersistentDataContainer().has(SHIELD_KEY, org.bukkit.persistence.PersistentDataType.BYTE)) {
+                event.setCancelled(true);
+                Entity vehicle = slime.getVehicle();
+                if (vehicle != null) {
+                    vehicle.getWorld().spawnParticle(org.bukkit.Particle.BLOCK, vehicle.getLocation(), 50, 0.5, 0.5, 0.5, org.bukkit.Bukkit.createBlockData(org.bukkit.Material.BLUE_ICE));
+                    vehicle.getWorld().playSound(vehicle.getLocation(), org.bukkit.Sound.BLOCK_GLASS_BREAK, 2.0f, 1.0f);
+                    vehicle.remove();
+                }
+                slime.remove();
             }
         }
     }
