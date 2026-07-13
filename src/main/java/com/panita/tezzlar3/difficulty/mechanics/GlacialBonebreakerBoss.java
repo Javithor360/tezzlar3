@@ -332,9 +332,9 @@ public class GlacialBonebreakerBoss {
             case 1: executeOrbitalShields(); break;
             case 2: executeMirageClones(); break;
             case 3: executeBlizzardWall(); break;
-            case 4: executeZeroFrictionFloor(); break;
-            case 5: executeFragileFloor(); break;
-            case 6: executeBlizzardGhosts(); break;
+            case 4: executeZeroFrictionFloor(players); break;
+            case 5: executeFragileFloor(players); break;
+            case 6: executeBlizzardGhosts(players); break;
             case 7: executeSnowMines(players); break;
             case 8: executeVortexCavalry(); break;
             case 9: executeTundraAmbush(players); break;
@@ -748,33 +748,64 @@ public class GlacialBonebreakerBoss {
         }.runTaskTimer(plugin, 0L, 1L);
     }
 
-    private void executeZeroFrictionFloor() {
+    private void executeZeroFrictionFloor(List<Player> targets) {
         alert("Suelo de Fricción Cero");
-        Map<Location, BlockData> old = replaceFloor(Material.BLUE_ICE);
-        Bukkit.getScheduler().runTaskLater(plugin, () -> restoreFloor(old), 10 * 20L);
+        Map<Location, BlockData> old = replaceFloor(Material.BLUE_ICE, targets);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> restoreFloor(old), 15 * 20L); // 15 seconds
     }
 
-    private void executeFragileFloor() {
+    private void executeFragileFloor(List<Player> targets) {
         alert("Suelo Quebradizo");
-        Map<Location, BlockData> old = replaceFloor(Material.POWDER_SNOW);
-        Bukkit.getScheduler().runTaskLater(plugin, () -> restoreFloor(old), 10 * 20L);
+        Map<Location, BlockData> old = replaceFloor(Material.POWDER_SNOW, targets);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> restoreFloor(old), 15 * 20L); // 15 seconds
     }
 
-    private Map<Location, BlockData> replaceFloor(Material newMat) {
+    private Map<Location, BlockData> replaceFloor(Material newMat, List<Player> targets) {
         Map<Location, BlockData> old = new HashMap<>();
-        Location center = boss.getLocation();
-        for (int x = -15; x <= 15; x++) {
-            for (int z = -15; z <= 15; z++) {
-                if (random.nextDouble() > 0.6) continue;
-                Location loc = center.clone().add(x, -1, z);
-                Block b = loc.getBlock();
-                if (b.getType().isSolid() && b.getType() != Material.BEDROCK && b.getType() != Material.OBSIDIAN) {
-                    old.put(loc, b.getBlockData().clone());
-                    b.setType(newMat);
+        
+        // Boss area (radius 25)
+        Location bossCenter = boss.getLocation();
+        for (int x = -25; x <= 25; x++) {
+            for (int z = -25; z <= 25; z++) {
+                if (x * x + z * z > 625) continue;
+                if (random.nextDouble() > 0.8) continue;
+                processFloorBlock(bossCenter.clone().add(x, 0, z), old, newMat);
+            }
+        }
+        
+        // Player areas (radius 10)
+        for (Player p : targets) {
+            Location center = p.getLocation();
+            for (int x = -10; x <= 10; x++) {
+                for (int z = -10; z <= 10; z++) {
+                    if (x * x + z * z > 100) continue;
+                    if (random.nextDouble() > 0.8) continue;
+                    processFloorBlock(center.clone().add(x, 0, z), old, newMat);
                 }
             }
         }
         return old;
+    }
+
+    private void processFloorBlock(Location loc, Map<Location, BlockData> old, Material newMat) {
+        boolean found = false;
+        for (int y = 4; y >= -10; y--) { // Search downwards from above head
+            Block check = loc.clone().add(0, y, 0).getBlock();
+            if (check.getType().isSolid() && check.getType() != Material.BARRIER) {
+                loc.add(0, y, 0);
+                found = true;
+                break;
+            }
+        }
+        if (!found) return;
+        
+        Block b = loc.getBlock();
+        if (b.getType() != Material.BEDROCK && b.getType() != Material.OBSIDIAN) {
+            if (!old.containsKey(loc)) { // Prevent overriding overlapping radii
+                old.put(loc, b.getBlockData().clone());
+                b.setType(newMat);
+            }
+        }
     }
 
     private void restoreFloor(Map<Location, BlockData> old) {
@@ -783,15 +814,27 @@ public class GlacialBonebreakerBoss {
         }
     }
 
-    private void executeBlizzardGhosts() {
+    private void executeBlizzardGhosts(List<Player> players) {
         alert("Fantasmas de la Ventisca");
-        for (int i = 0; i < 3; i++) {
-            Vex vex = (Vex) EntityUtils.spawnNatural(boss.getLocation().add(0, 2, 0), EntityType.VEX);
-            if (vex != null) {
-                vex.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
-                if (vex.getEquipment() != null) {
-                    vex.getEquipment().setHelmet(new ItemStack(Material.BLUE_ICE));
-                    vex.getEquipment().setItemInMainHand(new ItemStack(Material.IRON_SWORD));
+        for (Player p : players) {
+            int count = 3 + random.nextInt(6); // 3 to 8
+            for (int i = 0; i < count; i++) {
+                Location spawn = p.getLocation().add(random.nextInt(10) - 5, 2, random.nextInt(10) - 5);
+                Vex vex = (Vex) EntityUtils.spawnNatural(spawn, EntityType.VEX);
+                if (vex != null) {
+                    vex.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
+                    if (vex.getEquipment() != null) {
+                        vex.getEquipment().setHelmet(new ItemStack(Material.BLUE_ICE));
+                        
+                        ItemStack sword = new ItemStack(Material.IRON_SWORD);
+                        sword.addUnsafeEnchantment(Enchantment.SHARPNESS, 5);
+                        sword.addUnsafeEnchantment(Enchantment.KNOCKBACK, 8);
+                        vex.getEquipment().setItemInMainHand(sword);
+                        
+                        vex.getEquipment().setItemInMainHandDropChance(0.0f);
+                        vex.getEquipment().setHelmetDropChance(0.0f);
+                    }
+                    vex.setTarget(p);
                 }
             }
         }
@@ -807,7 +850,7 @@ public class GlacialBonebreakerBoss {
                 sm.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
                 Creeper creeper = (Creeper) EntityUtils.spawnNatural(loc, EntityType.CREEPER);
                 if (creeper != null) {
-                    creeper.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 99999, 0, false, false));
+                    creeper.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, PotionEffect.INFINITE_DURATION, 0, false, false));
                     creeper.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
                     sm.addPassenger(creeper);
                 }
