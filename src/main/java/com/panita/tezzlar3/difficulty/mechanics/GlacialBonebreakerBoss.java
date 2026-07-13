@@ -21,6 +21,7 @@ import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
+import com.panita.tezzlar3.core.util.MobGearUtils;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.qol.util.CustomItemManager;
@@ -336,7 +337,7 @@ public class GlacialBonebreakerBoss {
             case 5: executeFragileFloor(players); break;
             case 6: executeBlizzardGhosts(players); break;
             case 7: executeSnowMines(players); break;
-            case 8: executeVortexCavalry(); break;
+            case 8: executeVortexCavalry(players); break;
             case 9: executeTundraAmbush(players); break;
             case 10: executeStatusDebuffs(players); break;
         }
@@ -858,17 +859,28 @@ public class GlacialBonebreakerBoss {
         }
     }
 
-    private void executeVortexCavalry() {
+    private void executeVortexCavalry(List<Player> players) {
         alert("Caballería del Vórtice");
-        for (int i = 0; i < 3; i++) {
-            Location loc = boss.getLocation().add(random.nextInt(10) - 5, 10, random.nextInt(10) - 5);
-            Phantom phantom = (Phantom) EntityUtils.spawnNatural(loc, EntityType.PHANTOM);
-            if (phantom != null) {
-                phantom.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
-                Stray stray = (Stray) EntityUtils.spawnNatural(loc, EntityType.STRAY);
-                if (stray != null) {
-                    stray.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
-                    phantom.addPassenger(stray);
+        for (Player p : players) {
+            for (int i = 0; i < 2; i++) { // Spawn 2 per player
+                Location loc = p.getLocation().add(random.nextInt(10) - 5, 10, random.nextInt(10) - 5);
+                Phantom phantom = (Phantom) EntityUtils.spawnNatural(loc, EntityType.PHANTOM);
+                if (phantom != null) {
+                    phantom.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
+                    
+                    Stray stray = (Stray) EntityUtils.spawnNatural(loc, EntityType.STRAY);
+                    if (stray != null) {
+                        stray.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
+                        phantom.addPassenger(stray);
+                        
+                        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                            if (phantom.isValid()) phantom.setSize(8);
+                            if (stray.isValid()) {
+                                EntityUtils.trySetAttribute(stray, Attribute.SCALE, 2.5);
+                                MobGearUtils.equipRandomGear(stray);
+                            }
+                        }, 2L); // 2 ticks delay to override any global 1-tick scaling mechanics
+                    }
                 }
             }
         }
