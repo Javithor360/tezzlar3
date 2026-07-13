@@ -259,12 +259,22 @@ public class GlacialBonebreakerBoss {
             if (projectile == null) continue;
             projectile.getPersistentDataContainer().set(GlacialBonebreakerMechanic.PROJECTILE_KEY, PersistentDataType.BYTE, (byte) 1);
             
+            ItemDisplay id = (ItemDisplay) boss.getWorld().spawnEntity(projectile.getLocation(), EntityType.ITEM_DISPLAY);
+            id.setItemStack(new ItemStack(Material.SNOWBALL));
+            id.setBillboard(Display.Billboard.CENTER);
+            Transformation t = id.getTransformation();
+            t.getScale().set(3.0f, 3.0f, 3.0f);
+            id.setTransformation(t);
+            projectile.addPassenger(id);
+            projectile.setItem(new ItemStack(Material.AIR));
+            
             new BukkitRunnable() {
                 int ticks = 0;
                 @Override
                 public void run() {
                     if (projectile.isDead() || !projectile.isValid() || ticks > 100 || !target.isOnline()) {
                         if (projectile.isValid()) projectile.remove();
+                        id.remove();
                         this.cancel();
                         return;
                     }
@@ -562,6 +572,7 @@ public class GlacialBonebreakerBoss {
             BlockDisplay bd = (BlockDisplay) boss.getWorld().spawnEntity(boss.getLocation(), EntityType.BLOCK_DISPLAY);
             bd.setBlock(Bukkit.createBlockData(Material.BLUE_ICE));
             bd.setTeleportDuration(3);
+            EntityUtils.setColoredGlowing(bd, NamedTextColor.AQUA);
             
             float size = 1.0f + random.nextFloat() * 1.5f; // 1.0 to 2.5 scale
             
@@ -591,22 +602,85 @@ public class GlacialBonebreakerBoss {
 
     private void executeMirageClones() {
         alert("Clones Espejismo");
-        for (int i = 0; i < 3; i++) {
+        int count = 3 + random.nextInt(8); // 3 to 10
+        List<Stray> clones = new ArrayList<>();
+        
+        for (int i = 0; i < count; i++) {
             Stray clone = (Stray) EntityUtils.spawnNatural(boss.getLocation(), EntityType.STRAY);
             if (clone != null) {
                 clone.getPersistentDataContainer().set(GlacialBonebreakerMechanic.FAKE_CLONE_KEY, PersistentDataType.BYTE, (byte) 1);
                 EntityUtils.setCustomName(clone, boss.getCustomName());
+                EntityUtils.trySetAttribute(clone, Attribute.SCALE, 8.0);
+                
                 if (clone.getEquipment() != null) {
                     clone.getEquipment().setArmorContents(boss.getEquipment().getArmorContents());
                     clone.getEquipment().setItemInMainHand(boss.getEquipment().getItemInMainHand());
                 }
-                Vector randDir = new Vector(random.nextDouble() - 0.5, 0.5, random.nextDouble() - 0.5).normalize();
+                
+                clone.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20, 0, false, false));
+                clone.setGlowing(false);
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if (!clone.isDead() && clone.isValid()) {
+                        EntityUtils.setColoredGlowing(clone, NamedTextColor.AQUA);
+                    }
+                }, 20L);
+                
+                Vector randDir = new Vector(random.nextDouble() - 0.5, 0.5, random.nextDouble() - 0.5).normalize().multiply(1.2);
                 clone.setVelocity(randDir);
+                clones.add(clone);
             }
         }
-        boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_SKELETON_AMBIENT, 2.0f, 0.5f);
-        boss.getWorld().spawnParticle(Particle.SNOWFLAKE, boss.getLocation(), 100, 1, 1, 1, 0.1);
-        boss.setVelocity(new Vector(random.nextDouble() - 0.5, 0.5, random.nextDouble() - 0.5).normalize());
+        boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ILLUSIONER_MIRROR_MOVE, 2.0f, 0.5f);
+        boss.getWorld().spawnParticle(Particle.SNOWFLAKE, boss.getLocation(), 200, 2, 2, 2, 0.1);
+        
+        boss.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 20, 0, false, false));
+        boss.setGlowing(false); // Remove glow to sell the illusion
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (!boss.isDead() && boss.isValid()) {
+                EntityUtils.setColoredGlowing(boss, NamedTextColor.AQUA);
+            }
+        }, 20L);
+        
+        boss.setVelocity(new Vector(random.nextDouble() - 0.5, 0.5, random.nextDouble() - 0.5).normalize().multiply(1.5));
+        
+        // Position Swap Task (Shell Game)
+        new BukkitRunnable() {
+            int swaps = 0;
+            @Override
+            public void run() {
+                clones.removeIf(c -> c.isDead() || !c.isValid());
+                if (clones.isEmpty() || boss.isDead() || !boss.isValid() || swaps >= 5) {
+                    this.cancel();
+                    for (Stray c : clones) {
+                        if (c.isValid()) {
+                            c.getWorld().spawnParticle(Particle.SNOWFLAKE, c.getLocation(), 50, 1, 1, 1, 0.1);
+                            c.remove(); // Auto-cleanup remaining clones after phase ends
+                        }
+                    }
+                    return;
+                }
+                
+                boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.5f, 0.5f);
+                
+                List<Location> locs = new ArrayList<>();
+                locs.add(boss.getLocation().clone());
+                boss.getWorld().spawnParticle(Particle.REVERSE_PORTAL, boss.getLocation(), 100, 1, 2, 1, 0.1);
+                
+                for (Stray c : clones) {
+                    locs.add(c.getLocation().clone());
+                    c.getWorld().spawnParticle(Particle.REVERSE_PORTAL, c.getLocation(), 100, 1, 2, 1, 0.1);
+                }
+                
+                Collections.shuffle(locs);
+                
+                boss.teleport(locs.get(0));
+                for (int i = 0; i < clones.size(); i++) {
+                    clones.get(i).teleport(locs.get(i + 1));
+                }
+                
+                swaps++;
+            }
+        }.runTaskTimer(plugin, 80L, 80L); // Swap every 5 seconds, 5 times total
     }
 
     private void executeBlizzardWall() {
