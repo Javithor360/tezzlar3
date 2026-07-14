@@ -52,8 +52,7 @@ public class MissionsModule implements PluginModule {
         MissionBossBarManager bossBarManager = new MissionBossBarManager(plugin);
         plugin.getServer().getPluginManager().registerEvents(bossBarManager, plugin);
         
-        plugin.getServer().getPluginManager().registerEvents(new CTMEscortListener(), plugin);
-        
+        // CTMEscortListener is automatically registered by ListenerRegistry        
         enabled = true;
         
         // Load data for online players (useful on reloads)
