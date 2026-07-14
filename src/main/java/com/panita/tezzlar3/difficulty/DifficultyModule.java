@@ -84,6 +84,7 @@ import com.panita.tezzlar3.difficulty.mechanics.PiglinDJMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.PyromaniacPiglinMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.HourlyPotionMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ArabWanderingTraderMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.SpecialBlocksMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SpawnerRegenMechanic;
 import com.panita.tezzlar3.difficulty.tasks.SpawnerRegenTask;
 import com.panita.tezzlar3.difficulty.util.SpawnerRegenManager;
@@ -197,6 +198,7 @@ public class DifficultyModule implements PluginModule {
             mechanics.add(new StrayFreezeMechanic(plugin));
             mechanics.add(new GlobalVariantsMechanic(plugin));
             mechanics.add(new WitherSkeletonEliteGearMechanic(plugin));
+            mechanics.add(new SpecialBlocksMechanic(plugin));
 
             // Day 15
             mechanics.add(new ToxicMeatMechanic(plugin));
