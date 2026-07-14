@@ -189,6 +189,9 @@ missions:
     objective:
       type: CTM_ESCORT
       amount: 6
+      dungeonExitPortal:
+        destination: "world,-284,64,-205"
+        region: "world,-7804,85,-7719;world,-7804,89,-7716"
       monuments:
         orange: "world,100,64,100"
         red: "world,101,64,100"

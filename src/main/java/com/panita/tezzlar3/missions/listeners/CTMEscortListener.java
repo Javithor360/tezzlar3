@@ -6,13 +6,7 @@ import com.panita.tezzlar3.missions.MissionsModule;
 import com.panita.tezzlar3.missions.data.Mission;
 import com.panita.tezzlar3.timeline.util.TimeManager;
 import com.panita.tezzlar3.qol.util.CustomItemManager;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
@@ -35,7 +29,11 @@ import org.bukkit.potion.PotionEffectType;
 import com.panita.tezzlar3.core.config.CustomConfig;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import java.time.Duration;
 import java.util.*;
 
 public class CTMEscortListener implements Listener {
@@ -49,7 +47,12 @@ public class CTMEscortListener implements Listener {
     // We will force max health to 2.0 (1 heart) directly on the base value, so we save the original.
     private final Map<UUID, Double> originalHealth = new HashMap<>();
     private final Set<UUID> activeCarriers = new HashSet<>();
+    private final Map<String, Location> monumentLocations = new HashMap<>();
     private final Set<UUID> activeEscorts = new HashSet<>();
+    private final Set<Location> analyzingBlocks = new HashSet<>();
+    private Location exitDestination = null;
+    private Location exitRegionMin = null;
+    private Location exitRegionMax = null;
 
     public CTMEscortListener() {
         this.CHOSEN_COLOR_KEY = new NamespacedKey(Tezzlar.getInstance(), "ctm_chosen_color");
@@ -57,6 +60,62 @@ public class CTMEscortListener implements Listener {
         this.HEALTH_BUFF_KEY = new NamespacedKey(Tezzlar.getInstance(), "ctm_escort_health_buff");
         
         Bukkit.getScheduler().runTaskTimer(Tezzlar.getInstance(), this::tick, 10L, 10L);
+    }
+
+    private void loadMissionData() {
+        if (!monumentLocations.isEmpty() && exitDestination != null) return;
+        CustomConfig missionsConfig = new CustomConfig(Tezzlar.getInstance(), "", "missions.yml");
+        for (String color : WOOL_COLORS) {
+            String requiredLocStr = missionsConfig.getConfig().getString("missions." + MISSION_ID + ".objective.monuments." + color);
+            if (requiredLocStr != null) {
+                String[] parts = requiredLocStr.split(",");
+                if (parts.length >= 4) {
+                    World w = Bukkit.getWorld(parts[0]);
+                    if (w != null) {
+                        int x = Integer.parseInt(parts[1]);
+                        int y = Integer.parseInt(parts[2]);
+                        int z = Integer.parseInt(parts[3]);
+                        monumentLocations.put(color, new Location(w, x, y, z));
+                    }
+                }
+            }
+        }
+        
+        String destStr = missionsConfig.getConfig().getString("missions." + MISSION_ID + ".objective.dungeonExitPortal.destination");
+        if (destStr != null) {
+            String[] parts = destStr.split(",");
+            if (parts.length >= 4) {
+                World w = Bukkit.getWorld(parts[0]);
+                if (w != null) {
+                    exitDestination = new Location(w, Double.parseDouble(parts[1]) + 0.5, Double.parseDouble(parts[2]), Double.parseDouble(parts[3]) + 0.5);
+                }
+            }
+        }
+        
+        String regionStr = missionsConfig.getConfig().getString("missions." + MISSION_ID + ".objective.dungeonExitPortal.region");
+        if (regionStr != null) {
+            String[] locs = regionStr.split(";");
+            if (locs.length >= 2) {
+                String[] p1 = locs[0].split(",");
+                String[] p2 = locs[1].split(",");
+                if (p1.length >= 4 && p2.length >= 4) {
+                    World w1 = Bukkit.getWorld(p1[0]);
+                    World w2 = Bukkit.getWorld(p2[0]);
+                    if (w1 != null && w2 != null && w1.equals(w2)) {
+                        int x1 = Integer.parseInt(p1[1]);
+                        int y1 = Integer.parseInt(p1[2]);
+                        int z1 = Integer.parseInt(p1[3]);
+                        
+                        int x2 = Integer.parseInt(p2[1]);
+                        int y2 = Integer.parseInt(p2[2]);
+                        int z2 = Integer.parseInt(p2[3]);
+                        
+                        exitRegionMin = new Location(w1, Math.min(x1, x2), Math.min(y1, y2), Math.min(z1, z2));
+                        exitRegionMax = new Location(w1, Math.max(x1, x2), Math.max(y1, y2), Math.max(z1, z2));
+                    }
+                }
+            }
+        }
     }
 
     private boolean isMissionActive() {
@@ -77,7 +136,50 @@ public class CTMEscortListener implements Listener {
     }
 
     private void tick() {
-        if (!isMissionActive()) return;
+        if (!isMissionActive()) {
+            monumentLocations.clear();
+            exitDestination = null;
+            return;
+        }
+
+        loadMissionData();
+        for (Map.Entry<String, Location> entry : monumentLocations.entrySet()) {
+            Location loc = entry.getValue();
+            String color = entry.getKey();
+            
+            if (loc.getWorld() != null && loc.getWorld().isChunkLoaded(loc.getBlockX() >> 4, loc.getBlockZ() >> 4)) {
+                if (analyzingBlocks.contains(loc)) {
+                    continue;
+                }
+                
+                if (!loc.getBlock().getType().name().endsWith("_WOOL")) {
+                    loc.getWorld().spawnParticle(Particle.END_ROD, loc.clone().add(0.5, 0.5, 0.5), 5, 0.2, 0.2, 0.2, 0.01);
+                } else {
+                    loc.getWorld().spawnParticle(Particle.ENCHANT, loc.clone().add(0.5, 0.5, 0.5), 5, 0.2, 0.2, 0.2, 0.1);
+                    
+                    Particle.DustOptions dust = new Particle.DustOptions(getDustColor(color), 3.0F);
+                    for (int y = loc.getBlockY() + 1; y <= 320; y += 2) {
+                        loc.getWorld().spawnParticle(Particle.DUST, loc.getBlockX() + 0.5, y, loc.getBlockZ() + 0.5, 2, 0.1, 0, 0.1, 0, dust);
+                    }
+                }
+            }
+        }
+
+        if (exitRegionMin != null && exitRegionMax != null) {
+            World w = exitRegionMin.getWorld();
+            if (w != null && w.isChunkLoaded(exitRegionMin.getBlockX() >> 4, exitRegionMin.getBlockZ() >> 4)) {
+                for (int x = exitRegionMin.getBlockX(); x <= exitRegionMax.getBlockX(); x++) {
+                    for (int y = exitRegionMin.getBlockY(); y <= exitRegionMax.getBlockY(); y++) {
+                        for (int z = exitRegionMin.getBlockZ(); z <= exitRegionMax.getBlockZ(); z++) {
+                            if (Math.random() < 0.3) {
+                                w.spawnParticle(Particle.REVERSE_PORTAL, x + 0.5, y + 0.5, z + 0.5, 2, 0.2, 0.2, 0.2, 0.05);
+                                w.spawnParticle(Particle.WITCH, x + 0.5, y + 0.5, z + 0.5, 1, 0.2, 0.2, 0.2, 0);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         Set<UUID> currentCarriers = new HashSet<>();
         Set<UUID> currentEscorts = new HashSet<>();
@@ -196,6 +298,18 @@ public class CTMEscortListener implements Listener {
         }
     }
 
+    private org.bukkit.Color getDustColor(String color) {
+        switch (color) {
+            case "orange": return org.bukkit.Color.fromRGB(255, 127, 0);
+            case "red": return org.bukkit.Color.fromRGB(255, 0, 0);
+            case "blue": return org.bukkit.Color.fromRGB(0, 0, 255);
+            case "lime": return org.bukkit.Color.fromRGB(50, 255, 50);
+            case "yellow": return org.bukkit.Color.fromRGB(255, 255, 0);
+            case "purple": return org.bukkit.Color.fromRGB(128, 0, 128);
+            default: return org.bukkit.Color.WHITE;
+        }
+    }
+
     private void removeCarrierDebuffs(Player player) {
         AttributeInstance healthInst = player.getAttribute(Attribute.MAX_HEALTH);
         if (healthInst != null && originalHealth.containsKey(player.getUniqueId())) {
@@ -295,74 +409,194 @@ public class CTMEscortListener implements Listener {
         originalHealth.remove(player.getUniqueId());
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBlockPlace(BlockPlaceEvent event) {
-        if (!isMissionActive()) return;
+    private void sendFakeBlocks(Location center, Material material, int durationTicks) {
+        Map<Location, org.bukkit.block.data.BlockData> originalBlocks = new HashMap<>();
         
-        ItemStack placedItem = event.getItemInHand();
-        String color = getWoolColor(placedItem);
-        if (color == null) return;
-        
-        Player player = event.getPlayer();
-        Mission mission = MissionsModule.getMissionManager().getMission(MISSION_ID);
-        if (mission == null) return;
-        
-        // Ensure this player is the original carrier for this color
-        String chosenColor = player.getPersistentDataContainer().get(CHOSEN_COLOR_KEY, PersistentDataType.STRING);
-        if (chosenColor == null || !chosenColor.equals(color)) {
-            event.setCancelled(true);
-            Messenger.prefixedSend(player, "&cNo eres digno de colocar esta lana, solo el portador original (" + color + ") puede hacerlo.");
-            return;
-        }
-
-        // Let's read directly from missions.yml using CustomConfig
-        CustomConfig missionsConfig = new CustomConfig(Tezzlar.getInstance(), "", "missions.yml");
-        String requiredLocStr = missionsConfig.getConfig().getString("missions." + MISSION_ID + ".objective.monuments." + color);
-        
-        boolean coordsMatch = false;
-        if (requiredLocStr != null) {
-            String[] parts = requiredLocStr.split(",");
-            if (parts.length >= 4) {
-                String w = parts[0];
-                int x = Integer.parseInt(parts[1]);
-                int y = Integer.parseInt(parts[2]);
-                int z = Integer.parseInt(parts[3]);
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                Location loc = center.clone().add(dx, -1, dz);
+                originalBlocks.put(loc, loc.getBlock().getBlockData());
                 
-                Location blockLoc = event.getBlock().getLocation();
-                if (blockLoc.getWorld().getName().equals(w) && blockLoc.getBlockX() == x && blockLoc.getBlockY() == y && blockLoc.getBlockZ() == z) {
-                    coordsMatch = true;
+                org.bukkit.block.data.BlockData fakeData = Bukkit.createBlockData(material);
+                for (Entity entity : center.getWorld().getNearbyEntities(center, 30, 30, 30)) {
+                    if (entity instanceof Player p) {
+                        p.sendBlockChange(loc, fakeData);
+                    }
                 }
             }
         }
         
-        if (!coordsMatch) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Map.Entry<Location, org.bukkit.block.data.BlockData> entry : originalBlocks.entrySet()) {
+                    Location loc = entry.getKey();
+                    if (loc.getWorld() == null) continue;
+                    for (Entity entity : loc.getWorld().getNearbyEntities(loc, 30, 30, 30)) {
+                        if (entity instanceof Player p) {
+                            p.sendBlockChange(loc, entry.getValue());
+                        }
+                    }
+                }
+            }
+        }.runTaskLater(Tezzlar.getInstance(), durationTicks);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (!isMissionActive()) return;
+        if (exitRegionMin == null || exitRegionMax == null || exitDestination == null) return;
+        
+        Location to = event.getTo();
+        if (to == null) return;
+        
+        if (to.getWorld() != null && to.getWorld().equals(exitRegionMin.getWorld())) {
+            if (to.getX() >= exitRegionMin.getX() && to.getX() <= exitRegionMax.getX() + 1 &&
+                to.getY() >= exitRegionMin.getY() && to.getY() <= exitRegionMax.getY() + 1 &&
+                to.getZ() >= exitRegionMin.getZ() && to.getZ() <= exitRegionMax.getZ() + 1) {
+                
+                event.getPlayer().teleport(exitDestination);
+                event.getPlayer().playSound(exitDestination, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
+                Messenger.prefixedSend(event.getPlayer(), "&a¡Has escapado de la dungeon exitosamente!");
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (!isMissionActive()) return;
+        
+        Location blockLoc = event.getBlock().getLocation();
+        if (analyzingBlocks.contains(blockLoc)) {
             event.setCancelled(true);
-            Messenger.prefixedSend(player, "&cEste no es el altar correcto para la lana " + color + ".");
             return;
         }
         
-        // Success!
-        player.getInventory().setItemInMainHand(null);
-        removeCarrierDebuffs(player);
-        activeCarriers.remove(player.getUniqueId());
-        
-        Location loc = event.getBlock().getLocation();
-        localBroadcast(loc, "&a¡" + player.getName() + " ha colocado con éxito la lana " + color + " en el monumento!");
-        
-        loc.getWorld().playSound(loc, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
-        
-        Firework fw = (Firework) loc.getWorld().spawnEntity(loc.clone().add(0.5, 1, 0.5), EntityType.FIREWORK_ROCKET);
-        FireworkMeta meta = fw.getFireworkMeta();
-        meta.addEffect(FireworkEffect.builder().withColor(Color.WHITE).with(FireworkEffect.Type.BALL_LARGE).build());
-        meta.setPower(1);
-        fw.setFireworkMeta(meta);
-        
-        // Advance mission progress globally
-        MissionsModule.getGlobalMissionManager().addProgress(MISSION_ID, 1);
-        int currentProgress = MissionsModule.getGlobalMissionManager().getProgress(MISSION_ID);
-        if (currentProgress >= mission.getObjectiveAmount()) {
-            Messenger.prefixedBroadcast("&6&l¡EL MONUMENTO HA SIDO COMPLETADO!");
-            MissionsModule.getDataManager().giveRewardToEveryone(MISSION_ID);
+        loadMissionData();
+        for (Location loc : monumentLocations.values()) {
+            if (loc.getWorld() != null && loc.getWorld().equals(blockLoc.getWorld()) &&
+                loc.getBlockX() == blockLoc.getBlockX() &&
+                loc.getBlockY() == blockLoc.getBlockY() &&
+                loc.getBlockZ() == blockLoc.getBlockZ()) {
+                
+                if (loc.getBlock().getType().name().endsWith("_WOOL")) {
+                    event.setCancelled(true);
+                    Messenger.prefixedSend(event.getPlayer(), "&cEsta lana es sagrada y ya no puede ser extraída.");
+                }
+                break;
+            }
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if (!isMissionActive()) return;
+        
+        Location blockLoc = event.getBlock().getLocation();
+        if (analyzingBlocks.contains(blockLoc)) {
+            event.setCancelled(true);
+            return;
+        }
+        
+        loadMissionData();
+        
+        String targetColor = null;
+        for (Map.Entry<String, Location> entry : monumentLocations.entrySet()) {
+            Location expectedLoc = entry.getValue();
+            if (expectedLoc != null && 
+                blockLoc.getWorld().equals(expectedLoc.getWorld()) &&
+                blockLoc.getBlockX() == expectedLoc.getBlockX() &&
+                blockLoc.getBlockY() == expectedLoc.getBlockY() &&
+                blockLoc.getBlockZ() == expectedLoc.getBlockZ()) {
+                
+                targetColor = entry.getKey();
+                break;
+            }
+        }
+        
+        if (targetColor == null) return; // Not placed on any monument location, allow it
+
+        ItemStack placedItem = event.getItemInHand();
+        final String placedColor = getWoolColor(placedItem);
+        final String fTargetColor = targetColor;
+        
+        final Player player = event.getPlayer();
+        final Mission mission = MissionsModule.getMissionManager().getMission(MISSION_ID);
+        if (mission == null) return;
+
+        final String chosenColor = player.getPersistentDataContainer().get(CHOSEN_COLOR_KEY, PersistentDataType.STRING);
+        final ItemStack finalPlacedItem = placedItem.clone();
+        finalPlacedItem.setAmount(1);
+
+        analyzingBlocks.add(blockLoc);
+        
+        new BukkitRunnable() {
+            int ticks = 0;
+            @Override
+            public void run() {
+                ticks++;
+                if (ticks <= 4) {
+                    blockLoc.getWorld().playSound(blockLoc, Sound.BLOCK_BEACON_AMBIENT, 1.0f, 2.0f);
+                    blockLoc.getWorld().spawnParticle(Particle.ENCHANT, blockLoc.clone().add(0.5, 0.5, 0.5), 10, 0.3, 0.3, 0.3, 0.1);
+                    return;
+                }
+                
+                this.cancel();
+                analyzingBlocks.remove(blockLoc);
+                
+                if (placedColor == null || !placedColor.equals(fTargetColor) || (chosenColor != null && !chosenColor.equals(placedColor))) {
+                    blockLoc.getWorld().playSound(blockLoc, Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+                    blockLoc.getWorld().spawnParticle(Particle.ANGRY_VILLAGER, blockLoc.clone().add(0.5, 0.5, 0.5), 15, 0.3, 0.3, 0.3);
+                    
+                    Material type = blockLoc.getBlock().getType();
+                    blockLoc.getBlock().setType(Material.AIR);
+                    if (placedColor != null) {
+                        blockLoc.getWorld().dropItemNaturally(blockLoc, finalPlacedItem);
+                    } else {
+                        blockLoc.getWorld().dropItemNaturally(blockLoc, new ItemStack(type));
+                    }
+                    
+                    sendFakeBlocks(blockLoc, Material.RED_STAINED_GLASS, 40);
+                    
+                    if (placedColor == null || !placedColor.equals(fTargetColor)) {
+                        if (placedColor != null) {
+                            Messenger.prefixedSend(player, "&cEste no es el altar correcto para la lana " + placedColor + ".");
+                        } else {
+                            Messenger.prefixedSend(player, "&cEste altar solo acepta la lana " + fTargetColor + " sagrada.");
+                        }
+                    } else {
+                        Messenger.prefixedSend(player, "&cNo eres digno de colocar esta lana, solo el portador original (" + placedColor + ") puede hacerlo.");
+                    }
+                } else {
+                    blockLoc.getWorld().playSound(blockLoc, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+                    
+                    Firework fw = (Firework) blockLoc.getWorld().spawnEntity(blockLoc.clone().add(0.5, 1, 0.5), EntityType.FIREWORK_ROCKET);
+                    FireworkMeta meta = fw.getFireworkMeta();
+                    meta.addEffect(FireworkEffect.builder().withColor(Color.WHITE).with(FireworkEffect.Type.BALL_LARGE).build());
+                    meta.setPower(1);
+                    fw.setFireworkMeta(meta);
+                    
+                    sendFakeBlocks(blockLoc, Material.LIME_STAINED_GLASS, 40);
+                    
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        Messenger.showTitle(
+                            p,
+                            "&a&l¡LANA COLOCADA!", 
+                            "&7" + player.getName() + " ha colocado la lana " + placedColor, 
+                            Duration.ofMillis(500),
+                            Duration.ofMillis(3500), 
+                            Duration.ofMillis(1000)
+                        );
+                    }
+                    
+                    MissionsModule.getGlobalMissionManager().addProgress(MISSION_ID, 1);
+                    int currentProgress = MissionsModule.getGlobalMissionManager().getProgress(MISSION_ID);
+                    if (currentProgress >= mission.getObjectiveAmount()) {
+                        Messenger.prefixedBroadcast("&6&l¡EL MONUMENTO HA SIDO COMPLETADO!");
+                        MissionsModule.getDataManager().giveRewardToEveryone(MISSION_ID);
+                    }
+                }
+            }
+        }.runTaskTimer(Tezzlar.getInstance(), 10L, 10L);
     }
 }
