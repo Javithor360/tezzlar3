@@ -3,6 +3,7 @@ package com.panita.tezzlar3.missions;
 import com.panita.tezzlar3.core.modules.PluginModule;
 import com.panita.tezzlar3.missions.data.GlobalMissionManager;
 import com.panita.tezzlar3.missions.data.PlayerDataManager;
+import com.panita.tezzlar3.missions.listeners.CTMEscortListener;
 import com.panita.tezzlar3.missions.listeners.MissionExpirationListener;
 import com.panita.tezzlar3.missions.listeners.MissionTracker;
 import com.panita.tezzlar3.missions.listeners.PlayerDataListener;
@@ -50,6 +51,8 @@ public class MissionsModule implements PluginModule {
         
         MissionBossBarManager bossBarManager = new MissionBossBarManager(plugin);
         plugin.getServer().getPluginManager().registerEvents(bossBarManager, plugin);
+        
+        plugin.getServer().getPluginManager().registerEvents(new CTMEscortListener(), plugin);
         
         enabled = true;
         

@@ -180,3 +180,24 @@ missions:
       - id: "GIVE_EXP"
         args: { levels: 30 }
         description: "30 Niveles de Experiencia"
+
+  conquer_dungeon:
+    name: "Conquistar la Dungeon"
+    start_day: 16
+    end_day: 18
+    scope: GROUP
+    objective:
+      type: CTM_ESCORT
+      amount: 6
+      monuments:
+        orange: "world,100,64,100"
+        red: "world,101,64,100"
+        blue: "world,102,64,100"
+        lime: "world,103,64,100"
+        yellow: "world,104,64,100"
+        purple: "world,105,64,100"
+    rewards:
+      - id: "GIVE_EXP"
+        args: { levels: 100 }
+        description: "100 Niveles de Experiencia"
+
