@@ -92,6 +92,18 @@ public class RevenantTrackerTask implements Runnable, ActionBarProvider {
             }
 
             if (owner != null) {
+                boolean isSoulbound = section.getBoolean("isSoulbound", false);
+                if (isSoulbound) {
+                    Location pLoc = graveLoc.clone().add(0.5, 1.5, 0.5);
+                    world.spawnParticle(Particle.SOUL, pLoc, 50, 0.5, 0.5, 0.5, 0.1);
+                    world.spawnParticle(Particle.ENCHANT, pLoc, 100, 1.0, 1.0, 1.0, 0.1);
+                    SoundUtils.play(owner, "block.amethyst_block.chime", 1.0f, 0.8f);
+                    Messenger.prefixedSend(owner, "<aqua>¡El eco de tu alma descansa en paz!</aqua>");
+                    
+                    GravesDataManager.removeGrave(id);
+                    continue;
+                }
+
                 int count = presenceCounter.getOrDefault(id, 0);
                 
                 if (count == 0) {
