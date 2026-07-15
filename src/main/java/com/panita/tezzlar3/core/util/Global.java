@@ -81,6 +81,18 @@ public class Global {
     }
 
     /**
+     * Formats ticks into dd:hh:mm:ss
+     */
+    public static String formatFullTimeTicks(long ticks) {
+        long totalSeconds = ticks / 20;
+        long d = totalSeconds / 86400;
+        long h = (totalSeconds % 86400) / 3600;
+        long m = (totalSeconds % 3600) / 60;
+        long s = totalSeconds % 60;
+        return String.format("%02d:%02d:%02d:%02d", d, h, m, s);
+    }
+
+    /**
      * Converts a duration in milliseconds into a human-readable string (days, hours, minutes).
      * @param diffMillis The duration in milliseconds.
      * @return A formatted string such as "2 días y 4 horas".

@@ -10,10 +10,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import com.panita.tezzlar3.core.chat.Messenger;
+import com.panita.tezzlar3.core.util.Global;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 import com.panita.tezzlar3.core.util.SoundUtils;
+import org.bukkit.Statistic;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class SpecialBlocksMechanic extends DifficultyMechanic {
+    private final Map<UUID, Long> shriekerCooldowns = new HashMap<>();
 
     public SpecialBlocksMechanic(JavaPlugin plugin) {
         super(plugin, 14); // Active from day 14
@@ -62,11 +70,24 @@ public class SpecialBlocksMechanic extends DifficultyMechanic {
                             }
                         }
                         break;
-                    case SCULK_CATALYST:
+                    case SCULK_SHRIEKER:
                         if (player.getLevel() < 30) {
-                            if (Math.random() < 0.3) {
-                                player.giveExp(1);
+                            long now = System.currentTimeMillis();
+                            long last = shriekerCooldowns.getOrDefault(player.getUniqueId(), 0L);
+                            if (now - last >= 30000) {
+                                shriekerCooldowns.put(player.getUniqueId(), now);
+                                player.setLevel(player.getLevel() + 1);
+                                SoundUtils.playInRadius(player.getLocation(), "entity.experience_orb.pickup", 1.0f, 1.0f);
                             }
+                        }
+                        break;
+                    case REINFORCED_DEEPSLATE:
+                        int ticksSinceRest = player.getStatistic(Statistic.TIME_SINCE_REST);
+                        if (ticksSinceRest > 100) { // More than 5 seconds to prevent spam
+                            String timeStr = Global.formatFullTimeTicks(ticksSinceRest);
+                            Messenger.prefixedSend(player, "&7fHas descansado y reiniciado tu ciclo de sueño tras &b" + timeStr);
+                            player.setStatistic(Statistic.TIME_SINCE_REST, 0);
+                            SoundUtils.playInRadius(player.getLocation(), "block.respawn_anchor.set_spawn", 1.0f, 1.2f);
                         }
                         break;
                     default:
