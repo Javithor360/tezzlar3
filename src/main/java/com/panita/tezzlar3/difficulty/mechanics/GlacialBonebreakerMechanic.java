@@ -251,14 +251,17 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
                     }
                 }
             } else if (snowball.getPersistentDataContainer().has(PROJECTILE_KEY, PersistentDataType.BYTE)) {
+                for (Entity passenger : snowball.getPassengers()) passenger.remove();
                 if (event.getHitEntity() instanceof Player p) {
                     if (snowball.getShooter() instanceof Entity shooter) {
                         p.damage(2.0, shooter);
                     } else {
                         p.damage(2.0);
                     }
-                    p.setFreezeTicks(Math.min(p.getMaxFreezeTicks(), p.getFreezeTicks() + 60));
+                    p.setFreezeTicks(Math.min(p.getMaxFreezeTicks(), p.getFreezeTicks() + 40));
                 }
+                snowball.getWorld().spawnParticle(Particle.SNOWFLAKE, snowball.getLocation(), 20, 0.5, 0.5, 0.5, 0.1);
+                snowball.getWorld().playSound(snowball.getLocation(), Sound.BLOCK_SNOW_BREAK, 1.0f, 1.0f);
             }
         }
     }
@@ -276,6 +279,18 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
                     vehicle.remove();
                 }
                 slime.remove();
+            } else if (slime.getPersistentDataContainer().has(PROJECTILE_KEY, PersistentDataType.BYTE)) {
+                event.setCancelled(true);
+                if (event.getDamager() instanceof Player player) {
+                    Entity vehicle = slime.getVehicle();
+                    if (vehicle instanceof Snowball snowball) {
+                        snowball.setShooter(player);
+                        Vector look = player.getLocation().getDirection().normalize();
+                        snowball.setVelocity(look.multiply(1.5));
+                        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f, 1.0f);
+                        player.getWorld().playSound(player.getLocation(), Sound.BLOCK_SNOW_HIT, 1.0f, 1.0f);
+                    }
+                }
             }
         }
     }

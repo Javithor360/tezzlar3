@@ -46,6 +46,7 @@ public class GlacialBonebreakerBoss {
     private boolean shield1000 = false;
     private boolean shield500 = false;
     private boolean shield30 = false;
+    private boolean isTeleporting = false;
     private final Map<BlockDisplay, double[]> orbitalShields = new HashMap<>();
     
     public GlacialBonebreakerBoss(Stray boss, JavaPlugin plugin, boolean isNewSpawn) {
@@ -143,12 +144,12 @@ public class GlacialBonebreakerBoss {
                     bossBlock.setType(Material.AIR);
                     boss.getWorld().playSound(bossBlock.getLocation(), Sound.BLOCK_COBWEB_BREAK, 1.0f, 1.0f);
                 }
-                if (bossBlock.getType() == Material.LAVA || bossBlock.getRelative(BlockFace.DOWN).getType() == Material.LAVA) {
+                if (!isTeleporting && (bossBlock.getType() == Material.LAVA || bossBlock.getRelative(BlockFace.DOWN).getType() == Material.LAVA)) {
                     List<Player> tpNearby = getNearbyPlayers(100);
                     if (!tpNearby.isEmpty()) {
                         Player tpTarget = tpNearby.get(random.nextInt(tpNearby.size()));
-                        boss.teleport(tpTarget.getLocation().add(0, 1, 0));
-                        boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.5f, 0.5f);
+                        isTeleporting = true;
+                        delayedTeleport(tpTarget.getLocation().add(0, 1, 0), () -> isTeleporting = false);
                     }
                 }
                 
@@ -269,6 +270,32 @@ public class GlacialBonebreakerBoss {
         }
         return list;
     }
+
+    private void delayedTeleport(Location dest, Runnable afterTp) {
+        boss.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 40, 10, false, false));
+        boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDERMAN_STARE, 1.5f, 0.5f);
+        new BukkitRunnable() {
+            int ticks = 0;
+            @Override
+            public void run() {
+                if (boss.isDead() || !boss.isValid()) {
+                    this.cancel();
+                    return;
+                }
+                if (ticks >= 40) { // 2 seconds reaction time
+                    boss.teleport(dest);
+                    boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.5f, 0.5f);
+                    boss.getWorld().spawnParticle(Particle.EXPLOSION, boss.getLocation(), 1);
+                    if (afterTp != null) afterTp.run();
+                    this.cancel();
+                } else {
+                    dest.getWorld().spawnParticle(Particle.REVERSE_PORTAL, dest.clone().add(0, 1, 0), 30, 0.5, 1.0, 0.5, 0.1);
+                    dest.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, dest.clone().add(0, 1, 0), 10, 0.5, 1.0, 0.5, 0.05);
+                }
+                ticks++;
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+    }
     
     private void checkAbsoluteZero(List<Player> players) {
         if (players.size() < 2) return;
@@ -317,24 +344,38 @@ public class GlacialBonebreakerBoss {
             id.setItemStack(new ItemStack(Material.SNOWBALL));
             id.setBillboard(Display.Billboard.CENTER);
             Transformation t = id.getTransformation();
-            t.getScale().set(3.0f, 3.0f, 3.0f);
+            t.getScale().set(2.2f, 2.2f, 2.2f);
             id.setTransformation(t);
             projectile.addPassenger(id);
             projectile.setItem(new ItemStack(Material.AIR));
+            
+            Slime hitbox = (Slime) boss.getWorld().spawnEntity(projectile.getLocation(), EntityType.SLIME);
+            hitbox.setSize(2);
+            hitbox.setInvisible(true);
+            hitbox.setAI(false);
+            hitbox.setGravity(false);
+            hitbox.setSilent(true);
+            hitbox.getPersistentDataContainer().set(GlacialBonebreakerMechanic.PROJECTILE_KEY, PersistentDataType.BYTE, (byte) 1);
+            projectile.addPassenger(hitbox);
             
             new BukkitRunnable() {
                 int ticks = 0;
                 @Override
                 public void run() {
-                    if (projectile.isDead() || !projectile.isValid() || ticks > 100 || !target.isValid() || target.isDead()) {
-                        if (projectile.isValid()) projectile.remove();
+                    if (projectile.isDead() || !projectile.isValid() || ticks > 150 || !target.isValid() || target.isDead()) {
+                        projectile.remove();
                         id.remove();
+                        hitbox.remove();
                         this.cancel();
                         return;
                     }
                     
-                    Vector dir = target.getLocation().add(0, target.getHeight() / 2, 0).toVector().subtract(projectile.getLocation().toVector()).normalize();
-                    projectile.setVelocity(dir.multiply(1.2));
+                    if (projectile.getShooter() == boss) {
+                        if (projectile.getLocation().distanceSquared(target.getLocation()) > 25.0) { // Stops tracking at 5 blocks to allow dodging
+                            Vector dir = target.getLocation().add(0, target.getHeight() / 2, 0).toVector().subtract(projectile.getLocation().toVector()).normalize();
+                            projectile.setVelocity(dir.multiply(0.867)); // another 15% slower
+                        }
+                    }
                     projectile.getWorld().spawnParticle(Particle.SNOWFLAKE, projectile.getLocation(), 2, 0.1, 0.1, 0.1, 0);
                     
                     ticks++;
@@ -412,68 +453,73 @@ public class GlacialBonebreakerBoss {
         int totalTimes = 2 + random.nextInt(4); // 2 to 5
         int[] count = {0};
         
-        Runnable task = new Runnable() {
+        Runnable[] taskRef = new Runnable[1];
+        taskRef[0] = new Runnable() {
             @Override
             public void run() {
                 if (count[0] >= totalTimes || boss.isDead() || !boss.isValid()) return;
                 
                 Player target = players.get(random.nextInt(players.size()));
-                boss.teleport(target.getLocation());
-                boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.5f, 0.5f);
+                isTeleporting = true;
                 
-                Location center = boss.getLocation().clone();
-                center.setY(Math.floor(center.getY()));
-                
-                new BukkitRunnable() {
-                    int radius = 1;
-                    @Override
-                    public void run() {
-                        if (radius > 15 || boss.isDead()) {
-                            this.cancel();
-                            return;
-                        }
-                        
-                        int points = radius * 8;
-                        for (int i = 0; i < points; i++) {
-                            double angle = 2 * Math.PI * i / points;
-                            double x = Math.cos(angle) * radius;
-                            double z = Math.sin(angle) * radius;
-                            Location loc = center.clone().add(x, 0, z);
+                delayedTeleport(target.getLocation(), () -> {
+                    isTeleporting = false;
+                    if (boss.isDead() || !boss.isValid()) return;
+                    
+                    Location center = boss.getLocation().clone();
+                    center.setY(Math.floor(center.getY()));
+                    
+                    new BukkitRunnable() {
+                        int radius = 1;
+                        @Override
+                        public void run() {
+                            if (radius > 15 || boss.isDead()) {
+                                this.cancel();
+                                return;
+                            }
                             
-                            BlockDisplay bd = (BlockDisplay) loc.getWorld().spawnEntity(loc, EntityType.BLOCK_DISPLAY);
-                            bd.setBlock(Bukkit.createBlockData(Material.PACKED_ICE));
-                            Transformation t = bd.getTransformation();
-                            t.getScale().set(0.5f, 2.0f, 0.5f);
-                            bd.setTransformation(t);
+                            int points = radius * 8;
+                            for (int i = 0; i < points; i++) {
+                                double angle = 2 * Math.PI * i / points;
+                                double x = Math.cos(angle) * radius;
+                                double z = Math.sin(angle) * radius;
+                                Location loc = center.clone().add(x, 0, z);
+                                
+                                BlockDisplay bd = (BlockDisplay) loc.getWorld().spawnEntity(loc, EntityType.BLOCK_DISPLAY);
+                                bd.setBlock(Bukkit.createBlockData(Material.PACKED_ICE));
+                                Transformation t = bd.getTransformation();
+                                t.getScale().set(0.5f, 2.0f, 0.5f);
+                                bd.setTransformation(t);
+                                
+                                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                                    if (bd.isValid()) {
+                                        bd.getWorld().spawnParticle(Particle.BLOCK, bd.getLocation().add(0, 1, 0), 10, 0.2, 0.2, 0.2, Bukkit.createBlockData(Material.PACKED_ICE));
+                                        bd.remove();
+                                    }
+                                }, 10L);
+                            }
                             
-                            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                                if (bd.isValid()) {
-                                    bd.getWorld().spawnParticle(Particle.BLOCK, bd.getLocation().add(0, 1, 0), 10, 0.2, 0.2, 0.2, Bukkit.createBlockData(Material.PACKED_ICE));
-                                    bd.remove();
-                                }
-                            }, 10L);
-                        }
-                        
-                        for (Player p : getNearbyPlayers(20)) {
-                            if (p.getLocation().distance(center) <= radius && p.getLocation().distance(center) > radius - 1.5) {
-                                if (p.getLocation().getY() - center.getY() < 2.0) {
-                                    p.damage(20.0, boss);
-                                    p.setVelocity(new Vector(0, 1.5, 0));
+                            for (Player p : getNearbyPlayers(20)) {
+                                if (p.getLocation().distance(center) <= radius && p.getLocation().distance(center) > radius - 1.5) {
+                                    if (p.getLocation().getY() - center.getY() < 2.0) {
+                                        p.damage(20.0, boss);
+                                        p.setVelocity(new Vector(0, 1.5, 0));
+                                    }
                                 }
                             }
+                            radius++;
                         }
-                        radius++;
+                    }.runTaskTimer(plugin, 0L, 2L);
+                    
+                    count[0]++;
+                    if (count[0] < totalTimes) {
+                        Bukkit.getScheduler().runTaskLater(plugin, taskRef[0], 20L + random.nextInt(41)); // 1 to 3 seconds
                     }
-                }.runTaskTimer(plugin, 0L, 2L);
-                
-                count[0]++;
-                if (count[0] < totalTimes) {
-                    Bukkit.getScheduler().runTaskLater(plugin, this, 20L + random.nextInt(41)); // 1 to 3 seconds
-                }
+                });
             }
         };
         
-        Bukkit.getScheduler().runTaskLater(plugin, task, 20L + random.nextInt(41));
+        Bukkit.getScheduler().runTaskLater(plugin, taskRef[0], 20L + random.nextInt(41));
     }
 
     private void executeInertialCharge(List<Player> players) {
@@ -598,7 +644,8 @@ public class GlacialBonebreakerBoss {
         boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 160, 2, false, false));
         
         int[] count = {0};
-        Runnable task = new Runnable() {
+        Runnable[] taskRef = new Runnable[1];
+        taskRef[0] = new Runnable() {
             @Override
             public void run() {
                 if (count[0] >= 3 || boss.isDead() || players.isEmpty()) {
@@ -610,22 +657,29 @@ public class GlacialBonebreakerBoss {
                 if (p.isOnline()) {
                     Vector look = p.getLocation().getDirection().setY(0).normalize();
                     Location behind = p.getLocation().subtract(look.multiply(2));
-                    boss.teleport(behind);
-                    boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.5f);
-                    boss.getWorld().spawnParticle(Particle.SNOWFLAKE, boss.getLocation(), 50, 1, 1, 1, 0.1);
-                    p.damage(20.0, boss);
-                }
-                
-                count[0]++;
-                if (count[0] < 3) {
-                    Bukkit.getScheduler().runTaskLater(plugin, this, 20L + random.nextInt(41));
+                    
+                    isTeleporting = true;
+                    delayedTeleport(behind, () -> {
+                        isTeleporting = false;
+                        if (boss.isDead() || !boss.isValid()) return;
+                        boss.getWorld().spawnParticle(Particle.SNOWFLAKE, boss.getLocation(), 50, 1, 1, 1, 0.1);
+                        p.damage(20.0, boss);
+                        
+                        count[0]++;
+                        if (count[0] < 3) {
+                            Bukkit.getScheduler().runTaskLater(plugin, taskRef[0], 20L + random.nextInt(41));
+                        } else {
+                            boss.removePotionEffect(PotionEffectType.INVISIBILITY);
+                        }
+                    });
                 } else {
-                    boss.removePotionEffect(PotionEffectType.INVISIBILITY);
+                    count[0]++;
+                    if (count[0] < 3) Bukkit.getScheduler().runTaskLater(plugin, taskRef[0], 20L);
                 }
             }
         };
         
-        Bukkit.getScheduler().runTaskLater(plugin, task, 20L + random.nextInt(41));
+        Bukkit.getScheduler().runTaskLater(plugin, taskRef[0], 20L + random.nextInt(41));
     }
     
     private void executeSnowballFight(List<Player> players) {
@@ -779,7 +833,7 @@ public class GlacialBonebreakerBoss {
             bd.setTransformation(t);
             
             Slime slime = (Slime) boss.getWorld().spawnEntity(boss.getLocation(), EntityType.SLIME);
-            slime.setSize(Math.max(1, (int)(size * 2)));
+            slime.setSize(Math.max(4, (int)(size * 3)));
             slime.setInvisible(true);
             slime.setAI(false);
             slime.setGravity(false);
@@ -789,8 +843,8 @@ public class GlacialBonebreakerBoss {
             
             double radius = 10.0 + random.nextDouble() * 10.0; // 10 to 20 blocks
             double height = 2.0 + random.nextDouble() * 6.0; // 2 to 8 blocks height
-            // Speed between 0.03 and 0.06 (closer shields orbit slightly faster or just varied)
-            double speed = 0.03 + (random.nextDouble() * 0.03); 
+            // Speed between 0.0075 and 0.015 (75% slower)
+            double speed = (0.03 + (random.nextDouble() * 0.03)) * 0.25; 
             if (random.nextBoolean()) speed *= -1; // some orbit in reverse
             double startAngle = random.nextDouble() * 2 * Math.PI;
             
@@ -919,16 +973,8 @@ public class GlacialBonebreakerBoss {
                             if (p.getNoDamageTicks() < 10) { // Avoid instant death from tick-spam
                                 p.damage(25.0, boss);
                                 p.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1));
+                                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0));
                                 p.setFreezeTicks(Math.min(p.getMaxFreezeTicks(), p.getFreezeTicks() + 100));
-                                
-                                double dot = diff.getX() * Math.cos(angle) + diff.getZ() * Math.sin(angle);
-                                Vector pushDir;
-                                if (dot > 0) {
-                                    pushDir = new Vector(-Math.sin(angle), 0, Math.cos(angle));
-                                } else {
-                                    pushDir = new Vector(Math.sin(angle), 0, -Math.cos(angle));
-                                }
-                                p.setVelocity(pushDir.normalize().multiply(1.8).setY(0.6));
                             }
                         }
                     }
@@ -941,28 +987,30 @@ public class GlacialBonebreakerBoss {
 
     private void executeZeroFrictionFloor(List<Player> targets) {
         alert("un Suelo de Fricción Cero");
-        Map<Location, BlockData> old = replaceFloor(Material.BLUE_ICE, targets);
+        Map<Location, BlockData> old = replaceFloor(Material.BLUE_ICE, 0.2, targets);
         Bukkit.getScheduler().runTaskLater(plugin, () -> restoreFloor(old), 15 * 20L); // 15 seconds
     }
 
     private void executeFragileFloor(List<Player> targets) {
         alert("un Suelo Quebradizo");
-        Map<Location, BlockData> old = replaceFloor(Material.POWDER_SNOW, targets);
+        Map<Location, BlockData> old = replaceFloor(Material.POWDER_SNOW, 0.5, targets);
         Bukkit.getScheduler().runTaskLater(plugin, () -> restoreFloor(old), 15 * 20L); // 15 seconds
     }
 
-    private Map<Location, BlockData> replaceFloor(Material newMat, List<Player> targets) {
-        return replaceFloor(newMat, 25, 10, targets);
+    private Map<Location, BlockData> replaceFloor(Material newMat, double chance, List<Player> targets) {
+        return replaceFloor(newMat, 25, 10, chance, targets);
     }
     
     public void spawnAssistantHorde(Player target) {
         int count = 2 + random.nextInt(3); // 2 to 4
         for (int i = 0; i < count; i++) {
-            Location loc = boss.getLocation().add(random.nextInt(6) - 3, 1, random.nextInt(6) - 3);
+            Location loc = boss.getLocation().add(random.nextDouble() * 2 - 1, 1, random.nextDouble() * 2 - 1);
             Skeleton skel = (Skeleton) EntityUtils.spawnNatural(loc, EntityType.SKELETON);
             if (skel != null) {
                 skel.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
                 EntityUtils.setCustomName(skel, "&bAsistente Óseo");
+                EntityUtils.trySetAttribute(skel, Attribute.MAX_HEALTH, 1.0);
+                skel.setHealth(1.0);
 
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     if (skel.isValid()) {
@@ -980,26 +1028,26 @@ public class GlacialBonebreakerBoss {
         }
     }
 
-    private Map<Location, BlockData> replaceFloor(Material newMat, int bossRadius, int playerRadius, List<Player> targets) {
+    private Map<Location, BlockData> replaceFloor(Material newMat, int bossRadius, int playerRadius, double chance, List<Player> targets) {
         Map<Location, BlockData> old = new HashMap<>();
         
-        // Boss area (radius 25)
+        // Boss area
         Location bossCenter = boss.getLocation();
-        for (int x = -25; x <= 25; x++) {
-            for (int z = -25; z <= 25; z++) {
-                if (x * x + z * z > 625) continue;
-                if (random.nextDouble() > 0.8) continue;
+        for (int x = -bossRadius; x <= bossRadius; x++) {
+            for (int z = -bossRadius; z <= bossRadius; z++) {
+                if (x * x + z * z > bossRadius * bossRadius) continue;
+                if (random.nextDouble() > chance) continue;
                 processFloorBlock(bossCenter.clone().add(x, 0, z), old, newMat);
             }
         }
         
-        // Player areas (radius 10)
+        // Player areas
         for (Player p : targets) {
             Location center = p.getLocation();
-            for (int x = -10; x <= 10; x++) {
-                for (int z = -10; z <= 10; z++) {
-                    if (x * x + z * z > 100) continue;
-                    if (random.nextDouble() > 0.8) continue;
+            for (int x = -playerRadius; x <= playerRadius; x++) {
+                for (int z = -playerRadius; z <= playerRadius; z++) {
+                    if (x * x + z * z > playerRadius * playerRadius) continue;
+                    if (random.nextDouble() > chance) continue;
                     processFloorBlock(center.clone().add(x, 0, z), old, newMat);
                 }
             }
@@ -1113,8 +1161,14 @@ public class GlacialBonebreakerBoss {
     private void executeTundraAmbush(List<Player> players) {
         alert("una Emboscada de Leñadores");
         for (Player p : players) {
-            if (random.nextBoolean()) {
-                Vindicator vindicator = (Vindicator) EntityUtils.spawnNatural(p.getLocation(), EntityType.VINDICATOR);
+            int toSpawn = 1 + random.nextInt(3);
+            for (int i = 0; i < toSpawn; i++) {
+                double offsetX = (random.nextBoolean() ? 1 : -1) * (5 + random.nextInt(6));
+                double offsetZ = (random.nextBoolean() ? 1 : -1) * (5 + random.nextInt(6));
+                Location spawnLoc = p.getLocation().add(offsetX, 0, offsetZ);
+                spawnLoc.setY(spawnLoc.getWorld().getHighestBlockYAt(spawnLoc) + 1);
+                
+                Vindicator vindicator = (Vindicator) spawnLoc.getWorld().spawnEntity(spawnLoc, EntityType.VINDICATOR);
                 if (vindicator != null) {
                     vindicator.getPersistentDataContainer().set(GlacialBonebreakerMechanic.MINION_KEY, PersistentDataType.BYTE, (byte) 1);
                     EntityUtils.setCustomName(vindicator, "&bLeñador Glacial");
