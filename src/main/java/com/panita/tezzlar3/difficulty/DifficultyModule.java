@@ -85,6 +85,7 @@ import com.panita.tezzlar3.difficulty.mechanics.PyromaniacPiglinMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.HourlyPotionMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.ArabWanderingTraderMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SpecialBlocksMechanic;
+import com.panita.tezzlar3.difficulty.mechanics.SpawnerAntiLightMechanic;
 import com.panita.tezzlar3.difficulty.mechanics.SpawnerRegenMechanic;
 import com.panita.tezzlar3.difficulty.tasks.SpawnerRegenTask;
 import com.panita.tezzlar3.difficulty.util.SpawnerRegenManager;
@@ -205,6 +206,7 @@ public class DifficultyModule implements PluginModule {
             mechanics.add(new MutatedSpiderMechanic(plugin));
             mechanics.add(new EternalNightMechanic(plugin));
             mechanics.add(new ZombieRatatouilleMechanic(plugin));
+            mechanics.add(new SpawnerAntiLightMechanic(plugin));
             mechanics.add(new SpawnerRegenMechanic(plugin, spawnerRegenManager));
 
             // Day 16

@@ -240,6 +240,8 @@ public class CTMEscortListener implements Listener {
                         applyEscortBuffs(escort);
                     }
                 }
+                
+                drawEmeraldDome(player, 25.0);
             }
         }
 
@@ -326,6 +328,24 @@ public class CTMEscortListener implements Listener {
         }
         
         EntityUtils.removeColoredGlowing(player);
+    }
+
+    private void drawEmeraldDome(Player center, double radius) {
+        Location loc = center.getLocation();
+        World world = loc.getWorld();
+        
+        // Spawn roughly 400 particles randomly on the hemisphere
+        for (int i = 0; i < 400; i++) {
+            double phi = Math.random() * 2 * Math.PI;
+            double costheta = Math.random(); // 0 to 1 for upper hemisphere
+            double theta = Math.acos(costheta);
+            
+            double x = radius * Math.sin(theta) * Math.cos(phi);
+            double z = radius * Math.sin(theta) * Math.sin(phi);
+            double y = radius * Math.cos(theta);
+            
+            world.spawnParticle(Particle.HAPPY_VILLAGER, loc.clone().add(x, y, z), 1, 0, 0, 0, 0);
+        }
     }
 
     private void applyEscortBuffs(Player player) {

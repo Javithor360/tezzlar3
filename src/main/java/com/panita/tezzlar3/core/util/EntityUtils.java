@@ -228,7 +228,8 @@ public class EntityUtils {
             team.color(color);
         }
         
-        team.addEntry(entity.getUniqueId().toString());
+        String entry = (entity instanceof org.bukkit.entity.Player player) ? player.getName() : entity.getUniqueId().toString();
+        team.addEntry(entry);
         entity.setGlowing(true);
     }
 
@@ -237,11 +238,12 @@ public class EntityUtils {
      */
     public static void removeColoredGlowing(Entity entity) {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
-        String uuidStr = entity.getUniqueId().toString();
+        String entry = (entity instanceof org.bukkit.entity.Player player) ? player.getName() : entity.getUniqueId().toString();
         
-        Team team = scoreboard.getEntryTeam(uuidStr);
-        if (team != null && team.getName().startsWith("tezzlar_glow_")) {
-            team.removeEntry(uuidStr);
+        for (Team team : scoreboard.getTeams()) {
+            if (team.getName().startsWith("tezzlar_glow_") && team.hasEntry(entry)) {
+                team.removeEntry(entry);
+            }
         }
         
         entity.setGlowing(false);
