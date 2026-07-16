@@ -36,10 +36,13 @@ public class MobDebugListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onMobHit(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player player)) return;
         if (!activeDebuggers.contains(player.getUniqueId())) return;
+        
+        event.setCancelled(true);
+        
         if (!(event.getEntity() instanceof LivingEntity mob)) return;
         if (mob instanceof Player) return; // Ignore hitting other players
         

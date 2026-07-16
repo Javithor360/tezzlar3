@@ -22,7 +22,7 @@ public class MobDebugCommand implements AdvancedCommand {
         if (enabled) {
             Messenger.prefixedSend(player, "&aModo &eMobDebug &aactivado. Golpea a un mob para ver sus estadísticas.");
         } else {
-            Messenger.prefixedSend(player, "&cModo &eMobDebug &adesactivado.");
+            Messenger.prefixedSend(player, "&cModo &eMobDebug &cdesactivado.");
         }
     }
 }

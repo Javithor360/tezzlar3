@@ -331,9 +331,9 @@ public class CTMEscortListener implements Listener {
 
         String woolName = translateColor(color);
 
-        String carrierMsg = "&bHas agarrado la lana " + woolName + "&b, huye lo más pronto que puedas de esta isla yendo al &ePortal del Aether &7ubicado en &e" + portalStr + "&7. Luego, dirígete al &eMonumento de las Lanas &7ubicado en &e" + monumentStr + "&7.";
+        String carrierMsg = "&bHas agarrado la lana " + woolName + "&b, huye lo más pronto que puedas de esta isla yendo al &ePortal del Aether &bubicado en &e" + portalStr + "&b. Luego, dirígete al &eMonumento de las Lanas &bubicado en &e" + monumentStr + "&b.";
         
-        String escortMsg = "&bSe ha agarrado la lana " + woolName + "&b, huye lo más pronto que puedas de esta isla con el portador yendo al &ePortal del Aether &7ubicado en &e" + portalStr + "&7. Luego, dirígete al &eMonumento de las Lanas &7ubicado en &e" + monumentStr + "&7.";
+        String escortMsg = "&bSe ha agarrado la lana " + woolName + "&b, huye lo más pronto que puedas de esta isla con el portador yendo al &ePortal del Aether &bubicado en &e" + portalStr + "&b. Luego, dirígete al &eMonumento de las Lanas &bubicado en &e" + monumentStr + "&b.";
 
         Messenger.prefixedSend(carrier, carrierMsg);
         carrier.playSound(carrier.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.2f);
@@ -647,9 +647,6 @@ public class CTMEscortListener implements Listener {
                     }
                 } else {
                     blockLoc.getWorld().playSound(blockLoc, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
-                    
-                    // Liberar al jugador de su color elegido
-                    player.getPersistentDataContainer().remove(CHOSEN_COLOR_KEY);
                     
                     Firework fw = (Firework) blockLoc.getWorld().spawnEntity(blockLoc.clone().add(0.5, 1, 0.5), EntityType.FIREWORK_ROCKET);
                     FireworkMeta meta = fw.getFireworkMeta();

@@ -122,7 +122,7 @@ public class SuperDiamondListener implements Listener {
                     Location loc = center.clone().add(x, 0, z);
                     
                     BlockDisplay bd = (BlockDisplay) loc.getWorld().spawnEntity(loc, EntityType.BLOCK_DISPLAY);
-                    bd.setBlock(Bukkit.createBlockData(Material.PACKED_ICE));
+                    bd.setBlock(Bukkit.createBlockData(Material.DIAMOND_BLOCK));
                     Transformation t = bd.getTransformation();
                     t.getScale().set(0.5f, 2.0f, 0.5f);
                     bd.setTransformation(t);
@@ -139,12 +139,11 @@ public class SuperDiamondListener implements Listener {
                 double baseDamage = (attackAttr != null && player.getAttribute(attackAttr) != null) ? 
                                     player.getAttribute(attackAttr).getValue() : 8.0;
                 
-                Enchantment sharpness = Registry.ENCHANTMENT.get(NamespacedKey.minecraft("sharpness"));
-                int sharpLevel = (sharpness != null) ? hand.getEnchantmentLevel(sharpness) : 0;
+                int sharpLevel = hand.getEnchantmentLevel(Enchantment.SHARPNESS);
                 double sharpBonus = sharpLevel > 0 ? (0.5 * sharpLevel + 0.5) : 0.0;
                 
                 double totalSwordDamage = baseDamage + sharpBonus;
-                double aoeDamage = totalSwordDamage / 3.0;
+                double aoeDamage = totalSwordDamage * 2.0;
                 
                 for (Entity e : center.getWorld().getNearbyEntities(center, 6, 4, 6)) {
                     if (!(e instanceof LivingEntity target)) continue;
