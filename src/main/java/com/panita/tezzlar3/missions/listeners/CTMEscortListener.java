@@ -648,6 +648,9 @@ public class CTMEscortListener implements Listener {
                 } else {
                     blockLoc.getWorld().playSound(blockLoc, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
                     
+                    // Liberar al jugador de su color elegido
+                    player.getPersistentDataContainer().remove(CHOSEN_COLOR_KEY);
+                    
                     Firework fw = (Firework) blockLoc.getWorld().spawnEntity(blockLoc.clone().add(0.5, 1, 0.5), EntityType.FIREWORK_ROCKET);
                     FireworkMeta meta = fw.getFireworkMeta();
                     meta.addEffect(FireworkEffect.builder().withColor(Color.WHITE).with(FireworkEffect.Type.BALL_LARGE).build());
