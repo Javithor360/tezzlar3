@@ -219,7 +219,7 @@ public class CTMEscortListener implements Listener {
                 String chosenColor = player.getPersistentDataContainer().get(CHOSEN_COLOR_KEY, PersistentDataType.STRING);
                 if (chosenColor != null && !chosenColor.equals(mainHandColor)) {
                     player.getInventory().setItemInMainHand(null);
-                    failEscort(player, "Ya fuiste portador de otro color (" + chosenColor + "). No puedes llevar la lana " + mainHandColor + ".");
+                    failEscort(player, "Ya fuiste portador de otro color (" + translateColor(chosenColor) + "). No puedes llevar la lana " + translateColor(mainHandColor) + ".");
                     continue;
                 } else if (chosenColor == null) {
                     player.getPersistentDataContainer().set(CHOSEN_COLOR_KEY, PersistentDataType.STRING, mainHandColor);
@@ -252,6 +252,20 @@ public class CTMEscortListener implements Listener {
                 if (p != null) removeCarrierDebuffs(p);
             }
         }
+        
+        // Alert new carriers
+        for (UUID uuid : currentCarriers) {
+            if (!activeCarriers.contains(uuid)) {
+                Player p = Bukkit.getPlayer(uuid);
+                if (p != null) {
+                    String color = getWoolColor(p.getInventory().getItemInMainHand());
+                    if (color != null) {
+                        alertNewCarrier(p, color);
+                    }
+                }
+            }
+        }
+        
         activeCarriers.clear();
         activeCarriers.addAll(currentCarriers);
 
@@ -297,6 +311,50 @@ public class CTMEscortListener implements Listener {
             case "yellow": return NamedTextColor.YELLOW;
             case "purple": return NamedTextColor.DARK_PURPLE;
             default: return NamedTextColor.WHITE;
+        }
+    }
+    
+    private void alertNewCarrier(Player carrier, String color) {
+        String portalStr = "???";
+        if (exitRegionMin != null && exitRegionMax != null) {
+            int px = (exitRegionMin.getBlockX() + exitRegionMax.getBlockX()) / 2;
+            int py = (exitRegionMin.getBlockY() + exitRegionMax.getBlockY()) / 2;
+            int pz = (exitRegionMin.getBlockZ() + exitRegionMax.getBlockZ()) / 2;
+            portalStr = px + " " + py + " " + pz;
+        }
+
+        String monumentStr = "???";
+        Location mLoc = monumentLocations.get(color);
+        if (mLoc != null) {
+            monumentStr = mLoc.getBlockX() + " " + mLoc.getBlockY() + " " + mLoc.getBlockZ();
+        }
+
+        String woolName = translateColor(color);
+
+        String carrierMsg = "&bHas agarrado la lana " + woolName + "&b, huye lo más pronto que puedas de esta isla yendo al &ePortal del Aether &7ubicado en &e" + portalStr + "&7. Luego, dirígete al &eMonumento de las Lanas &7ubicado en &e" + monumentStr + "&7.";
+        
+        String escortMsg = "&bSe ha agarrado la lana " + woolName + "&b, huye lo más pronto que puedas de esta isla con el portador yendo al &ePortal del Aether &7ubicado en &e" + portalStr + "&7. Luego, dirígete al &eMonumento de las Lanas &7ubicado en &e" + monumentStr + "&7.";
+
+        Messenger.prefixedSend(carrier, carrierMsg);
+        carrier.playSound(carrier.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.2f);
+        
+        for (Entity entity : carrier.getNearbyEntities(25, 25, 25)) {
+            if (entity instanceof Player escort && !escort.equals(carrier)) {
+                Messenger.prefixedSend(escort, escortMsg);
+                escort.playSound(escort.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.2f);
+            }
+        }
+    }
+    
+    private String translateColor(String color) {
+        switch(color) {
+            case "orange": return "&6Naranja";
+            case "red": return "&cRoja";
+            case "blue": return "&9Azul";
+            case "lime": return "&aVerde";
+            case "yellow": return "&eAmarilla";
+            case "purple": return "&5Morada";
+            default: return color;
         }
     }
 
@@ -580,12 +638,12 @@ public class CTMEscortListener implements Listener {
                     
                     if (placedColor == null || !placedColor.equals(fTargetColor)) {
                         if (placedColor != null) {
-                            Messenger.prefixedSend(player, "&cEste no es el altar correcto para la lana " + placedColor + ".");
+                            Messenger.prefixedSend(player, "&cEste no es el altar correcto para la lana " + translateColor(placedColor) + ".");
                         } else {
-                            Messenger.prefixedSend(player, "&cEste altar solo acepta la lana " + fTargetColor + " sagrada.");
+                            Messenger.prefixedSend(player, "&cEste altar solo acepta la lana " + translateColor(fTargetColor) + " sagrada.");
                         }
                     } else {
-                        Messenger.prefixedSend(player, "&cNo eres digno de colocar esta lana, solo el portador original (" + placedColor + ") puede hacerlo.");
+                        Messenger.prefixedSend(player, "&cNo eres digno de colocar esta lana, solo el portador original (" + translateColor(placedColor) + ") puede hacerlo.");
                     }
                 } else {
                     blockLoc.getWorld().playSound(blockLoc, Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
@@ -602,7 +660,7 @@ public class CTMEscortListener implements Listener {
                         Messenger.showTitle(
                             p,
                             "&a&l¡LANA COLOCADA!", 
-                            "&7" + player.getName() + " ha colocado la lana " + placedColor, 
+                            "&7" + player.getName() + " ha colocado la lana " + translateColor(placedColor), 
                             Duration.ofMillis(500),
                             Duration.ofMillis(3500), 
                             Duration.ofMillis(1000)
