@@ -53,6 +53,8 @@ public class CTMEscortListener implements Listener {
     private Location exitDestination = null;
     private Location exitRegionMin = null;
     private Location exitRegionMax = null;
+    
+    public static final Set<UUID> bypassedPlayers = new HashSet<>();
 
     public CTMEscortListener() {
         this.CHOSEN_COLOR_KEY = new NamespacedKey(Tezzlar.getInstance(), "ctm_chosen_color");
@@ -185,6 +187,8 @@ public class CTMEscortListener implements Listener {
         Set<UUID> currentEscorts = new HashSet<>();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if (bypassedPlayers.contains(player.getUniqueId())) continue;
+            
             boolean isCarrier = false;
             String carriedColor = null;
 
@@ -447,6 +451,8 @@ public class CTMEscortListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerDrop(PlayerDropItemEvent event) {
         if (!isMissionActive()) return;
+        if (bypassedPlayers.contains(event.getPlayer().getUniqueId())) return;
+        
         ItemStack dropped = event.getItemDrop().getItemStack();
         String color = getWoolColor(dropped);
         if (color != null) {
