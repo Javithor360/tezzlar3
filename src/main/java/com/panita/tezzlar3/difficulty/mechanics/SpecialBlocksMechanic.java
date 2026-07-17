@@ -42,11 +42,14 @@ public class SpecialBlocksMechanic extends DifficultyMechanic {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 60, 0));
                         break;
                     case DIAMOND_BLOCK:
-                        if (player.getAttribute(Attribute.MAX_HEALTH) != null) {
-                            double maxHealth = player.getAttribute(Attribute.MAX_HEALTH).getValue();
-                            if (player.getHealth() < maxHealth) {
-                                player.setHealth(maxHealth);
-                                SoundUtils.playInRadius(player.getLocation(), "entity.player.levelup", 1.0f, 2.0f);
+                        if (Math.random() < 0.05) { // 5% chance per 0.5s -> averages to once every 10s
+                            if (player.getAttribute(Attribute.MAX_HEALTH) != null) {
+                                double maxHealth = player.getAttribute(Attribute.MAX_HEALTH).getValue();
+                                if (player.getHealth() < maxHealth) {
+                                    player.setHealth(maxHealth);
+                                    player.setFoodLevel(Math.max(0, player.getFoodLevel() - 10)); // Resta 5 muslitos (10 puntos)
+                                    SoundUtils.playInRadius(player.getLocation(), "entity.player.levelup", 1.0f, 2.0f);
+                                }
                             }
                         }
                         break;
@@ -54,7 +57,7 @@ public class SpecialBlocksMechanic extends DifficultyMechanic {
                         player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 60, 1));
                         break;
                     case EMERALD_BLOCK:
-                        if (player.getFoodLevel() < 20 && Math.random() < 0.2) {
+                        if (player.getFoodLevel() < 20 && Math.random() < 0.066) { // ~6.6% chance per 0.5s -> averages to once every 7.5s (entre 5 y 10s)
                             player.setFoodLevel(Math.min(20, player.getFoodLevel() + 1));
                         }
                         break;
@@ -67,17 +70,6 @@ public class SpecialBlocksMechanic extends DifficultyMechanic {
                         if (!player.getActivePotionEffects().isEmpty()) {
                             for (PotionEffect effect : player.getActivePotionEffects()) {
                                 player.removePotionEffect(effect.getType());
-                            }
-                        }
-                        break;
-                    case SCULK_SHRIEKER:
-                        if (player.getLevel() < 30) {
-                            long now = System.currentTimeMillis();
-                            long last = shriekerCooldowns.getOrDefault(player.getUniqueId(), 0L);
-                            if (now - last >= 30000) {
-                                shriekerCooldowns.put(player.getUniqueId(), now);
-                                player.setLevel(player.getLevel() + 1);
-                                SoundUtils.playInRadius(player.getLocation(), "entity.experience_orb.pickup", 1.0f, 1.0f);
                             }
                         }
                         break;
