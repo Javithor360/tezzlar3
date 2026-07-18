@@ -282,7 +282,7 @@ public class GlacialBonebreakerBoss {
                     this.cancel();
                     return;
                 }
-                if (ticks >= 40) { // 2 seconds reaction time
+                if (ticks >= 80) { // 4 seconds reaction time
                     boss.teleport(dest);
                     boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.5f, 0.5f);
                     boss.getWorld().spawnParticle(Particle.EXPLOSION, boss.getLocation(), 1);
@@ -350,7 +350,7 @@ public class GlacialBonebreakerBoss {
             projectile.setItem(new ItemStack(Material.AIR));
             
             Slime hitbox = (Slime) boss.getWorld().spawnEntity(projectile.getLocation(), EntityType.SLIME);
-            hitbox.setSize(2);
+            hitbox.setSize(3);
             hitbox.setInvisible(true);
             hitbox.setAI(false);
             hitbox.setGravity(false);
@@ -373,7 +373,7 @@ public class GlacialBonebreakerBoss {
                     if (projectile.getShooter() == boss) {
                         if (projectile.getLocation().distanceSquared(target.getLocation()) > 25.0) { // Stops tracking at 5 blocks to allow dodging
                             Vector dir = target.getLocation().add(0, target.getHeight() / 2, 0).toVector().subtract(projectile.getLocation().toVector()).normalize();
-                            projectile.setVelocity(dir.multiply(0.867)); // another 15% slower
+                            projectile.setVelocity(dir.multiply(0.726)); // projectile speed
                         }
                     }
                     projectile.getWorld().spawnParticle(Particle.SNOWFLAKE, projectile.getLocation(), 2, 0.1, 0.1, 0.1, 0);
@@ -819,7 +819,7 @@ public class GlacialBonebreakerBoss {
         }
         alert("un Escudo de Fractales Orbitales");
         invulnerable = true;
-        int count = 3 + random.nextInt(7); // 3 to 9
+        int count = 3 + random.nextInt(4); // 3 to 6
         for (int i = 0; i < count; i++) {
             BlockDisplay bd = (BlockDisplay) boss.getWorld().spawnEntity(boss.getLocation(), EntityType.BLOCK_DISPLAY);
             bd.setBlock(Bukkit.createBlockData(Material.BLUE_ICE));
@@ -971,7 +971,7 @@ public class GlacialBonebreakerBoss {
                         double distToLine = Math.abs(Math.sin(angle) * diff.getX() - Math.cos(angle) * diff.getZ());
                         if (distToLine < 1.5) { // 1.5 block thick hitbox
                             if (p.getNoDamageTicks() < 10) { // Avoid instant death from tick-spam
-                                p.damage(25.0, boss);
+                                p.damage(15.0, boss);
                                 p.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1));
                                 p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0));
                                 p.setFreezeTicks(Math.min(p.getMaxFreezeTicks(), p.getFreezeTicks() + 100));

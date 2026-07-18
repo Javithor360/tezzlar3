@@ -99,7 +99,7 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
         }
         
         // 1 in 1000 chance to spawn naturally
-        if (random.nextInt(1000) != 0) return;
+        if (random.nextInt(750) != 0) return;
         
         event.setCancelled(true);
         spawnManual(event.getLocation());
