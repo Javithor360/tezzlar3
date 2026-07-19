@@ -30,6 +30,7 @@ import com.panita.tezzlar3.core.util.CraftingUtils;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
@@ -335,7 +336,7 @@ public class MissionTracker implements Listener, ActionBarProvider {
 
     @EventHandler
     public void onCraft(CraftItemEvent event) {
-        if (!hasActiveMissionObjective("CRAFT_ITEM")) return;
+        if (!hasActiveMissionObjective("CRAFT_ITEM") && !hasActiveMissionObjective("CRAFT_MULTIPLE_ITEMS")) return;
         if (!(event.getWhoClicked() instanceof Player player)) return;
         
         if (event.getRecipe() == null || event.getRecipe().getResult() == null) return;
@@ -343,20 +344,64 @@ public class MissionTracker implements Listener, ActionBarProvider {
         ItemStack result = event.getRecipe().getResult();
         String target = result.getType().name();
         
+        if (result.hasItemMeta()) {
+            NamespacedKey key = new NamespacedKey(Tezzlar.getInstance(), "custom_item_id");
+            if (result.getItemMeta().getPersistentDataContainer().has(key, PersistentDataType.STRING)) {
+                target = result.getItemMeta().getPersistentDataContainer().get(key, PersistentDataType.STRING);
+            }
+        }
+        
         int amount = CraftingUtils.getCraftedAmount(event);
         if (amount <= 0) return;
         
         int maxAddable = getMaxAddable(player, result, amount, event.isShiftClick());
         if (maxAddable <= 0) return;
         
-        // Round down to the nearest multiple of the recipe's result amount
-        // Because you can't craft a fraction of a recipe
         int recipeYield = result.getAmount();
         int actualCrafted = (maxAddable / recipeYield) * recipeYield;
         
         if (actualCrafted <= 0) return;
         
         checkObjective(player, "CRAFT_ITEM", target, actualCrafted);
+        
+        // Handle CRAFT_MULTIPLE_ITEMS
+        for (Map.Entry<String, Mission> entry : MissionsModule.getMissionManager().getLoadedMissions().entrySet()) {
+            Mission mission = entry.getValue();
+            if (!mission.getObjectiveType().equalsIgnoreCase("CRAFT_MULTIPLE_ITEMS")) continue;
+            
+            int currentDay = TimeManager.getCurrentDay();
+            if (currentDay < mission.getStartDay() || currentDay > mission.getEndDay()) continue;
+            
+            PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player);
+            if (data == null || data.hasCompleted(mission.getId())) continue;
+
+            Map<String, Integer> targets = mission.getObjectiveTargetsMap();
+            if (targets == null || targets.isEmpty()) continue;
+
+            for (Map.Entry<String, Integer> t : targets.entrySet()) {
+                if (t.getKey().equalsIgnoreCase(target)) {
+                    String subKey = mission.getId() + "_sub_" + t.getKey();
+                    int currentSub = data.getProgress(subKey);
+                    
+                    if (currentSub < t.getValue()) {
+                        data.setProgress(subKey, currentSub + actualCrafted);
+                        MissionBossBarManager.forceShowMission(player, mission.getId());
+                        
+                        int completedTargets = 0;
+                        for (Map.Entry<String, Integer> t2 : targets.entrySet()) {
+                            if (data.getProgress(mission.getId() + "_sub_" + t2.getKey()) >= t2.getValue()) {
+                                completedTargets++;
+                            }
+                        }
+                        
+                        if (completedTargets >= targets.size()) {
+                            advanceProgress(player, mission.getId(), 1);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
     }
     
     private int getMaxAddable(Player player, ItemStack item, int attemptAmount, boolean isShiftClick) {

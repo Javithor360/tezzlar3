@@ -15,6 +15,8 @@ public class MissionsConfigDefaults {
             "DAMAGE_MULTIPLIER", "Recibes 1.5x de daño de todas las fuentes.",
             "HOSTILE_IRON_GOLEMS", "Los Gólems de Hierro te atacarán naturalmente.",
             "REGENERATION_TO_WITHER", "Recibes Wither II en lugar de Regeneración.",
-            "WITHER_SKELETON_SPAWN_ON_DAMAGE", "Posibilidad de invocar Esqueletos Wither al recibir daño en el Nether."
+            "WITHER_SKELETON_SPAWN_ON_DAMAGE", "Posibilidad de invocar Esqueletos Wither al recibir daño en el Nether.",
+            "DAY_22_BAN", "No podrás entrar al servidor durante el día 22.",
+            "OFFHAND_RESTRICTION", "Tienes prohibido utilizar la mano secundaria."
     );
 }

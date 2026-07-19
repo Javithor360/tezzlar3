@@ -67,9 +67,15 @@ public class MissionManager {
         registerPunishmentHandler(buffedGolems);
         plugin.getServer().getPluginManager().registerEvents(buffedGolems, plugin);
 
-       WardenNightmarePunishmentHandler wardenNightmare = new WardenNightmarePunishmentHandler(plugin);
+        WardenNightmarePunishmentHandler wardenNightmare = new WardenNightmarePunishmentHandler(plugin);
         registerPunishmentHandler(wardenNightmare);
         plugin.getServer().getPluginManager().registerEvents(wardenNightmare, plugin);
+
+        DayBanPunishmentHandler dayBan = new DayBanPunishmentHandler(plugin);
+        registerPunishmentHandler(dayBan);
+
+        OffhandRestrictionPunishmentHandler offhandRestriction = new OffhandRestrictionPunishmentHandler(plugin);
+        registerPunishmentHandler(offhandRestriction);
     }
 
     public void loadMissions() {

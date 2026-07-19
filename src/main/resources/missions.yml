@@ -204,3 +204,18 @@ missions:
         args: { levels: 100 }
         description: "100 Niveles de Experiencia"
 
+  superdiamond_armor:
+    name: "La Nueva Era del Diamante"
+    start_day: 19
+    end_day: 21
+    scope: INDIVIDUAL
+    objective:
+      type: CRAFT_MULTIPLE_ITEMS
+      targets:
+        superdiamond_helmet: 1
+        superdiamond_chestplate: 1
+        superdiamond_leggings: 1
+        superdiamond_boots: 1
+    punishments:
+      - id: "DAY_22_BAN"
+      - id: "OFFHAND_RESTRICTION"
