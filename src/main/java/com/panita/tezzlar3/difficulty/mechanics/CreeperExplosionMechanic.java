@@ -36,14 +36,20 @@ public class CreeperExplosionMechanic extends DifficultyMechanic {
         
         if (event.getEntity() instanceof Creeper creeper) {
             boolean shouldCancelBlocks = false;
+            int currentDay = TimeManager.getCurrentDay();
             
             // 1. If it is a teleporting creeper, it never breaks blocks
             if (creeper.getPersistentDataContainer().has(teleportKey, PersistentDataType.BYTE)) {
                 shouldCancelBlocks = true;
             }
             
-            // 2. If it is day 16+ and it spawned from a spawner, it doesn't break blocks
-            if (TimeManager.getCurrentDay() >= 16 && creeper.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) {
+            // 2. During days 16-19, no creepers break blocks
+            if (currentDay >= 16 && currentDay <= 19) {
+                shouldCancelBlocks = true;
+            }
+            
+            // 3. If it is day 16+ and it spawned from a spawner, it doesn't break blocks
+            if (currentDay >= 16 && creeper.getEntitySpawnReason() == CreatureSpawnEvent.SpawnReason.SPAWNER) {
                 shouldCancelBlocks = true;
             }
             
