@@ -23,6 +23,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.HappyGhast;
+import org.bukkit.entity.Skeleton;
+import org.bukkit.event.player.PlayerRiptideEvent;
+import org.bukkit.inventory.ItemStack;
+import com.panita.tezzlar3.core.util.ItemUtils;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
@@ -186,6 +194,18 @@ public class RefugeManager implements Listener, ActionBarProvider {
                                     tnt.getPersistentDataContainer().set(TNT_KEY, PersistentDataType.BYTE, (byte) 1);
                                 }
                             }
+                            
+                            if (player.getVehicle() instanceof HappyGhast ghast) {
+                                // 2% chance to dismount
+                                if (random.nextDouble() < 0.02) {
+                                    ghast.eject();
+                                }
+                                
+                                // 0.2% chance to spawn Pirate
+                                if (random.nextDouble() < 0.002) {
+                                    createAerialPirate(ghast.getLocation(), player, ghast);
+                                }
+                            }
                         }
                     }
                     
@@ -344,6 +364,44 @@ public class RefugeManager implements Listener, ActionBarProvider {
                 ticks += 5;
             }
         }.runTaskTimer(plugin, 0L, 5L);
+    }
+    
+    @EventHandler
+    public void onPlayerRiptide(PlayerRiptideEvent event) {
+        if (!isActive()) return;
+        Player player = event.getPlayer();
+        player.setFoodLevel(0);
+        player.damage(15.0);
+        Messenger.prefixedSend(player, "&c¡Usar propulsión acuática durante un refugio está penalizado!");
+    }
+    
+    private void createAerialPirate(Location loc, Player player, HappyGhast ghast) {
+        Skeleton skeleton = loc.getWorld().spawn(loc, Skeleton.class);
+        EntityUtils.setCustomName(skeleton, "&fEsqueleto Pirata Aéreo", false);
+        
+        ItemStack bow = new ItemStack(Material.BOW);
+        bow.addUnsafeEnchantment(Enchantment.POWER, 35);
+        
+        ItemStack helmet = new ItemStack(Material.WHITE_STAINED_GLASS);
+        ItemStack chestplate = ItemUtils.createColoredLeather(Material.LEATHER_CHESTPLATE, Color.WHITE);
+        ItemStack leggings = ItemUtils.createColoredLeather(Material.LEATHER_LEGGINGS, Color.WHITE);
+        ItemStack boots = ItemUtils.createColoredLeather(Material.LEATHER_BOOTS, Color.WHITE);
+        
+        skeleton.getEquipment().setItemInMainHand(bow);
+        skeleton.getEquipment().setHelmet(helmet);
+        skeleton.getEquipment().setChestplate(chestplate);
+        skeleton.getEquipment().setLeggings(leggings);
+        skeleton.getEquipment().setBoots(boots);
+        
+        skeleton.getEquipment().setItemInMainHandDropChance(0.0f);
+        skeleton.getEquipment().setHelmetDropChance(0.0f);
+        skeleton.getEquipment().setChestplateDropChance(0.0f);
+        skeleton.getEquipment().setLeggingsDropChance(0.0f);
+        skeleton.getEquipment().setBootsDropChance(0.0f);
+        
+        if (!ghast.addPassenger(skeleton)) {
+            player.addPassenger(skeleton);
+        }
     }
     
     @Override
