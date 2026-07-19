@@ -38,6 +38,7 @@ public class ApocalypticZombieMechanic extends DifficultyMechanic {
 
     public void spawnManual(Location loc) {
         org.bukkit.entity.Zombie zombie = loc.getWorld().spawn(loc, org.bukkit.entity.Zombie.class);
+        CustomMobManager.tagCustomMob(zombie, CustomMobType.APOCALYPTIC_ZOMBIE);
         transform(zombie);
     }
 

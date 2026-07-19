@@ -76,7 +76,10 @@ public class GlacialBonebreakerMechanic extends DifficultyMechanic {
 
     public void spawnManual(Location loc) {
         Stray boss = (Stray) EntityUtils.spawnNatural(loc, EntityType.STRAY);
-        if (boss != null) transform(boss);
+        if (boss != null) {
+            CustomMobManager.tagCustomMob(boss, CustomMobType.GLACIAL_BONEBREAKER);
+            transform(boss);
+        }
     }
 
     private void transform(Stray boss) {

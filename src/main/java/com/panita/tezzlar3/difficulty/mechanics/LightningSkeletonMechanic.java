@@ -73,7 +73,10 @@ public class LightningSkeletonMechanic extends DifficultyMechanic {
 
     public void spawnManual(Location loc) {
         Skeleton skeleton = (Skeleton) EntityUtils.spawnNatural(loc, EntityType.SKELETON);
-        transform(skeleton);
+        if (skeleton != null) {
+            CustomMobManager.tagCustomMob(skeleton, CustomMobType.LIGHTNING_SKELETON);
+            transform(skeleton);
+        }
     }
     
     private void transform(Skeleton skeleton) {

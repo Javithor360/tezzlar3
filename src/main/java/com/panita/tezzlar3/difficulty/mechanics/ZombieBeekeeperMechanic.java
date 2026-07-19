@@ -38,7 +38,10 @@ public class ZombieBeekeeperMechanic extends DifficultyMechanic {
 
     public void spawnManual(Location loc) {
         Zombie zombie = (Zombie) EntityUtils.spawnNatural(loc, EntityType.ZOMBIE);
-        transform(zombie);
+        if (zombie != null) {
+            CustomMobManager.tagCustomMob(zombie, CustomMobType.ZOMBIE_BEEKEEPER);
+            transform(zombie);
+        }
     }
 
     private void transform(Zombie zombie) {

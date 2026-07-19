@@ -39,7 +39,10 @@ public class PeruvianVindicatorMechanic extends DifficultyMechanic {
     
     public void spawnManual(Location loc) {
         Llama llama = (Llama) EntityUtils.spawnNatural(loc, EntityType.LLAMA);
-        transform(llama);
+        if (llama != null) {
+            CustomMobManager.tagCustomMob(llama, CustomMobType.PERUVIAN_VINDICATOR);
+            transform(llama);
+        }
     }
     
     private void transform(Llama llama) {

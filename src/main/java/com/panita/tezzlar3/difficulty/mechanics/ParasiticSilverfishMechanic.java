@@ -66,7 +66,10 @@ public class ParasiticSilverfishMechanic extends DifficultyMechanic {
     
     public void spawnManual(Location loc) {
         Silverfish silverfish = (Silverfish) EntityUtils.spawnNatural(loc, EntityType.SILVERFISH);
-        makeParasite(silverfish);
+        if (silverfish != null) {
+            CustomMobManager.tagCustomMob(silverfish, CustomMobType.PARASITE_SILVERFISH);
+            makeParasite(silverfish);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

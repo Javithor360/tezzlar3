@@ -23,27 +23,33 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.panita.tezzlar3.difficulty.mobs.CustomMobType;
+import com.panita.tezzlar3.difficulty.mobs.CustomMobManager;
+
 import java.util.Random;
 
 public class PyromaniacPiglinMechanic extends DifficultyMechanic {
     private final Random random = new Random();
-    private final NamespacedKey pyroKey;
+    private final NamespacedKey PYROMANIAC_KEY;
+    private final NamespacedKey EXPLOSIVE_ARROW_KEY;
 
     public PyromaniacPiglinMechanic(JavaPlugin plugin) {
-        super(plugin, 27);
-        this.pyroKey = new NamespacedKey(plugin, "is_pyromaniac_piglin");
+        super(plugin, 10);
+        this.PYROMANIAC_KEY = new NamespacedKey(plugin, "is_pyromaniac");
+        this.EXPLOSIVE_ARROW_KEY = new NamespacedKey(plugin, "is_explosive_arrow");
         CustomMobManager.register(CustomMobType.PYROMANIAC_PIGLIN, this::spawnManual);
     }
 
     public void spawnManual(Location loc) {
         Piglin piglin = (Piglin) EntityUtils.spawnNatural(loc, EntityType.PIGLIN);
         if (piglin != null) {
+            CustomMobManager.tagCustomMob(piglin, CustomMobType.PYROMANIAC_PIGLIN);
             transform(piglin);
         }
     }
 
     private void transform(Piglin piglin) {
-        piglin.getPersistentDataContainer().set(pyroKey, PersistentDataType.BYTE, (byte) 1);
+        piglin.getPersistentDataContainer().set(PYROMANIAC_KEY, PersistentDataType.BYTE, (byte) 1);
         EntityUtils.setCustomName(piglin, CustomMobType.PYROMANIAC_PIGLIN.getCustomName());
         piglin.setImmuneToZombification(true);
         piglin.setRemoveWhenFarAway(true);
@@ -114,7 +120,7 @@ public class PyromaniacPiglinMechanic extends DifficultyMechanic {
         
         Entity entity = event.getEntity();
         if (entity.getType() == EntityType.PIGLIN) {
-            if (entity.getPersistentDataContainer().has(pyroKey, PersistentDataType.BYTE)) {
+            if (entity.getPersistentDataContainer().has(PYROMANIAC_KEY, PersistentDataType.BYTE)) {
                 event.getDrops().clear();
                 event.setDroppedExp(750);
             }
@@ -126,9 +132,9 @@ public class PyromaniacPiglinMechanic extends DifficultyMechanic {
         if (!isActive()) return;
         
         if (event.getEntity() instanceof Piglin piglin) {
-            if (piglin.getPersistentDataContainer().has(pyroKey, PersistentDataType.BYTE)) {
+            if (piglin.getPersistentDataContainer().has(PYROMANIAC_KEY, PersistentDataType.BYTE)) {
                 Entity projectile = event.getProjectile();
-                projectile.getPersistentDataContainer().set(pyroKey, PersistentDataType.BYTE, (byte) 1);
+                projectile.getPersistentDataContainer().set(PYROMANIAC_KEY, PersistentDataType.BYTE, (byte) 1);
             }
         }
     }
@@ -138,7 +144,7 @@ public class PyromaniacPiglinMechanic extends DifficultyMechanic {
         if (!isActive()) return;
         
         if (event.getEntity() instanceof Arrow arrow) {
-            if (arrow.getPersistentDataContainer().has(pyroKey, PersistentDataType.BYTE)) {
+            if (arrow.getPersistentDataContainer().has(PYROMANIAC_KEY, PersistentDataType.BYTE)) {
                 Location hitLoc = event.getHitEntity() != null ? event.getHitEntity().getLocation() : (event.getHitBlock() != null ? event.getHitBlock().getLocation() : arrow.getLocation());
                 
                 hitLoc.getWorld().createExplosion(hitLoc, 5.0f, false, true);

@@ -33,7 +33,10 @@ public class EnderGuardianMechanic extends DifficultyMechanic {
     
     public void spawnManual(Location loc) {
         Enderman enderman = EntityUtils.spawnNatural(loc, EntityType.ENDERMAN);
-        transform(enderman);
+        if (enderman != null) {
+            CustomMobManager.tagCustomMob(enderman, CustomMobType.ENDER_GUARDIAN);
+            transform(enderman);
+        }
     }
     
     private void transform(Enderman enderman) {

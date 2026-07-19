@@ -36,6 +36,7 @@ public class AncestralRemainsMechanic extends DifficultyMechanic {
     public void spawnManual(Location loc) {
         Piglin piglin = (Piglin) EntityUtils.spawnNatural(loc, EntityType.PIGLIN);
         if (piglin != null) {
+            CustomMobManager.tagCustomMob(piglin, CustomMobType.ANCESTRAL_REMAINS);
             makeAncestral(piglin);
         }
     }

@@ -28,9 +28,9 @@ public class PhantomRiderMechanic extends DifficultyMechanic {
     private final NamespacedKey MOUNT_KEY;
 
     public PhantomRiderMechanic(JavaPlugin plugin) {
-        super(plugin, 23);
-        RIDER_KEY = new NamespacedKey(plugin, "phantom_rider_shulker");
-        MOUNT_KEY = new NamespacedKey(plugin, "phantom_rider_mount");
+        super(plugin, 6);
+        RIDER_KEY = new NamespacedKey(plugin, "is_phantom_rider");
+        MOUNT_KEY = new NamespacedKey(plugin, "is_phantom_mount");
         
         CustomMobManager.register(CustomMobType.PHANTOM_RIDER, this::spawnManual);
     }
@@ -38,6 +38,8 @@ public class PhantomRiderMechanic extends DifficultyMechanic {
     public void spawnManual(Location loc) {
         Phantom phantom = (Phantom) EntityUtils.spawnNatural(loc, EntityType.PHANTOM);
         Shulker rider = (Shulker) EntityUtils.spawnNatural(loc, EntityType.SHULKER);
+        
+        CustomMobManager.tagCustomMob(phantom, CustomMobType.PHANTOM_RIDER);
         
         phantom.getPersistentDataContainer().set(MOUNT_KEY, PersistentDataType.BYTE, (byte) 1);
         rider.getPersistentDataContainer().set(RIDER_KEY, PersistentDataType.BYTE, (byte) 1);

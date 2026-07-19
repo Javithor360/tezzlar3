@@ -68,6 +68,7 @@ public class TotemRavagerMechanic extends DifficultyMechanic {
         Ravager current = null;
         for (int i = 0; i < 5; i++) {
             Ravager ravager = (Ravager) loc.getWorld().spawnEntity(loc, EntityType.RAVAGER);
+            CustomMobManager.tagCustomMob(ravager, CustomMobType.TOTEM_RAVAGER);
             ravager.getPersistentDataContainer().set(TOTEM_RAVAGER_KEY, PersistentDataType.BYTE, (byte) 1);
             
             // Set base health to 50

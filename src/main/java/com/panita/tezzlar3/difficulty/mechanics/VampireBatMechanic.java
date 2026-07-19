@@ -155,6 +155,7 @@ import java.util.Set;public class VampireBatMechanic extends DifficultyMechanic 
     public void spawnManual(Location loc) {
         Bat bat = (Bat) EntityUtils.spawnNatural(loc, EntityType.BAT);
         if (bat != null) {
+            CustomMobManager.tagCustomMob(bat, CustomMobType.VAMPIRE_BAT);
             makeVampire(bat);
         }
     }

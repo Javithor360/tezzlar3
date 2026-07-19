@@ -73,7 +73,10 @@ public class GigaMagmaCubeMechanic extends DifficultyMechanic {
     
     public void spawnManual(Location loc) {
         MagmaCube boss = (MagmaCube) EntityUtils.spawnNatural(loc, EntityType.MAGMA_CUBE);
-        transform(boss);
+        if (boss != null) {
+            CustomMobManager.tagCustomMob(boss, CustomMobType.GIGA_MAGMA_CUBE);
+            transform(boss);
+        }
     }
 
     private void transform(MagmaCube boss) {

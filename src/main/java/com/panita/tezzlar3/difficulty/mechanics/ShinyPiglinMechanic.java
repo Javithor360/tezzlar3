@@ -40,8 +40,11 @@ public class ShinyPiglinMechanic extends DifficultyMechanic {
 
     public void spawnManual(Location loc) {
         Piglin piglin = (Piglin) EntityUtils.spawnNatural(loc, EntityType.PIGLIN);
-        piglin.setAdult(); 
-        makeShiny(piglin);
+        if (piglin != null) {
+            CustomMobManager.tagCustomMob(piglin, CustomMobType.SHINY_PIGLIN);
+            piglin.setAdult(); 
+            makeShiny(piglin);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

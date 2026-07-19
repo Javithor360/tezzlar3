@@ -22,16 +22,21 @@ import java.util.Random;
 public class PiglinDJMechanic extends DifficultyMechanic {
     private final Random random = new Random();
     private final NamespacedKey djKey;
+    private final NamespacedKey cdKey;
 
     public PiglinDJMechanic(JavaPlugin plugin) {
-        super(plugin, 26);
+        super(plugin, 20);
         this.djKey = new NamespacedKey(plugin, "piglin_dj");
+        this.cdKey = new NamespacedKey(plugin, "dj_cd");
         CustomMobManager.register(CustomMobType.PIGLIN_DJ, this::spawnManual);
     }
 
     public void spawnManual(Location loc) {
         PiglinBrute dj = (PiglinBrute) EntityUtils.spawnNatural(loc, EntityType.PIGLIN_BRUTE);
-        transform(dj);
+        if (dj != null) {
+            CustomMobManager.tagCustomMob(dj, CustomMobType.PIGLIN_DJ);
+            transform(dj);
+        }
     }
 
     private void transform(PiglinBrute dj) {

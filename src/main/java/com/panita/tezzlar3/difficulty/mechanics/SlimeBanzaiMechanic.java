@@ -26,14 +26,17 @@ public class SlimeBanzaiMechanic extends DifficultyMechanic {
     private final NamespacedKey BANZAI_KEY;
 
     public SlimeBanzaiMechanic(JavaPlugin plugin) {
-        super(plugin, 12);
+        super(plugin, 18);
         BANZAI_KEY = new NamespacedKey(plugin, "is_banzai");
         CustomMobManager.register(CustomMobType.SLIME_BANZAI, this::spawnManual);
     }
 
     public void spawnManual(Location loc) {
         Slime slime = (Slime) EntityUtils.spawnNatural(loc, EntityType.SLIME);
-        transform(slime);
+        if (slime != null) {
+            CustomMobManager.tagCustomMob(slime, CustomMobType.SLIME_BANZAI);
+            transform(slime);
+        }
     }
 
     private void transform(Slime slime) {

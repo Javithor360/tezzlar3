@@ -26,14 +26,17 @@ public class RealisticSpiderMechanic extends DifficultyMechanic {
     private final Random random = new Random();
 
     public RealisticSpiderMechanic(JavaPlugin plugin) {
-        super(plugin, 5);
+        super(plugin, 4);
         REALISTIC_KEY = new NamespacedKey(plugin, "is_realistic");
         CustomMobManager.register(CustomMobType.REALISTIC_SPIDER, this::spawnManual);
     }
 
     public void spawnManual(Location loc) {
         Spider spider = (Spider) EntityUtils.spawnNatural(loc, EntityType.SPIDER);
-        transformGroup(spider);
+        if (spider != null) {
+            CustomMobManager.tagCustomMob(spider, CustomMobType.REALISTIC_SPIDER);
+            transformGroup(spider);
+        }
     }
     
     private void transformGroup(Spider spider) {

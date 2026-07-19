@@ -38,6 +38,7 @@ public class ArabWanderingTraderMechanic extends DifficultyMechanic {
     public void spawnManual(Location loc) {
         WanderingTrader trader = (WanderingTrader) EntityUtils.spawnNatural(loc, EntityType.WANDERING_TRADER);
         if (trader != null) {
+            CustomMobManager.tagCustomMob(trader, CustomMobType.ARAB_WANDERING_TRADER);
             transform(trader);
         }
     }
