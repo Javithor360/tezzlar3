@@ -79,6 +79,14 @@ public class SuperDiamondListener implements Listener {
             return; // Instakill overrides double damage
         }
         
+        // Custom Sharpness: Sharpness normally adds (0.5 * level + 0.5).
+        // Since vanilla already applies this once, we add it again to double its effect.
+        int sharpLevel = hand.getEnchantmentLevel(Enchantment.SHARPNESS);
+        if (sharpLevel > 0) {
+            double extraSharpnessDamage = 0.5 * sharpLevel + 0.5;
+            event.setDamage(event.getDamage() + extraSharpnessDamage);
+        }
+        
         // 2. Double Damage (1/30)
         if (Math.random() < 0.033) {
             event.setDamage(event.getDamage() * 2);
@@ -135,24 +143,22 @@ public class SuperDiamondListener implements Listener {
                     }, 10L);
                 }
                 
-                Attribute attackAttr = Registry.ATTRIBUTE.get(NamespacedKey.minecraft("generic.attack_damage"));
-                double baseDamage = (attackAttr != null && player.getAttribute(attackAttr) != null) ? 
-                                    player.getAttribute(attackAttr).getValue() : 8.0;
-                
-                int sharpLevel = hand.getEnchantmentLevel(Enchantment.SHARPNESS);
-                double sharpBonus = sharpLevel > 0 ? (0.5 * sharpLevel + 0.5) : 0.0;
-                
-                double totalSwordDamage = baseDamage + sharpBonus;
-                double aoeDamage = totalSwordDamage * 2.0;
-                
                 for (Entity e : center.getWorld().getNearbyEntities(center, 6, 4, 6)) {
                     if (!(e instanceof LivingEntity target)) continue;
                     if (target.equals(player)) continue; // ignore self
                     
                     if (target.getLocation().distance(center) <= radius && target.getLocation().distance(center) > radius - 1.5) {
                         if (target.getLocation().getY() - center.getY() < 2.0) {
-                            target.damage(aoeDamage, player);
-                            target.setVelocity(new Vector(0, 0.5, 0));
+                            target.damage(25.0, player);
+                            
+                            Vector pushDir = target.getLocation().toVector().subtract(center.toVector());
+                            pushDir.setY(0); // Only calculate horizontal push direction
+                            if (pushDir.lengthSquared() > 0.001) {
+                                pushDir.normalize().multiply(1.2); // Horizontal force
+                            }
+                            pushDir.setY(0.4); // Add slight vertical bump
+                            
+                            target.setVelocity(pushDir);
                         }
                     }
                 }
