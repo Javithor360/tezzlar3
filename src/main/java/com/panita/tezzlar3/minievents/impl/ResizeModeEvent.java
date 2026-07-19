@@ -1,7 +1,9 @@
 package com.panita.tezzlar3.minievents.impl;
 
+import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.minievents.MiniEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
@@ -11,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.GameMode;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 
@@ -20,10 +23,16 @@ import java.util.Random;
 public class ResizeModeEvent implements MiniEvent, Listener {
 
     private final Random random = new Random();
+    private boolean isActive = false;
+    private final NamespacedKey appliedKey = new NamespacedKey(Tezzlar.getInstance(), "resize_mode_applied");
+
+    public ResizeModeEvent() {
+        Bukkit.getPluginManager().registerEvents(this, Tezzlar.getInstance());
+    }
 
     @Override
     public void start(JavaPlugin plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        isActive = true;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (PlayerUtils.isSurvival(player)) {
@@ -34,7 +43,7 @@ public class ResizeModeEvent implements MiniEvent, Listener {
 
     @Override
     public void stop(JavaPlugin plugin) {
-        HandlerList.unregisterAll(this);
+        isActive = false;
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             removeResize(player);
@@ -42,21 +51,28 @@ public class ResizeModeEvent implements MiniEvent, Listener {
     }
 
     private void applyResize(Player player) {
-        AttributeInstance scale = player.getAttribute(Attribute.SCALE);
-        if (scale != null) {
-            // Random double between 0.75 and 1.25
-            double newScale = 0.75 + (random.nextDouble() * 0.5);
-            scale.setBaseValue(newScale);
-            
-            String formattedSize = String.format(java.util.Locale.US, "%.2f", newScale);
-            Messenger.prefixedSend(player, "&7Tu tamaño ha sido cambiado a: &b" + formattedSize + "x");
+        if (!player.getPersistentDataContainer().has(appliedKey, PersistentDataType.BYTE)) {
+            AttributeInstance scale = player.getAttribute(Attribute.SCALE);
+            if (scale != null) {
+                // Random double between 0.75 and 1.25
+                double newScale = 0.75 + (random.nextDouble() * 0.5);
+                scale.setBaseValue(newScale);
+                
+                player.getPersistentDataContainer().set(appliedKey, PersistentDataType.BYTE, (byte) 1);
+                
+                String formattedSize = String.format(java.util.Locale.US, "%.2f", newScale);
+                Messenger.prefixedSend(player, "&7Tu tamaño ha sido cambiado a: &b" + formattedSize + "x");
+            }
         }
     }
 
     private void removeResize(Player player) {
-        AttributeInstance scale = player.getAttribute(Attribute.SCALE);
-        if (scale != null) {
-            scale.setBaseValue(1.0);
+        if (player.getPersistentDataContainer().has(appliedKey, PersistentDataType.BYTE)) {
+            AttributeInstance scale = player.getAttribute(Attribute.SCALE);
+            if (scale != null) {
+                scale.setBaseValue(1.0);
+            }
+            player.getPersistentDataContainer().remove(appliedKey);
         }
     }
 
@@ -82,15 +98,23 @@ public class ResizeModeEvent implements MiniEvent, Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (PlayerUtils.isSurvival(event.getPlayer())) {
-            applyResize(event.getPlayer());
+        if (isActive) {
+            if (PlayerUtils.isSurvival(event.getPlayer())) {
+                applyResize(event.getPlayer());
+            }
+        } else {
+            removeResize(event.getPlayer());
         }
     }
 
     @EventHandler
     public void onGameModeChange(PlayerGameModeChangeEvent event) {
-        if (event.getNewGameMode() == GameMode.SURVIVAL || event.getNewGameMode() == GameMode.ADVENTURE) {
-            applyResize(event.getPlayer());
+        if (isActive) {
+            if (event.getNewGameMode() == GameMode.SURVIVAL || event.getNewGameMode() == GameMode.ADVENTURE) {
+                applyResize(event.getPlayer());
+            } else {
+                removeResize(event.getPlayer());
+            }
         } else {
             removeResize(event.getPlayer());
         }

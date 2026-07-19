@@ -74,7 +74,11 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener, 
             
             // Prevent overlap with other mechanics by pausing the DeathTrain
             if (MissionsModule.getRefugeManager() != null && MissionsModule.getRefugeManager().isActive()) return;
-            if (MiniEventsModule.getManager() != null && MiniEventsModule.getManager().getActiveEvent() != null) return;
+            if (MiniEventsModule.getManager() != null && MiniEventsModule.getManager().getActiveEvent() != null) {
+                if (MiniEventsModule.getManager().getActiveEvent().getId().equals("acid_rain_global")) {
+                    return;
+                }
+            }
             
             if (remainingSeconds > 0) {
                 remainingSeconds--;
@@ -134,7 +138,9 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener, 
         
         // Prevent overlap with other mechanics by pausing the DeathTrain
         if (MissionsModule.getRefugeManager() != null && MissionsModule.getRefugeManager().isActive()) return null;
-        if (MiniEventsModule.getManager() != null && MiniEventsModule.getManager().getActiveEvent() != null) return null;
+        if (MiniEventsModule.getManager() != null && MiniEventsModule.getManager().getActiveEvent() != null) {
+            if (MiniEventsModule.getManager().getActiveEvent().getId().equals("acid_rain_global")) return null;
+        }
         
         String timeStr = Global.formatTimeTicks(remainingSeconds * 20L);
         return java.util.Collections.singletonList("<gray>DeathTrain activo por " + timeStr + "</gray>");
