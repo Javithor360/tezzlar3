@@ -25,7 +25,7 @@ public class PiglinDJMechanic extends DifficultyMechanic {
     private final NamespacedKey cdKey;
 
     public PiglinDJMechanic(JavaPlugin plugin) {
-        super(plugin, 20);
+        super(plugin, 26);
         this.djKey = new NamespacedKey(plugin, "piglin_dj");
         this.cdKey = new NamespacedKey(plugin, "dj_cd");
         CustomMobManager.register(CustomMobType.PIGLIN_DJ, this::spawnManual);

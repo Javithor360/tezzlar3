@@ -34,7 +34,7 @@ public class PyromaniacPiglinMechanic extends DifficultyMechanic {
     private final NamespacedKey EXPLOSIVE_ARROW_KEY;
 
     public PyromaniacPiglinMechanic(JavaPlugin plugin) {
-        super(plugin, 10);
+        super(plugin, 27);
         this.PYROMANIAC_KEY = new NamespacedKey(plugin, "is_pyromaniac");
         this.EXPLOSIVE_ARROW_KEY = new NamespacedKey(plugin, "is_explosive_arrow");
         CustomMobManager.register(CustomMobType.PYROMANIAC_PIGLIN, this::spawnManual);

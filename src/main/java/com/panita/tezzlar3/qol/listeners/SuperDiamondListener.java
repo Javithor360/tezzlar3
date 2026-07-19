@@ -91,8 +91,8 @@ public class SuperDiamondListener implements Listener {
         if (Math.random() < 0.033) {
             event.setDamage(event.getDamage() * 2);
             player.playSound(player.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1.0f, 1.5f);
-            player.getWorld().spawnParticle(Particle.FLASH, target.getLocation().add(0, 1, 0), 1, 0, 0, 0, 0);
-            player.getWorld().spawnParticle(Particle.END_ROD, target.getLocation().add(0, 1, 0), 20, 0.5, 0.5, 0.5, 0.2);
+            player.getWorld().spawnParticle(Particle.EXPLOSION, target.getLocation().add(0, 1, 0), 1, 0, 0, 0, 0);
+            player.getWorld().spawnParticle(Particle.CRIT, target.getLocation().add(0, 1, 0), 20, 0.5, 0.5, 0.5, 0.2);
         }
     }
 

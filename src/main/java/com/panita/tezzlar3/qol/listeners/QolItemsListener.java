@@ -220,9 +220,22 @@ public class QolItemsListener implements Listener {
                 
                 ItemStack newHeart = CustomItemManager.getItem("tezzlar_heart");
                 if (newHeart != null) {
+                    int heldSlot = event.getHand() == org.bukkit.inventory.EquipmentSlot.HAND ? player.getInventory().getHeldItemSlot() : 40;
+                    boolean wasEmpty = (item.getAmount() == 0);
+                    
+                    if (wasEmpty) {
+                        // Temporarily place a dummy item to prevent the new heart from taking this exact slot
+                        player.getInventory().setItem(heldSlot, new ItemStack(org.bukkit.Material.STRUCTURE_VOID));
+                    }
+                    
                     player.getInventory().addItem(newHeart).values().forEach(leftover -> 
                         player.getWorld().dropItemNaturally(player.getLocation(), leftover)
                     );
+                    
+                    if (wasEmpty) {
+                        // Restore the slot to truly empty
+                        player.getInventory().setItem(heldSlot, null);
+                    }
                 }
                 
                 SoundUtils.playInRadius(player.getLocation(), "entity.wither.hurt", 10.0f, 0.8f);

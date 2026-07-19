@@ -28,7 +28,7 @@ public class PhantomRiderMechanic extends DifficultyMechanic {
     private final NamespacedKey MOUNT_KEY;
 
     public PhantomRiderMechanic(JavaPlugin plugin) {
-        super(plugin, 6);
+        super(plugin, 23);
         RIDER_KEY = new NamespacedKey(plugin, "is_phantom_rider");
         MOUNT_KEY = new NamespacedKey(plugin, "is_phantom_mount");
         
