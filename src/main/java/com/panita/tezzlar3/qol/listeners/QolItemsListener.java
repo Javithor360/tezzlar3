@@ -19,6 +19,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import com.panita.tezzlar3.difficulty.mechanics.DeathTrainMechanic;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -294,28 +296,80 @@ public class QolItemsListener implements Listener {
             }
 
             item.setAmount(item.getAmount() - 1);
-            spawnMemoryEvokerWave(player.getLocation(), target);
+            spawnHorde(player.getLocation(), radius, 30, "memory", target);
             
             Messenger.prefixedSend(player, "<gold>Has evocado los recuerdos de <yellow>" + target.getName() + "</yellow>. ¡Prepárate para luchar!</gold>");
+            SoundUtils.playInRadius(player.getLocation(), "entity.wither.spawn", 10.0f, 0.5f);
+        } else if (CustomItemManager.isCustomItem(item, "repellent")) {
+            event.setCancelled(true);
+            Player player = event.getPlayer();
+            
+            if (player.getWorld().getEnvironment() != World.Environment.NORMAL) {
+                Messenger.prefixedSend(player, "<red>El repelente solo funciona en el Overworld, donde hay contaminación.</red>");
+                return;
+            }
+            
+            int seconds = player.getPersistentDataContainer().getOrDefault(
+                    new NamespacedKey(Tezzlar.getInstance(), "overworld_toxicity"), PersistentDataType.INTEGER, 0);
+            
+            player.getPersistentDataContainer().set(
+                    new NamespacedKey(Tezzlar.getInstance(), "overworld_toxicity"), PersistentDataType.INTEGER, seconds - 600);
+            
+            item.setAmount(item.getAmount() - 1);
+            player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_BREWING_STAND_BREW, 1.0f, 1.0f);
+            Messenger.prefixedSend(player, "<green>Has usado un repelente. Tu tiempo seguro frente a la contaminación se ha extendido 10 minutos.</green>");
+            
+        } else if (CustomItemManager.isCustomItem(item, "incense")) {
+            event.setCancelled(true);
+            Player player = event.getPlayer();
+            
+            String evokerWorldStr = Tezzlar.getConfigManager().getString("qol.memory_evoker.world", "world");
+            int evokerX = Tezzlar.getConfigManager().getInt("qol.memory_evoker.x", 0);
+            int evokerY = Tezzlar.getConfigManager().getInt("qol.memory_evoker.y", 64);
+            int evokerZ = Tezzlar.getConfigManager().getInt("qol.memory_evoker.z", 0);
+            double radius = Tezzlar.getConfigManager().getDouble("qol.memory_evoker.radius", 50.0);
+            
+            World evokerWorld = Bukkit.getWorld(evokerWorldStr);
+            if (evokerWorld == null || !player.getWorld().equals(evokerWorld)) {
+                Messenger.prefixedSend(player, "<red>Debes estar en la zona de rituales para usar el Incienso.</red>");
+                return;
+            }
+            
+            Location center = new Location(evokerWorld, evokerX, evokerY, evokerZ);
+            if (player.getLocation().distance(center) > radius) {
+                Messenger.prefixedSend(player, "<red>Debes estar más cerca del altar de rituales para usar el Incienso.</red>");
+                return;
+            }
+            
+            item.setAmount(item.getAmount() - 1);
+            spawnHorde(player.getLocation(), radius, 50, "incense", null);
+            
+            Messenger.prefixedSend(player, "<#8A2BE2>Has quemado el Incienso. ¡Una horda de espíritus se levanta!</#8A2BE2>");
             SoundUtils.playInRadius(player.getLocation(), "entity.wither.spawn", 10.0f, 0.5f);
         }
     }
 
-    private void spawnMemoryEvokerWave(Location loc, OfflinePlayer target) {
+    private void spawnHorde(Location loc, double radius, int numMobs, String hordeType, OfflinePlayer target) {
         String waveId = UUID.randomUUID().toString();
-        EntityType[] mobTypes = {EntityType.ZOMBIE, EntityType.HUSK, EntityType.SKELETON, EntityType.STRAY,
-                EntityType.BOGGED, EntityType.PARCHED, EntityType.VINDICATOR, EntityType.PILLAGER, EntityType.EVOKER, EntityType.RAVAGER};
+        EntityType[] mobTypes = {
+                EntityType.ZOMBIE, EntityType.HUSK, EntityType.SKELETON, EntityType.STRAY,
+                EntityType.BOGGED, EntityType.PARCHED, EntityType.VINDICATOR, EntityType.PILLAGER, 
+                EntityType.EVOKER, EntityType.RAVAGER, EntityType.MAGMA_CUBE, EntityType.BLAZE, 
+                EntityType.WITHER_SKELETON, EntityType.CREEPER
+        };
         Random random = new Random();
         
-        int numMobs = 4;
         int keyholderIndex = random.nextInt(numMobs);
-        String customName = "<gold>Evoca-recuerdos de " + target.getName() + "</gold>";
+        String customName = hordeType.equals("memory") 
+                ? "<gold>Evocarrecuerdos de " + target.getName() + "</gold>"
+                : "<#8A2BE2>Espíritu de Incienso</#8A2BE2>";
         
         for (int i = 0; i < numMobs; i++) {
             EntityType type = mobTypes[random.nextInt(mobTypes.length)];
             
-            double offsetX = (random.nextDouble() * 10) - 5;
-            double offsetZ = (random.nextDouble() * 10) - 5;
+            // Scatter widely within the radius
+            double offsetX = (random.nextDouble() * radius * 2) - radius;
+            double offsetZ = (random.nextDouble() * radius * 2) - radius;
             Location spawnLoc = loc.clone().add(offsetX, 0, offsetZ);
             spawnLoc.setY(spawnLoc.getWorld().getHighestBlockYAt(spawnLoc) + 1);
             
@@ -326,25 +380,46 @@ public class QolItemsListener implements Listener {
             EntityUtils.setColoredGlowing(mob, NamedTextColor.LIGHT_PURPLE);
             mob.setRemoveWhenFarAway(false);
             
-            ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-            SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
-            skullMeta.setOwningPlayer(target);
-            head.setItemMeta(skullMeta);
-            
-            EntityEquipment equip = mob.getEquipment();
-            if (equip != null) {
-                equip.setHelmet(head);
-                equip.setHelmetDropChance(0.0f);
-            }
-            
-            mob.getPersistentDataContainer().set(new NamespacedKey(Tezzlar.getInstance(), "is_memory_mob"), PersistentDataType.STRING, waveId);
-            mob.getPersistentDataContainer().set(new NamespacedKey(Tezzlar.getInstance(), "memory_target"), PersistentDataType.STRING, target.getUniqueId().toString());
-            
-            if (i == keyholderIndex) {
-                mob.getPersistentDataContainer().set(new NamespacedKey(Tezzlar.getInstance(), "is_memory_keyholder"), PersistentDataType.BYTE, (byte) 1);
+            if (hordeType.equals("memory") && target != null) {
+                ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+                SkullMeta skullMeta = (SkullMeta) head.getItemMeta();
+                skullMeta.setOwningPlayer(target);
+                head.setItemMeta(skullMeta);
+                
+                EntityEquipment equip = mob.getEquipment();
+                if (equip != null) {
+                    equip.setHelmet(head);
+                    equip.setHelmetDropChance(0.0f);
+                }
+                mob.getPersistentDataContainer().set(new NamespacedKey(Tezzlar.getInstance(), "is_memory_mob"), PersistentDataType.STRING, waveId);
+                mob.getPersistentDataContainer().set(new NamespacedKey(Tezzlar.getInstance(), "memory_target"), PersistentDataType.STRING, target.getUniqueId().toString());
+                
+                if (i == keyholderIndex) {
+                    mob.getPersistentDataContainer().set(new NamespacedKey(Tezzlar.getInstance(), "is_memory_keyholder"), PersistentDataType.BYTE, (byte) 1);
+                }
+            } else if (hordeType.equals("incense")) {
+                mob.getPersistentDataContainer().set(new NamespacedKey(Tezzlar.getInstance(), "is_incense_mob"), PersistentDataType.STRING, waveId);
+                if (i == keyholderIndex) {
+                    mob.getPersistentDataContainer().set(new NamespacedKey(Tezzlar.getInstance(), "is_incense_keyholder"), PersistentDataType.BYTE, (byte) 1);
+                }
             }
             
             mob.getWorld().spawnParticle(Particle.SOUL, mob.getLocation().add(0, 1, 0), 30, 0.5, 0.5, 0.5, 0.1);
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityDeath(EntityDeathEvent event) {
+        if (event.getEntity().getPersistentDataContainer().has(
+                new NamespacedKey(Tezzlar.getInstance(), "is_incense_keyholder"), PersistentDataType.BYTE)) {
+            
+            if (DeathTrainMechanic.getInstance() != null && DeathTrainMechanic.getInstance().isActive() 
+                    && DeathTrainMechanic.getInstance().getRemainingSeconds() > 0) {
+                
+                DeathTrainMechanic.getInstance().setRemainingSeconds(0);
+                Messenger.prefixedBroadcast("<#8A2BE2>¡El Portador del Incienso ha sido derrotado! El Death Train ha sido disipado.</#8A2BE2>");
+                SoundUtils.playGlobal("entity.wither.death", 10.0f, 0.5f);
+            }
         }
     }
 
