@@ -26,6 +26,7 @@ import com.panita.tezzlar3.core.util.MobGearUtils;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 import com.panita.tezzlar3.core.util.SoundUtils;
 import com.panita.tezzlar3.qol.util.CustomItemManager;
+import com.panita.tezzlar3.difficulty.util.BossRewardUtils;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -1237,56 +1238,23 @@ public class GlacialBonebreakerBoss {
         }
     }
 
-    private void giveOrDropItem(Player p, ItemStack item) {
-        if (item == null || item.getType().isAir()) return;
-        Map<Integer, ItemStack> leftover = p.getInventory().addItem(item);
-        if (!leftover.isEmpty()) {
-            for (ItemStack drop : leftover.values()) p.getWorld().dropItem(p.getLocation(), drop);
-        }
-    }
-    
-    private void giveOrDropItems(Player p, Material material, int amount) {
-        int maxStack = Math.min(64, Math.max(1, material.getMaxStackSize()));
-        while (amount > 0) {
-            int currentAmount = Math.min(amount, maxStack);
-            giveOrDropItem(p, new ItemStack(material, currentAmount));
-            amount -= currentAmount;
-        }
-    }
-
     private void giveRewards(Player p) {
-        int scrapCount = 8 + random.nextInt(24);
-        giveOrDropItems(p, Material.NETHERITE_SCRAP, scrapCount);
+        int quartzCount = 128 + random.nextInt(385);
+        BossRewardUtils.giveOrDropItems(p, Material.QUARTZ, quartzCount);
         
-        List<Runnable> options = new ArrayList<>();
-        options.add(() -> giveOrDropItems(p, Material.GOLDEN_APPLE, 1 + random.nextInt(31)));
-        options.add(() -> giveOrDropItems(p, Material.ENCHANTED_GOLDEN_APPLE, 4));
-        options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, PotionEffect.INFINITE_DURATION, 0)));
-        options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 12 * 60 * 60 * 20, 0)));
-        options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, PotionEffect.INFINITE_DURATION, 1)));
-        options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 4 * 60 * 60 * 20, 2)));
-        options.add(() -> p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 8 * 60 * 60 * 20, 2)));
-        options.add(() -> giveOrDropItems(p, Material.TOTEM_OF_UNDYING, 1 + random.nextInt(6)));
-        options.add(() -> giveOrDropItems(p, Material.DIAMOND, 25 + random.nextInt(50)));
-        options.add(() -> giveOrDropItems(p, Material.GOLDEN_CARROT, 128 + random.nextInt(385)));
-        options.add(() -> p.giveExpLevels(50 + random.nextInt(99)));
-        options.add(() -> giveOrDropItems(p, Material.RAW_GOLD, 48 + random.nextInt(151)));
-        options.add(() -> {
-            Material[] shulkers = {Material.SHULKER_BOX, Material.RED_SHULKER_BOX, Material.BLUE_SHULKER_BOX, Material.BLACK_SHULKER_BOX};
-            giveOrDropItems(p, shulkers[random.nextInt(shulkers.length)], 1);
-        });
-        options.add(() -> {
-            String[] customItems = {"tactic_bow", "tezzlar_heart", "bee_totem", "chicken_totem", "ghast_totem", "golden_totem", "life_save", "memory_evoker", "sniffer_totem", "sulfur_totem", "turtle_totem"};
-            String chosen = customItems[random.nextInt(customItems.length)];
-            ItemStack item = CustomItemManager.getItem(chosen);
-            if (item != null) giveOrDropItem(p, item);
-        });
-        options.add(() -> giveOrDropItems(p, Material.EMERALD, 128 + random.nextInt(385)));
+        // 100% chance 30-50 XP levels
+        p.giveExpLevels(30 + random.nextInt(21));
         
-        Collections.shuffle(options);
-        options.get(0).run();
-        options.get(1).run();
-        options.get(2).run();
+        // 90% chance ONE stone_bone
+        if (random.nextInt(100) < 90) {
+            ItemStack stoneBone = CustomItemManager.getItem("stone_bone");
+            if (stoneBone != null) {
+                stoneBone.setAmount(1);
+                BossRewardUtils.giveOrDropItem(p, stoneBone);
+            }
+        }
+        
+        BossRewardUtils.executeSharedBossRewards(p);
         
         Messenger.prefixedSend(p, "<#00FFFF>¡Has recibido recompensas glaciales por derrotar al Quebrantahuesos!</#00FFFF>");
         SoundUtils.play(p, "entity.player.levelup", 1, 2);
