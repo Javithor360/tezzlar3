@@ -31,9 +31,9 @@ public class UniqueDropsListener implements Listener {
         
         if (killer == null) return;
 
-        // 1. Phantoms dropping stone_membrance (0.1% chance)
+        // 1. Phantoms dropping stone_membrance (5% chance)
         if (entity instanceof Phantom) {
-            if (Math.random() < 0.001) {
+            if (Math.random() < 0.05) {
                 ItemStack membrance = CustomItemManager.getItem("stone_membrance");
                 if (membrance != null) {
                     event.getDrops().add(membrance);
@@ -41,10 +41,10 @@ public class UniqueDropsListener implements Listener {
             }
         }
         
-        // 2. Custom Mobs dropping stone_heart (0.1% chance)
+        // 2. Custom Mobs dropping stone_heart (5% chance)
         NamespacedKey mobKey = new NamespacedKey(Tezzlar.getInstance(), "custom_mob_id");
         if (entity.getPersistentDataContainer().has(mobKey, PersistentDataType.STRING)) {
-            if (Math.random() < 0.001) {
+            if (Math.random() < 0.05) {
                 ItemStack heart = CustomItemManager.getItem("stone_heart");
                 if (heart != null) {
                     event.getDrops().add(heart);
