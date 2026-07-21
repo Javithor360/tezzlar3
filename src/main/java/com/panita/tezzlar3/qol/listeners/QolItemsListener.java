@@ -429,8 +429,17 @@ public class QolItemsListener implements Listener {
             if (DeathTrainMechanic.getInstance() != null && DeathTrainMechanic.getInstance().isActive() 
                     && DeathTrainMechanic.getInstance().getRemainingSeconds() > 0) {
                 
-                DeathTrainMechanic.getInstance().setRemainingSeconds(0);
-                Messenger.prefixedBroadcast("<#8A2BE2>¡El Portador del Incienso ha sido derrotado! El Death Train ha sido disipado.</#8A2BE2>");
+                int currentSeconds = DeathTrainMechanic.getInstance().getRemainingSeconds();
+                int reduction = 43200; // 12 hours
+                
+                if (currentSeconds <= reduction) {
+                    DeathTrainMechanic.getInstance().setRemainingSeconds(0);
+                    Messenger.prefixedBroadcast("<#8A2BE2>¡El Portador del Incienso ha sido derrotado! El Death Train ha sido disipado completamente.</#8A2BE2>");
+                } else {
+                    DeathTrainMechanic.getInstance().setRemainingSeconds(currentSeconds - reduction);
+                    Messenger.prefixedBroadcast("<#8A2BE2>¡El Portador del Incienso ha sido derrotado! La furia del Death Train se ha reducido por 12 horas.</#8A2BE2>");
+                }
+                
                 SoundUtils.playGlobal("entity.wither.death", 10.0f, 0.5f);
             }
         }
