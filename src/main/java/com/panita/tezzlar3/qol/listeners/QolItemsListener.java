@@ -53,21 +53,31 @@ public class QolItemsListener implements Listener {
         Player player = event.getPlayer();
 
         if (CustomItemManager.isCustomItem(item, "copper_apple")) {
-            int preFood = player.getFoodLevel();
-            float preSat = player.getSaturation();
+            player.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 5 * 60 * 20, 2, false, true, true));
             
-            player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 20 * 60, 0, false, true, true));
-            
-            // Revert food and saturation given by the vanilla apple behavior
+            // Give 20 food and 20 saturation 1 tick later (override vanilla apple behavior)
             Bukkit.getScheduler().runTask(Tezzlar.getInstance(), () -> {
-                player.setFoodLevel(preFood);
-                player.setSaturation(preSat);
+                player.setFoodLevel(20);
+                player.setSaturation(20f);
             });
         } else if (CustomItemManager.isCustomItem(item, "manzanium_apple")) {
             // Apply 20 food and 20 saturation 1 tick later
             Bukkit.getScheduler().runTask(Tezzlar.getInstance(), () -> {
                 player.setFoodLevel(20);
                 player.setSaturation(20f);
+            });
+        } else if (CustomItemManager.isCustomItem(item, "golden_beetroot")) {
+            // 2 minutes = 2 * 60 * 20 = 2400 ticks
+            int duration = 2 * 60 * 20;
+
+            player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, duration, 3, false, true, true));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, duration, 1, false, true, true));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, duration, 1, false, true, true));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, duration, 3, false, true, true));
+            
+            Bukkit.getScheduler().runTask(Tezzlar.getInstance(), () -> {
+                player.setFoodLevel(20);
+                player.setSaturation(20);
             });
         } else if (CustomItemManager.isCustomItem(item, "copper_carrot")) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 20 * 60, 0, false, true, true));
