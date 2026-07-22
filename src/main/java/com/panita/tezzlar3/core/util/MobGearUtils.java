@@ -8,6 +8,11 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.enchantments.Enchantment;
 import com.panita.tezzlar3.timeline.util.TimeManager;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Equippable;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.format.TextDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,6 +124,13 @@ public class MobGearUtils {
         if (random.nextDouble() < legsChance) eq.setLeggings(applyRandomEnchantments(getRandomArmor(lPool, tier), tier));
         if (random.nextDouble() < bootsChance) eq.setBoots(applyRandomEnchantments(getRandomArmor(bPool, tier), tier));
 
+        if (tier == GearTier.MASTER) {
+            applyCustomArmorModel(eq.getHelmet(), "Casco");
+            applyCustomArmorModel(eq.getChestplate(), "Pechera");
+            applyCustomArmorModel(eq.getLeggings(), "Pantalones");
+            applyCustomArmorModel(eq.getBoots(), "Botas");
+        }
+
         // Weapons Assignment
         EntityType type = entity.getType();
         boolean isSkeleton = type == EntityType.SKELETON || type == EntityType.WITHER_SKELETON || type == EntityType.STRAY || type == EntityType.BOGGED || type == EntityType.PARCHED;
@@ -212,6 +224,39 @@ public class MobGearUtils {
         return new ItemStack(getWeightedMaterial(options, tier));
     }
 
+    private static void applyCustomArmorModel(ItemStack item, String partName) {
+        if (item == null || item.getType() == Material.AIR) return;
+        
+        double roll = random.nextDouble();
+        if (roll < 0.50) return; // 50% vanilla
+        
+        Key modelKey;
+        String typeName;
+        
+        if (roll < 0.75) {
+            modelKey = Key.key("tezzlar3", "superdiamond");
+            typeName = "Superdiamante";
+        } else if (roll < 0.875) {
+            modelKey = Key.key("panita", "dragonslayer");
+            typeName = "Cazadragón";
+        } else {
+            modelKey = Key.key("panita", "fallen_hero");
+            typeName = "Héroe Caído";
+        }
+        
+        try {
+            Equippable comp = item.getData(DataComponentTypes.EQUIPPABLE);
+            if (comp != null) {
+                item.setData(DataComponentTypes.EQUIPPABLE, comp.toBuilder().assetId(modelKey).build());
+            }
+            
+            item.editMeta(meta -> {
+                String name = "<#D966FA>Imitación de " + partName + " de " + typeName + "</#D966FA>";
+                meta.displayName(MiniMessage.miniMessage().deserialize(name).decoration(TextDecoration.ITALIC, false));
+            });
+        } catch (Exception ignored) {}
+    }
+
     public static ItemStack applyRandomEnchantments(ItemStack item, GearTier tier) {
         if (item == null || item.getType() == Material.AIR) return item;
         
@@ -279,7 +324,7 @@ public class MobGearUtils {
             
             switch (tier) {
                 case MASTER:
-                    randomLevel = maxLevel; // Always max level
+                    randomLevel = random.nextInt(21) + 5; // [5, 25] ignoring vanilla maxLevel
                     break;
                 case ELITE:
                     randomLevel = maxLevel == 1 ? 1 : Math.max(2, random.nextInt(maxLevel + 1) + 1); // Min level 2
