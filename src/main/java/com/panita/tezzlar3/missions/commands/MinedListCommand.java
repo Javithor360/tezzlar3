@@ -71,7 +71,7 @@ public class MinedListCommand implements AdvancedCommand, TabSuggestingCommand {
         } else {
             int currentDay = TimeManager.getCurrentDay();
             for (Mission mission : MissionsModule.getMissionManager().getLoadedMissions().values()) {
-                if (currentDay >= mission.getStartDay() && currentDay <= mission.getEndDay() && mission.getObjectiveType().equalsIgnoreCase("MINE_BLOCKS")) {
+                if (currentDay >= mission.getStartDay() && currentDay <= mission.getEndDay() && (mission.getObjectiveType().equalsIgnoreCase("MINE_BLOCKS") || mission.getObjectiveType().equalsIgnoreCase("KILL_SHULKER_COLORS"))) {
                     boolean completed = false;
                     if (data != null) {
                         completed = data.hasCompleted(mission.getId());
@@ -86,13 +86,13 @@ public class MinedListCommand implements AdvancedCommand, TabSuggestingCommand {
                 }
             }
             if (targetMission == null) {
-                Messenger.prefixedSend(sender, "&cNo hay ninguna misión activa de recolección de bloques en este momento.");
+                Messenger.prefixedSend(sender, "&cNo hay ninguna misión activa con lista de objetivos en este momento.");
                 return;
             }
         }
 
-        if (!targetMission.getObjectiveType().equalsIgnoreCase("MINE_BLOCKS") || targetMission.getObjectiveTargetsMap() == null) {
-            Messenger.prefixedSend(sender, "&cLa misión &e" + targetMission.getId() + " &cno es de recolección de múltiples bloques.");
+        if ((!targetMission.getObjectiveType().equalsIgnoreCase("MINE_BLOCKS") && !targetMission.getObjectiveType().equalsIgnoreCase("KILL_SHULKER_COLORS")) || targetMission.getObjectiveTargetsMap() == null) {
+            Messenger.prefixedSend(sender, "&cLa misión &e" + targetMission.getId() + " &cno tiene una lista de objetivos válida.");
             return;
         }
 
@@ -116,9 +116,14 @@ public class MinedListCommand implements AdvancedCommand, TabSuggestingCommand {
             }
             
             maxProgress += req;
-            currentProgress += prog;
+            currentProgress += Math.min(prog, req);
 
-            Messenger.prefixedSend(sender, "&8- &a" + category + "&8: &e" + prog + "&7/&e" + req);
+            if (targetMission.getObjectiveType().equalsIgnoreCase("KILL_SHULKER_COLORS")) {
+                String symbol = prog >= req ? "&a✔" : "&c✘";
+                Messenger.prefixedSend(sender, "&8- " + symbol + " &f" + category);
+            } else {
+                Messenger.prefixedSend(sender, "&8- &a" + category + "&8: &e" + prog + "&7/&e" + req);
+            }
         }
 
         if (maxProgress > 0) {
@@ -132,7 +137,7 @@ public class MinedListCommand implements AdvancedCommand, TabSuggestingCommand {
         meta.setArgumentSuggestion(0, context -> {
             List<String> list = new ArrayList<>();
             for (Mission mission : MissionsModule.getMissionManager().getLoadedMissions().values()) {
-                if (mission.getObjectiveType().equalsIgnoreCase("MINE_BLOCKS")) {
+                if (mission.getObjectiveType().equalsIgnoreCase("MINE_BLOCKS") || mission.getObjectiveType().equalsIgnoreCase("KILL_SHULKER_COLORS")) {
                     list.add(mission.getId());
                 }
             }

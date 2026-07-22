@@ -219,3 +219,52 @@ missions:
     punishments:
       - id: "DAY_22_BAN"
       - id: "OFFHAND_RESTRICTION"
+
+  end_event:
+    name: "Matar al Dragón del End"
+    start_day: 22
+    end_day: 22
+    scope: GROUP
+    objective:
+      type: KILL_ENTITY
+      target: ENDER_DRAGON
+      amount: 1
+
+  rainbow_shulker:
+    name: "Caza de Shulkers Coloridos"
+    start_day: 23
+    end_day: 23
+    scope: INDIVIDUAL
+    objective:
+      type: KILL_SHULKER_COLORS
+      targets:
+        RED: 1
+        YELLOW: 1
+        LIME: 1
+        GREEN: 1
+        BLACK: 1
+        PURPLE: 1
+        WHITE: 1
+        GRAY: 1
+        BLUE: 1
+        LIGHT_BLUE: 1
+        PINK: 1
+        MAGENTA: 1
+        LIGHT_GRAY: 1
+        CYAN: 1
+        ORANGE: 1
+        BROWN: 1
+        COLORLESS: 1
+    rewards:
+      - id: "REMOVE_PUNISHMENT"
+        args: { punishment_id: "OFFHAND_RESTRICTION" }
+        description: "1x Revocar el castigo de la mano secundaria"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "life_saver", amount: 1 }
+        description: "1x 1UP"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "soulbound_relic", amount: 1 }
+        description: "1x Reliquia de Almas"
+      - id: "GIVE_ITEM"
+        args: { material: "NETHER_STAR", amount: 4 }
+        description: "4x Estrella del Nether"

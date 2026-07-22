@@ -16,6 +16,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Shulker;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -213,7 +214,7 @@ public class MissionTracker implements Listener, ActionBarProvider {
 
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
-        if (!hasActiveMissionObjective("KILL_ENTITY") && !hasActiveMissionObjective("KILL_ENTITY_TIMED")) return;
+        if (!hasActiveMissionObjective("KILL_ENTITY") && !hasActiveMissionObjective("KILL_ENTITY_TIMED") && !hasActiveMissionObjective("KILL_SHULKER_COLORS")) return;
         
         if (event.getEntity().getKiller() != null) {
             Player player = event.getEntity().getKiller();
@@ -253,6 +254,47 @@ public class MissionTracker implements Listener, ActionBarProvider {
                         kills.clear(); // Reset after completion
                     }
                 }
+            }
+            
+            // Check for KILL_SHULKER_COLORS
+            if (event.getEntityType() == EntityType.SHULKER) {
+                Shulker shulker = (Shulker) event.getEntity();
+                String colorName = shulker.getColor() != null ? shulker.getColor().name() : "COLORLESS";
+                
+                for (Map.Entry<String, Mission> entry : MissionsModule.getMissionManager().getLoadedMissions().entrySet()) {
+                        Mission mission = entry.getValue();
+                        if (!mission.getObjectiveType().equalsIgnoreCase("KILL_SHULKER_COLORS")) continue;
+                        
+                        int currentDay = TimeManager.getCurrentDay();
+                        if (currentDay < mission.getStartDay() || currentDay > mission.getEndDay()) continue;
+                        
+                        PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player);
+                        if (data == null || data.hasCompleted(mission.getId())) continue;
+            
+                        Map<String, Integer> targets = mission.getObjectiveTargetsMap();
+                        if (targets == null || targets.isEmpty()) continue;
+            
+                        if (targets.containsKey(colorName)) {
+                            String subKey = mission.getId() + "_sub_" + colorName;
+                            int currentSub = data.getProgress(subKey);
+                            
+                            if (currentSub < targets.get(colorName)) {
+                                data.setProgress(subKey, currentSub + 1);
+                                MissionBossBarManager.forceShowMission(player, mission.getId());
+                                
+                                int completedTargets = 0;
+                                for (Map.Entry<String, Integer> t : targets.entrySet()) {
+                                    if (data.getProgress(mission.getId() + "_sub_" + t.getKey()) >= t.getValue()) {
+                                        completedTargets++;
+                                    }
+                                }
+                                
+                                if (completedTargets >= targets.size()) {
+                                    advanceProgress(player, mission.getId(), 1);
+                                }
+                            }
+                        }
+                    }
             }
         }
     }

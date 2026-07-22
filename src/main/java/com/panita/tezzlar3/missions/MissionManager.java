@@ -8,6 +8,7 @@ import com.panita.tezzlar3.missions.handlers.punishments.*;
 import com.panita.tezzlar3.missions.handlers.rewards.CustomItemRewardHandler;
 import com.panita.tezzlar3.missions.handlers.rewards.ExpRewardHandler;
 import com.panita.tezzlar3.missions.handlers.rewards.ItemRewardHandler;
+import com.panita.tezzlar3.missions.handlers.rewards.RemovePunishmentRewardHandler;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -43,6 +44,7 @@ public class MissionManager {
         registerRewardHandler(new CustomItemRewardHandler());
         registerRewardHandler(new ItemRewardHandler());
         registerRewardHandler(new ExpRewardHandler());
+        registerRewardHandler(new RemovePunishmentRewardHandler());
         
         DiamondBanPunishmentHandler diamondBan = new DiamondBanPunishmentHandler();
         registerPunishmentHandler(diamondBan);
