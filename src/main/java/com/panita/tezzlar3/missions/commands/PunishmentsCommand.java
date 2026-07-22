@@ -31,48 +31,24 @@ import java.util.stream.Collectors;
 public class PunishmentsCommand implements AdvancedCommand, TabSuggestingCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
-        String targetName;
-        
-        if (args.length > 0) {
-            targetName = args[0];
-        } else {
-            if (!(sender instanceof Player player)) {
-                Messenger.prefixedSend(sender, "&cDebes especificar un jugador si lo ejecutas desde la consola.");
-                return;
-            }
-            targetName = player.getName();
-        }
-
-        Player onlineTarget = Bukkit.getPlayerExact(targetName);
-        List<String> activePunishments = null;
-
-        if (onlineTarget != null) {
-            PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(onlineTarget);
-            if (data != null) {
-                activePunishments = new ArrayList<>(data.getActivePunishments());
-            }
-        } else {
-            File dataDir = new File(Tezzlar.getInstance().getDataFolder(), "data");
-            File playerFile = new File(dataDir, targetName + ".yml");
-            
-            if (playerFile.exists()) {
-                CustomConfig customConfig = new CustomConfig(Tezzlar.getInstance(), "data", targetName + ".yml");
-                FileConfiguration config = customConfig.getConfig();
-                activePunishments = config.getStringList("active_punishments");
-            }
-        }
-
-        if (activePunishments == null || activePunishments.isEmpty()) {
-            if (sender.getName().equalsIgnoreCase(targetName)) {
-                String emptyMsg = Tezzlar.getConfigManager().getString("missions.messages.punishments_empty", MissionsConfigDefaults.MISSIONS_MESSAGES_PUNISHMENTS_EMPTY);
-                Messenger.prefixedSend(sender, emptyMsg);
-            } else {
-                Messenger.prefixedSend(sender, "&aEl jugador &e" + targetName + " &ano tiene castigos activos.");
-            }
+        if (!(sender instanceof Player player)) {
+            Messenger.prefixedSend(sender, "&cDebes ejecutar esto como jugador, o usar /punishments info <jugador>.");
             return;
         }
 
-        Messenger.prefixedSend(sender, "&cCastigos activos de &e" + targetName + "&c:");
+        PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player);
+        List<String> activePunishments = null;
+        if (data != null) {
+            activePunishments = new ArrayList<>(data.getActivePunishments());
+        }
+
+        if (activePunishments == null || activePunishments.isEmpty()) {
+            String emptyMsg = Tezzlar.getConfigManager().getString("missions.messages.punishments_empty", MissionsConfigDefaults.MISSIONS_MESSAGES_PUNISHMENTS_EMPTY);
+            Messenger.prefixedSend(sender, emptyMsg);
+            return;
+        }
+
+        Messenger.prefixedSend(sender, "&cTus castigos activos:");
         for (String punishment : activePunishments) {
             String defaultDictValue = MissionsConfigDefaults.MISSIONS_PUNISHMENTS_DICTIONARY.getOrDefault(punishment, punishment);
             String friendlyName = Tezzlar.getConfigManager().getString("missions.punishments_dictionary." + punishment, defaultDictValue);
@@ -82,12 +58,6 @@ public class PunishmentsCommand implements AdvancedCommand, TabSuggestingCommand
 
     @Override
     public void applySuggestions(CommandMeta meta) {
-        meta.setArgumentSuggestion(0, context -> {
-            String current = context.getCurrentArg().toLowerCase();
-            return Bukkit.getOnlinePlayers().stream()
-                    .map(Player::getName)
-                    .filter(name -> name.toLowerCase().startsWith(current))
-                    .collect(Collectors.toList());
-        });
+        // No root arguments expected since subcommands handle them
     }
 }
