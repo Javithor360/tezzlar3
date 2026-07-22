@@ -17,6 +17,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.Equippable;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -128,6 +130,14 @@ public class MobDebugListener implements Listener {
     private void printEq(Player player, String slot, ItemStack item, float drop) {
         if (item == null || item.getType().isAir()) return;
         Messenger.send(player, "<gray>" + slot + ": <white>" + item.getType().name() + " <dark_gray>(<green>" + String.format("%.1f", drop * 100) + "% drop<dark_gray>)");
+        
+        try {
+            Equippable comp = item.getData(DataComponentTypes.EQUIPPABLE);
+            if (comp != null && comp.assetId() != null) {
+                Messenger.send(player, "<dark_gray>  - <light_purple>Modelo: " + comp.assetId().asString());
+            }
+        } catch (Exception ignored) {}
+        
         if (item.hasItemMeta() && item.getItemMeta().hasEnchants()) {
             for (java.util.Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : item.getItemMeta().getEnchants().entrySet()) {
                 Messenger.send(player, "<dark_gray>  - <aqua>" + entry.getKey().getKey().getKey() + " <gray>Lvl " + entry.getValue());

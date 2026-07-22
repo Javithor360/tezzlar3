@@ -125,10 +125,10 @@ public class MobGearUtils {
         if (random.nextDouble() < bootsChance) eq.setBoots(applyRandomEnchantments(getRandomArmor(bPool, tier), tier));
 
         if (tier == GearTier.MASTER) {
-            applyCustomArmorModel(eq.getHelmet(), "Casco");
-            applyCustomArmorModel(eq.getChestplate(), "Pechera");
-            applyCustomArmorModel(eq.getLeggings(), "Pantalones");
-            applyCustomArmorModel(eq.getBoots(), "Botas");
+            eq.setHelmet(applyCustomArmorModel(eq.getHelmet(), "Casco"));
+            eq.setChestplate(applyCustomArmorModel(eq.getChestplate(), "Pechera"));
+            eq.setLeggings(applyCustomArmorModel(eq.getLeggings(), "Pantalones"));
+            eq.setBoots(applyCustomArmorModel(eq.getBoots(), "Botas"));
         }
 
         // Weapons Assignment
@@ -224,11 +224,11 @@ public class MobGearUtils {
         return new ItemStack(getWeightedMaterial(options, tier));
     }
 
-    private static void applyCustomArmorModel(ItemStack item, String partName) {
-        if (item == null || item.getType() == Material.AIR) return;
+    private static ItemStack applyCustomArmorModel(ItemStack item, String partName) {
+        if (item == null || item.getType() == Material.AIR) return item;
         
         double roll = random.nextDouble();
-        if (roll < 0.50) return; // 50% vanilla
+        if (roll < 0.50) return item; // 50% vanilla
         
         Key modelKey;
         String typeName;
@@ -255,6 +255,8 @@ public class MobGearUtils {
                 meta.displayName(MiniMessage.miniMessage().deserialize(name).decoration(TextDecoration.ITALIC, false));
             });
         } catch (Exception ignored) {}
+        
+        return item;
     }
 
     public static ItemStack applyRandomEnchantments(ItemStack item, GearTier tier) {
