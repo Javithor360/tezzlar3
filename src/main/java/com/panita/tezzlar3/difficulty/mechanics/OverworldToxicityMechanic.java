@@ -14,6 +14,7 @@ import com.panita.tezzlar3.core.chat.actionbar.ActionBarManager;
 import com.panita.tezzlar3.core.chat.actionbar.ActionBarProvider;
 import com.panita.tezzlar3.core.util.Global;
 import com.panita.tezzlar3.core.util.PlayerUtils;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 
 public class OverworldToxicityMechanic extends DifficultyMechanic implements ActionBarProvider {
 
@@ -35,7 +36,15 @@ public class OverworldToxicityMechanic extends DifficultyMechanic implements Act
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (!PlayerUtils.isSurvival(player)) continue;
                 
-                if (player.getWorld().getEnvironment() == World.Environment.NORMAL) {
+                boolean isContaminated = false;
+                World.Environment env = player.getWorld().getEnvironment();
+                if (env == World.Environment.NORMAL) {
+                    isContaminated = true;
+                } else if (env == World.Environment.THE_END && TimeManager.getCurrentDay() >= 25) {
+                    isContaminated = true;
+                }
+
+                if (isContaminated) {
                     int seconds = player.getPersistentDataContainer().getOrDefault(TOXICITY_KEY, PersistentDataType.INTEGER, 0);
                     seconds++;
                     player.getPersistentDataContainer().set(TOXICITY_KEY, PersistentDataType.INTEGER, seconds);
@@ -45,7 +54,7 @@ public class OverworldToxicityMechanic extends DifficultyMechanic implements Act
                         applyToxicEffects(player);
                     }
                 } else {
-                    // Reset toxicity when leaving overworld
+                    // Reset toxicity when leaving contaminated dimensions
                     player.getPersistentDataContainer().set(TOXICITY_KEY, PersistentDataType.INTEGER, 0);
                 }
             }
@@ -55,7 +64,11 @@ public class OverworldToxicityMechanic extends DifficultyMechanic implements Act
     public static boolean isToxic(Player player) {
         if (instance == null || !instance.isActive()) return false;
         if (!PlayerUtils.isSurvival(player)) return false;
-        return player.getWorld().getEnvironment() == World.Environment.NORMAL;
+        
+        World.Environment env = player.getWorld().getEnvironment();
+        if (env == World.Environment.NORMAL) return true;
+        if (env == World.Environment.THE_END && TimeManager.getCurrentDay() >= 25) return true;
+        return false;
     }
 
     private void applyToxicEffects(Player player) {
@@ -75,7 +88,13 @@ public class OverworldToxicityMechanic extends DifficultyMechanic implements Act
     public java.util.List<String> getTexts(Player player) {
         if (!isActive()) return null;
         if (!PlayerUtils.isSurvival(player)) return null;
-        if (player.getWorld().getEnvironment() != World.Environment.NORMAL) return null;
+        
+        boolean isContaminated = false;
+        World.Environment env = player.getWorld().getEnvironment();
+        if (env == World.Environment.NORMAL) isContaminated = true;
+        if (env == World.Environment.THE_END && TimeManager.getCurrentDay() >= 25) isContaminated = true;
+        
+        if (!isContaminated) return null;
 
         int seconds = player.getPersistentDataContainer().getOrDefault(TOXICITY_KEY, PersistentDataType.INTEGER, 0);
         int remaining = 600 - seconds;
