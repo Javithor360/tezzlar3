@@ -7,6 +7,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,6 +36,20 @@ public class NetherRoofWitherMechanic extends DifficultyMechanic {
                 }
             }
         }, 20L, 20L);
+
+        // Cleanup task for stray wither skulls that fly indefinitely
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            if (!isActive()) return;
+            for (World world : Bukkit.getWorlds()) {
+                if (world.getEnvironment() == World.Environment.NETHER) {
+                    for (WitherSkull skull : world.getEntitiesByClass(WitherSkull.class)) {
+                        if (skull.getLocation().getY() >= 127 && skull.getTicksLived() > 200) {
+                            skull.remove();
+                        }
+                    }
+                }
+            }
+        }, 100L, 100L); // Check every 5 seconds
     }
 
     @EventHandler

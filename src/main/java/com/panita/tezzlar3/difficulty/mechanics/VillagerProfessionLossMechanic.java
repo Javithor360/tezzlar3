@@ -9,6 +9,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.VillagerCareerChangeEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 
 public class VillagerProfessionLossMechanic extends DifficultyMechanic {
 
@@ -25,6 +26,11 @@ public class VillagerProfessionLossMechanic extends DifficultyMechanic {
                 }
             }
         }, 100L, 200L); // Checks every 10s for already loaded ones
+    }
+
+    @Override
+    public boolean isActive() {
+        return super.isActive() && TimeManager.getCurrentDay() < 21;
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

@@ -22,9 +22,9 @@ public class UniqueDropsListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onEntityDeath(EntityDeathEvent event) {
-        // Only active during days 19, 20, and 21
+        // Only active during days 19, 20, and 22
         int currentDay = TimeManager.getCurrentDay();
-        if (currentDay < 19 || currentDay > 21) return;
+        if (currentDay < 19 || currentDay > 22) return;
         
         LivingEntity entity = event.getEntity();
         Player killer = entity.getKiller();
@@ -44,7 +44,7 @@ public class UniqueDropsListener implements Listener {
         // 2. Custom Mobs dropping stone_heart (5% chance)
         NamespacedKey mobKey = new NamespacedKey(Tezzlar.getInstance(), "custom_mob_id");
         if (entity.getPersistentDataContainer().has(mobKey, PersistentDataType.STRING)) {
-            if (Math.random() < 0.05) {
+            if (Math.random() < 0.1) {
                 ItemStack heart = CustomItemManager.getItem("stone_heart");
                 if (heart != null) {
                     event.getDrops().add(heart);
