@@ -11,7 +11,9 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Random;
@@ -19,9 +21,11 @@ import java.util.Random;
 public class JobFairEvent implements MiniEvent, Listener {
 
     private final Random random = new Random();
+    private JavaPlugin plugin;
 
     @Override
     public void start(JavaPlugin plugin) {
+        this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -76,11 +80,26 @@ public class JobFairEvent implements MiniEvent, Listener {
             
             // Deal random damage between 4 and 12
             double damage = 4.0 + (random.nextDouble() * 8.0); // 4.0 to 12.0
+            player.setMetadata("job_fair_death", new FixedMetadataValue(plugin, System.currentTimeMillis()));
             player.damage(damage);
             
             // Consume the item so it doesn't fill the inventory
             event.setCancelled(true);
             event.getItem().remove();
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        if (player.hasMetadata("job_fair_death")) {
+            long time = player.getMetadata("job_fair_death").get(0).asLong();
+            if (System.currentTimeMillis() - time <= 100) {
+                event.setDeathMessage(player.getName() + " murió porque la jornada laboral lo mató.");
+            }
+            if (plugin != null) {
+                player.removeMetadata("job_fair_death", plugin);
+            }
         }
     }
 }

@@ -25,6 +25,8 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataType;
 import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.util.PlayerUtils;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class HyperactivityEvent implements MiniEvent, Listener {
 
@@ -32,9 +34,11 @@ public class HyperactivityEvent implements MiniEvent, Listener {
     private final Map<UUID, Location> lastLocations = new HashMap<>();
     private final Map<UUID, Integer> stillSeconds = new HashMap<>();
     private final Set<UUID> penalizedPlayers = new HashSet<>();
+    private JavaPlugin plugin;
 
     @Override
     public void start(JavaPlugin plugin) {
+        this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
         // Initialize online players
@@ -71,6 +75,7 @@ public class HyperactivityEvent implements MiniEvent, Listener {
                         }
 
                         if (seconds >= 30) {
+                            player.setMetadata("hyperactivity_death", new FixedMetadataValue(plugin, System.currentTimeMillis()));
                             player.setHealth(0.0);
                             stillSeconds.put(uuid, 0); // Reset after death
                         }
@@ -140,6 +145,20 @@ public class HyperactivityEvent implements MiniEvent, Listener {
                 NamespacedKey key = new NamespacedKey(Tezzlar.getInstance(), "hyperactivity_penalty");
                 player.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
                 penalizedPlayers.add(player.getUniqueId());
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        if (player.hasMetadata("hyperactivity_death")) {
+            long time = player.getMetadata("hyperactivity_death").get(0).asLong();
+            if (System.currentTimeMillis() - time <= 100) {
+                event.setDeathMessage(player.getName() + " perdió la vida por quedarse quieto mucho tiempo.");
+            }
+            if (plugin != null) {
+                player.removeMetadata("hyperactivity_death", plugin);
             }
         }
     }

@@ -6,6 +6,10 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 import com.panita.tezzlar3.core.util.SoundUtils;
 
@@ -26,8 +30,8 @@ public class CopperDamageMechanic extends DifficultyMechanic {
                     double currentHealth = player.getHealth();
                     if (currentHealth > 0) {
                         if (currentHealth <= 2.0) {
-                            // Set health to 0.1 and deal a small fatal blow to trigger Totems natively
-                            // This prevents destroying their armor durability from massive damage numbers.
+                            boolean isSlab = blockBelow.getType().name().contains("SLAB");
+                            player.setMetadata(isSlab ? "slab_damage" : "copper_damage", new FixedMetadataValue(plugin, System.currentTimeMillis()));
                             player.setHealth(0.1);
                             player.damage(10.0);
                         } else {
@@ -48,5 +52,25 @@ public class CopperDamageMechanic extends DifficultyMechanic {
         if (!material.isBlock()) return false;
         String name = material.name();
         return name.contains("COPPER") || name.contains("SLAB");
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        if (!isActive()) return;
+        Player player = event.getEntity();
+        
+        if (player.hasMetadata("copper_damage")) {
+            long time = player.getMetadata("copper_damage").get(0).asLong();
+            if (System.currentTimeMillis() - time <= 100) {
+                event.setDeathMessage(player.getName() + " murió por intoxicación de cobre.");
+            }
+            player.removeMetadata("copper_damage", plugin);
+        } else if (player.hasMetadata("slab_damage")) {
+            long time = player.getMetadata("slab_damage").get(0).asLong();
+            if (System.currentTimeMillis() - time <= 100) {
+                event.setDeathMessage(player.getName() + " murió por intoxicación de slab.");
+            }
+            player.removeMetadata("slab_damage", plugin);
+        }
     }
 }
