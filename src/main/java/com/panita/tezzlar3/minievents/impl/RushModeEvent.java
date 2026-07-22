@@ -22,6 +22,7 @@ import java.util.Random;
 public class RushModeEvent implements MiniEvent, Listener {
 
     private int activeMode = -1; // 0 = Double Health, 1 = No Hunger, 2 = Speed III
+    private int taskId = -1;
     private long startTimestamp = 0;
     private final Random random = new Random();
 
@@ -37,12 +38,27 @@ public class RushModeEvent implements MiniEvent, Listener {
         for (Player player : Bukkit.getOnlinePlayers()) {
             applyRushEffect(player);
         }
+        
+        if (activeMode == 1) {
+            taskId = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (player.getSaturation() <= 0.0f) {
+                        player.setSaturation(4.0f);
+                    }
+                }
+            }, 20L, 20L).getTaskId();
+        }
     }
 
     @Override
     public void stop(JavaPlugin plugin) {
         // We do NOT unregister the listener so that it can clean up offline players when they join
         activeMode = -1;
+        
+        if (taskId != -1) {
+            Bukkit.getScheduler().cancelTask(taskId);
+            taskId = -1;
+        }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             removeRushEffect(player);
@@ -50,8 +66,8 @@ public class RushModeEvent implements MiniEvent, Listener {
     }
 
     private void applyRushEffect(Player player) {
-        if (!player.getPersistentDataContainer().has(appliedKey, PersistentDataType.BYTE)) {
-            player.getPersistentDataContainer().set(appliedKey, PersistentDataType.BYTE, (byte) 1);
+        if (!player.getPersistentDataContainer().has(appliedKey, PersistentDataType.INTEGER)) {
+            player.getPersistentDataContainer().set(appliedKey, PersistentDataType.INTEGER, activeMode);
             
             if (activeMode == 0) {
                 // Double Health
@@ -71,15 +87,25 @@ public class RushModeEvent implements MiniEvent, Listener {
     }
 
     private void removeRushEffect(Player player) {
-        if (player.getPersistentDataContainer().has(appliedKey, PersistentDataType.BYTE)) {
+        if (player.getPersistentDataContainer().has(appliedKey, PersistentDataType.INTEGER)) {
+            int appliedMode = player.getPersistentDataContainer().get(appliedKey, PersistentDataType.INTEGER);
             player.getPersistentDataContainer().remove(appliedKey);
             
-            // Revert Double Health safely
-            AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
-            if (maxHealth != null && maxHealth.getBaseValue() > 20.0) {
-                maxHealth.setBaseValue(maxHealth.getBaseValue() / 2.0);
+            if (appliedMode == 0) {
+                // Revert Double Health safely
+                AttributeInstance maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
+                if (maxHealth != null) {
+                    maxHealth.setBaseValue(maxHealth.getBaseValue() / 2.0);
+                }
+            } else if (appliedMode == 2) {
+                // Revert Speed III
+                player.removePotionEffect(PotionEffectType.SPEED);
             }
-            // Revert Speed III
+        } else if (player.getPersistentDataContainer().has(appliedKey, PersistentDataType.BYTE)) {
+            // Legacy cleanup (from before the fix)
+            player.getPersistentDataContainer().remove(appliedKey);
+            // We cannot safely revert health without risking taking away legitimately earned health (the bug),
+            // so we skip health reversion for legacy offline players.
             player.removePotionEffect(PotionEffectType.SPEED);
         }
     }

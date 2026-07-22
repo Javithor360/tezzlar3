@@ -4,6 +4,7 @@ import com.panita.tezzlar3.core.modules.PluginModule;
 import com.panita.tezzlar3.minievents.impl.*;
 import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.chat.Messenger;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -65,6 +66,18 @@ public class MiniEventsModule implements PluginModule {
                         maxHealth.setBaseValue(maxHealth.getBaseValue() - 2.0);
                         Messenger.prefixedSend(p, "<red>Has perdido 1 corazón máximo como penalización por salir en plena hiperactividad.</red>");
                     }
+                }
+                
+                MiniEvent activeEvent = manager.getActiveEvent();
+                if (activeEvent != null) {
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        if (p.isOnline()) {
+                            String startMsg = Tezzlar.getConfigManager().getString("mini-events.messages.event_start", "<yellow><b>¡EL MINI EVENTO HA COMENZADO!</b></yellow><newline>%event_name%<newline>");
+                            startMsg = startMsg.replace("%event_name%", activeEvent.getDisplayName());
+                            Messenger.send(p, startMsg);
+                            Messenger.send(p, activeEvent.getDescription());
+                        }
+                    }, 40L);
                 }
             }
         }, plugin);
