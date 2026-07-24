@@ -233,7 +233,7 @@ missions:
   rainbow_shulker:
     name: "Caza de Shulkers Coloridos"
     start_day: 23
-    end_day: 23
+    end_day: 24
     scope: INDIVIDUAL
     objective:
       type: KILL_SHULKER_COLORS
@@ -263,8 +263,37 @@ missions:
         args: { custom_id: "life_saver", amount: 1 }
         description: "1x 1UP"
       - id: "GIVE_CUSTOM_ITEM"
-        args: { custom_id: "soulbound_relic", amount: 1 }
-        description: "1x Reliquia de Almas"
+        args: { custom_id: "soulbound_relic", amount: 2 }
+        description: "2x Reliquia de las Almas"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "repellent", amount: 10 }
+        description: "10x Antídotos"
       - id: "GIVE_ITEM"
         args: { material: "NETHER_STAR", amount: 4 }
         description: "4x Estrella del Nether"
+
+  advancement_collection:
+    name: "Colección de Triunfos"
+    start_day: 24
+    end_day: 24
+    scope: INDIVIDUAL
+    objective:
+      type: OBTAIN_ADVANCEMENT
+      target: ANY
+      amount: 1
+    rewards:
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "superdiamond_arrow", amount: 24 }
+        description: "24x Flechas de Superdiamante"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "incense", amount: 2 }
+        description: "2x Incienso"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "tezzlar_heart", amount: 2 }
+        description: "2x Corazón de Tezzlar"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "soulbound_relic", amount: 2 }
+        description: "2x Reliquia de las Almas"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "life_saver", amount: 1 }
+        description: "1x 1UP"

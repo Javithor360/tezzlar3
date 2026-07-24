@@ -33,6 +33,7 @@ import org.bukkit.Registry;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 
 import java.util.Map;
 
@@ -319,6 +320,22 @@ public class MissionTracker implements Listener, ActionBarProvider {
         if (event.getAmount() > 0) {
             checkObjective(event.getPlayer(), "OBTAIN_EXP", null, event.getAmount());
         }
+    }
+
+    @EventHandler
+    public void onAdvancementDone(PlayerAdvancementDoneEvent event) {
+        if (!hasActiveMissionObjective("OBTAIN_ADVANCEMENT")) return;
+        
+        if (event.getAdvancement().getKey().getKey().startsWith("recipes/")) return;
+        
+        try {
+            if (event.getAdvancement().getDisplay() == null) return;
+            if (!event.getAdvancement().getDisplay().doesAnnounceToChat()) return;
+        } catch (Throwable ignored) {
+            // Fallback for older versions, rely on the recipe check
+        }
+        
+        checkObjective(event.getPlayer(), "OBTAIN_ADVANCEMENT", "ANY", 1);
     }
 
     @Override

@@ -25,7 +25,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.bukkit.Location;
-
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 public class SuperDiamondListener implements Listener {
 
     public SuperDiamondListener() {
@@ -165,5 +168,54 @@ public class SuperDiamondListener implements Listener {
                 radius++;
             }
         }.runTaskTimer(Tezzlar.getInstance(), 0L, 2L);
+    }
+
+    @EventHandler
+    public void onBowShoot(EntityShootBowEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        
+        ItemStack consumed = event.getConsumable();
+        if (consumed == null) return;
+        
+        if (CustomItemManager.isCustomItem(consumed, "superdiamond_arrow")) {
+            event.getProjectile().setMetadata("superdiamond_arrow", new FixedMetadataValue(Tezzlar.getInstance(), true));
+        }
+    }
+
+    @EventHandler
+    public void onArrowHit(ProjectileHitEvent event) {
+        if (!event.getEntity().hasMetadata("superdiamond_arrow")) return;
+        if (!(event.getEntity().getShooter() instanceof Player shooter)) return;
+        
+        if (event.getHitEntity() != null && event.getHitEntity() instanceof LivingEntity target) {
+            if (target instanceof Player) return; // Ignore other players
+            
+            double chance = Math.random();
+            if (chance < 0.10) {
+                // 10% probabily: kill the player
+                shooter.setMetadata("superdiamond_death", new FixedMetadataValue(Tezzlar.getInstance(), true));
+                
+                // Apply Massive Damage
+                shooter.damage(500.0, event.getEntity());
+                
+                // Clear metadata in case totem saved the player
+                Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+                    if (shooter.isValid() && shooter.hasMetadata("superdiamond_death")) {
+                        shooter.removeMetadata("superdiamond_death", Tezzlar.getInstance());
+                    }
+                }, 1L);
+            } else {
+                // 90% probability: kill the mob
+                target.setHealth(0.0);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        if (event.getEntity().hasMetadata("superdiamond_death")) {
+            event.getEntity().removeMetadata("superdiamond_death", Tezzlar.getInstance());
+            event.setDeathMessage("Parece que " + event.getEntity().getName() + " tentó la suerte con una flecha de superdiamante pero perdió su vida en el intento.");
+        }
     }
 }
