@@ -283,7 +283,7 @@ missions:
     objective:
       type: OBTAIN_ADVANCEMENT
       target: ANY
-      amount: 1
+      amount: 10
     rewards:
       - id: "GIVE_CUSTOM_ITEM"
         args: { custom_id: "superdiamond_arrow", amount: 24 }
