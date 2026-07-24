@@ -265,12 +265,15 @@ missions:
       - id: "GIVE_CUSTOM_ITEM"
         args: { custom_id: "soulbound_relic", amount: 2 }
         description: "2x Reliquia de las Almas"
-      - id: "GIVE_CUSTOM_ITEM"
-        args: { custom_id: "repellent", amount: 10 }
-        description: "10x Antídotos"
       - id: "GIVE_ITEM"
         args: { material: "NETHER_STAR", amount: 4 }
         description: "4x Estrella del Nether"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "repellent", amount: 10 }
+        description: "10x Antídotos"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "copper_totem", amount: 10 }
+        description: "10x Tótem de Gólem de Cobre"
 
   advancement_collection:
     name: "Colección de Triunfos"
@@ -285,6 +288,9 @@ missions:
       - id: "GIVE_CUSTOM_ITEM"
         args: { custom_id: "superdiamond_arrow", amount: 24 }
         description: "24x Flechas de Superdiamante"
+      - id: "GIVE_CUSTOM_ITEM"
+        args: { custom_id: "copper_totem", amount: 10 }
+        description: "10x Tótem de Gólem de Cobre"
       - id: "GIVE_CUSTOM_ITEM"
         args: { custom_id: "incense", amount: 2 }
         description: "2x Incienso"
