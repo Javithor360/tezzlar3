@@ -210,6 +210,9 @@ public class StackSizeInterceptor implements Listener {
     }
 
     private int getCustomMaxStackSize(Material material) {
+        if (material == Material.TOTEM_OF_UNDYING && TimeManager.getCurrentDay() >= 24) {
+            return 4;
+        }
         if (material == Material.ENDER_PEARL) {
             return 4;
         }

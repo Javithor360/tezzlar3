@@ -183,6 +183,7 @@ public class SuperDiamondListener implements Listener {
         ItemStack bow = event.getBow();
         if (bow != null && CustomItemManager.isCustomItem(bow, "superdiamond_bow")) {
             event.getProjectile().setMetadata("superdiamond_bow_arrow", new FixedMetadataValue(Tezzlar.getInstance(), true));
+            event.getProjectile().setMetadata("superdiamond_bow_primary", new FixedMetadataValue(Tezzlar.getInstance(), true));
             if (player.isSneaking()) {
                 if (!player.hasCooldown(bow.getType())) {
                     player.setCooldown(bow.getType(), 60); // 3 seconds (60 ticks)
@@ -201,7 +202,7 @@ public class SuperDiamondListener implements Listener {
         // SuperDiamond Bow Logic
         if (event.getEntity().hasMetadata("superdiamond_bow_arrow")) {
             // 20% lightning
-            if (Math.random() < 0.20) {
+            if (event.getEntity().hasMetadata("superdiamond_bow_primary") && Math.random() < 0.20) {
                 hitLoc.getWorld().strikeLightning(hitLoc);
             }
 
