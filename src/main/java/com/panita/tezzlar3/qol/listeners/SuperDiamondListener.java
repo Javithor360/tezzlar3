@@ -22,13 +22,18 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Transformation;
-import org.bukkit.util.Vector;
 import org.bukkit.Location;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.entity.AbstractArrow;
+import org.bukkit.util.Transformation;
+import org.bukkit.util.Vector;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 public class SuperDiamondListener implements Listener {
 
     public SuperDiamondListener() {
@@ -174,40 +179,128 @@ public class SuperDiamondListener implements Listener {
     public void onBowShoot(EntityShootBowEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         
+        // SuperDiamond Arrow logic
         ItemStack consumed = event.getConsumable();
-        if (consumed == null) return;
-        
-        if (CustomItemManager.isCustomItem(consumed, "superdiamond_arrow")) {
+        if (consumed != null && CustomItemManager.isCustomItem(consumed, "superdiamond_arrow")) {
             event.getProjectile().setMetadata("superdiamond_arrow", new FixedMetadataValue(Tezzlar.getInstance(), true));
+        }
+
+        // SuperDiamond Bow logic
+        ItemStack bow = event.getBow();
+        if (bow != null && CustomItemManager.isCustomItem(bow, "superdiamond_bow")) {
+            event.getProjectile().setMetadata("superdiamond_bow_arrow", new FixedMetadataValue(Tezzlar.getInstance(), true));
+            if (player.isSneaking()) {
+                if (!player.hasCooldown(bow.getType())) {
+                    player.setCooldown(bow.getType(), 60); // 3 seconds (60 ticks)
+                    event.getProjectile().setMetadata("superdiamond_bow_sneak", new FixedMetadataValue(Tezzlar.getInstance(), true));
+                }
+            }
         }
     }
 
     @EventHandler
     public void onArrowHit(ProjectileHitEvent event) {
-        if (!event.getEntity().hasMetadata("superdiamond_arrow")) return;
         if (!(event.getEntity().getShooter() instanceof Player shooter)) return;
         
-        if (event.getHitEntity() != null && event.getHitEntity() instanceof LivingEntity target) {
-            if (target instanceof Player) return; // Ignore other players
-            
-            double chance = Math.random();
-            if (chance < 0.10) {
-                // 10% probabily: kill the player
-                shooter.setMetadata("superdiamond_death", new FixedMetadataValue(Tezzlar.getInstance(), true));
-                
-                // Apply Massive Damage
-                shooter.damage(500.0, event.getEntity());
-                
-                // Clear metadata in case totem saved the player
-                Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
-                    if (shooter.isValid() && shooter.hasMetadata("superdiamond_death")) {
-                        shooter.removeMetadata("superdiamond_death", Tezzlar.getInstance());
+        Location hitLoc = event.getHitBlock() != null ? event.getHitBlock().getLocation() : (event.getHitEntity() != null ? event.getHitEntity().getLocation() : event.getEntity().getLocation());
+        
+        // SuperDiamond Arrow Logic
+        if (event.getEntity().hasMetadata("superdiamond_arrow")) {
+            if (event.getHitEntity() != null && event.getHitEntity() instanceof LivingEntity target) {
+                if (!(target instanceof Player)) {
+                    double chance = Math.random();
+                    if (chance < 0.10) {
+                        // 10% probability: Kill the player
+                        shooter.setMetadata("superdiamond_death", new FixedMetadataValue(Tezzlar.getInstance(), true));
+                        
+                        // Apply massive damage to ensure death
+                        shooter.damage(500.0, event.getEntity());
+                        
+                        // Clear metadata next tick in case a Totem saved them
+                        Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+                            if (shooter.isValid() && shooter.hasMetadata("superdiamond_death")) {
+                                shooter.removeMetadata("superdiamond_death", Tezzlar.getInstance());
+                            }
+                        }, 1L);
+                    } else {
+                        // 90% probability: Kill the mob
+                        target.setHealth(0.0);
                     }
-                }, 1L);
-            } else {
-                // 90% probability: kill the mob
-                target.setHealth(0.0);
+                }
             }
+        }
+
+        // SuperDiamond Bow Logic
+        if (event.getEntity().hasMetadata("superdiamond_bow_arrow")) {
+            // 20% lightning
+            if (Math.random() < 0.20) {
+                hitLoc.getWorld().strikeLightning(hitLoc);
+            }
+
+            if (event.getEntity().hasMetadata("superdiamond_bow_sneak")) {
+                double chance = Math.random();
+                if (chance < 0.50) {
+                    // Homing arrows rain
+                    List<LivingEntity> nearby = new ArrayList<>();
+                    for (Entity e : hitLoc.getWorld().getNearbyEntities(hitLoc, 15, 15, 15)) {
+                        if (e instanceof LivingEntity le && !e.equals(shooter)) {
+                            nearby.add(le);
+                        }
+                    }
+                    
+                    if (!nearby.isEmpty()) {
+                        int arrowCount = ThreadLocalRandom.current().nextInt(5, 21);
+                        hitLoc.getWorld().playSound(hitLoc, Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.5f);
+                        
+                        for (int i = 0; i < arrowCount; i++) {
+                            LivingEntity target = nearby.get(ThreadLocalRandom.current().nextInt(nearby.size()));
+                            Location spawnLoc = hitLoc.clone().add(0, 3 + Math.random() * 2, 0);
+                            
+                            Arrow homingArrow = hitLoc.getWorld().spawnArrow(spawnLoc, new Vector(0, 0.5, 0), 1.0f, 12.0f);
+                            homingArrow.setShooter(shooter);
+                            homingArrow.setMetadata("superdiamond_bow_arrow", new FixedMetadataValue(Tezzlar.getInstance(), true)); // Double damage for these too
+                            
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    if (!homingArrow.isValid() || homingArrow.isOnGround() || !target.isValid()) {
+                                        this.cancel();
+                                        return;
+                                    }
+                                    
+                                    Vector dir = target.getEyeLocation().toVector().subtract(homingArrow.getLocation().toVector()).normalize();
+                                    homingArrow.setVelocity(dir.multiply(1.5));
+                                    homingArrow.getWorld().spawnParticle(Particle.GLOW_SQUID_INK, homingArrow.getLocation(), 2, 0, 0, 0, 0, new ItemStack(Material.DIAMOND));
+                                }
+                            }.runTaskTimer(Tezzlar.getInstance(), 1L, 1L);
+                        }
+                    }
+                } else {
+                    // Vortex attack
+                    hitLoc.getWorld().playSound(hitLoc, Sound.BLOCK_BEACON_ACTIVATE, 2.0f, 0.5f);
+                    hitLoc.getWorld().playSound(hitLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 2.0f, 0.5f);
+                    
+                    for (int i = 0; i < 50; i++) {
+                        Location pLoc = hitLoc.clone().add(Math.random() * 10 - 5, Math.random() * 5, Math.random() * 10 - 5);
+                        hitLoc.getWorld().spawnParticle(Particle.PORTAL, pLoc, 1, 0, 0, 0, 0.1);
+                        hitLoc.getWorld().spawnParticle(Particle.SOUL, hitLoc, 10, 2, 2, 2, 0.1);
+                    }
+
+                    for (Entity e : hitLoc.getWorld().getNearbyEntities(hitLoc, 10, 10, 10)) {
+                        if (e instanceof LivingEntity && !e.equals(shooter)) {
+                            Vector pull = hitLoc.toVector().subtract(e.getLocation().toVector()).normalize().multiply(1.5).setY(0.6);
+                            e.setVelocity(pull);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onSuperDiamondArrowDamage(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof AbstractArrow arrow && arrow.hasMetadata("superdiamond_bow_arrow")) {
+            event.setDamage(event.getDamage() * 2.0);
         }
     }
 
