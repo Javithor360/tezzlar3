@@ -35,7 +35,7 @@ public class WrongToolDamageMechanic extends DifficultyMechanic {
         if (!BlockUtils.isOptimalTool(block.getType(), tool.getType())) {
             // Apply Instant Damage 4 (amplifier 3)
             player.setMetadata("wrong_tool_damage", new FixedMetadataValue(plugin, System.currentTimeMillis()));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_DAMAGE, 1, 3));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_DAMAGE, 1, 2));
         }
     }
 
