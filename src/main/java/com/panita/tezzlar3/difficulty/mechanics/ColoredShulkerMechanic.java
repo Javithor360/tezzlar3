@@ -1,5 +1,7 @@
 package com.panita.tezzlar3.difficulty.mechanics;
 
+import com.panita.tezzlar3.Tezzlar;
+
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -18,6 +20,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 import com.panita.tezzlar3.core.util.PlayerUtils;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.entity.Entity;
+import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Random;
 
@@ -34,45 +40,65 @@ public class ColoredShulkerMechanic extends DifficultyMechanic {
         if (!isActive()) return;
         
         if (event.getEntityType() == EntityType.SHULKER) {
-            Shulker shulker = (Shulker) event.getEntity();
-            int sType = random.nextInt(200);
-            
-            if (sType <= 4) {
-                shulker.setColor(DyeColor.RED);
-            } else if (sType <= 15) {
-                shulker.setColor(DyeColor.YELLOW);
-            } else if (sType <= 25) {
-                shulker.setColor(DyeColor.LIME);
-            } else if (sType <= 35) {
-                shulker.setColor(DyeColor.GREEN);
-            } else if (sType <= 45) {
-                shulker.setColor(DyeColor.BLACK);
-            } else if (sType <= 65) {
-                shulker.setColor(DyeColor.PURPLE);
-            } else if (sType <= 75) {
-                shulker.setColor(DyeColor.WHITE);
-            } else if (sType <= 95) {
-                shulker.setColor(DyeColor.GRAY);
-            } else if (sType <= 115) {
-                // Kept original behavior of not changing color
-                shulker.setColor(shulker.getColor());
-            } else if (sType <= 120) {
-                shulker.setColor(DyeColor.BLUE);
-            } else if (sType <= 130) {
-                shulker.setColor(DyeColor.LIGHT_BLUE);
-            } else if (sType <= 140) {
-                shulker.setColor(DyeColor.PINK);
-            } else if (sType <= 150) {
-                shulker.setColor(DyeColor.MAGENTA);
-            } else if (sType <= 170) {
-                shulker.setColor(DyeColor.LIGHT_GRAY);
-            } else if (sType <= 185) {
-                shulker.setColor(DyeColor.CYAN);
-            } else if (sType <= 195) {
-                shulker.setColor(DyeColor.ORANGE);
-            } else {
-                shulker.setColor(DyeColor.BROWN);
+            processShulker((Shulker) event.getEntity());
+        }
+    }
+
+    @EventHandler
+    public void onChunkLoad(ChunkLoadEvent event) {
+        if (!isActive()) return;
+        
+        for (Entity entity : event.getChunk().getEntities()) {
+            if (entity instanceof Shulker shulker) {
+                processShulker(shulker);
             }
+        }
+    }
+
+    private void processShulker(Shulker shulker) {
+        NamespacedKey key = new NamespacedKey(Tezzlar.getInstance(), "colored_shulker_processed");
+        if (shulker.getPersistentDataContainer().has(key, PersistentDataType.BYTE)) {
+            return;
+        }
+        shulker.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
+
+        int sType = random.nextInt(200);
+            
+        if (sType <= 4) {
+            shulker.setColor(DyeColor.RED);
+        } else if (sType <= 15) {
+            shulker.setColor(DyeColor.YELLOW);
+        } else if (sType <= 25) {
+            shulker.setColor(DyeColor.LIME);
+        } else if (sType <= 35) {
+            shulker.setColor(DyeColor.GREEN);
+        } else if (sType <= 45) {
+            shulker.setColor(DyeColor.BLACK);
+        } else if (sType <= 65) {
+            shulker.setColor(DyeColor.PURPLE);
+        } else if (sType <= 75) {
+            shulker.setColor(DyeColor.WHITE);
+        } else if (sType <= 95) {
+            shulker.setColor(DyeColor.GRAY);
+        } else if (sType <= 115) {
+            // Kept original behavior of not changing color
+            shulker.setColor(shulker.getColor());
+        } else if (sType <= 120) {
+            shulker.setColor(DyeColor.BLUE);
+        } else if (sType <= 130) {
+            shulker.setColor(DyeColor.LIGHT_BLUE);
+        } else if (sType <= 140) {
+            shulker.setColor(DyeColor.PINK);
+        } else if (sType <= 150) {
+            shulker.setColor(DyeColor.MAGENTA);
+        } else if (sType <= 170) {
+            shulker.setColor(DyeColor.LIGHT_GRAY);
+        } else if (sType <= 185) {
+            shulker.setColor(DyeColor.CYAN);
+        } else if (sType <= 195) {
+            shulker.setColor(DyeColor.ORANGE);
+        } else {
+            shulker.setColor(DyeColor.BROWN);
         }
     }
 
