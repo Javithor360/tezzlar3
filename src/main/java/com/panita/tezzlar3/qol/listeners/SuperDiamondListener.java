@@ -3,10 +3,7 @@ package com.panita.tezzlar3.qol.listeners;
 import com.destroystokyo.paper.event.entity.PhantomPreSpawnEvent;
 import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.qol.util.CustomItemManager;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -16,10 +13,10 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.Location;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -201,32 +198,6 @@ public class SuperDiamondListener implements Listener {
         
         Location hitLoc = event.getHitBlock() != null ? event.getHitBlock().getLocation() : (event.getHitEntity() != null ? event.getHitEntity().getLocation() : event.getEntity().getLocation());
         
-        // SuperDiamond Arrow Logic
-        if (event.getEntity().hasMetadata("superdiamond_arrow")) {
-            if (event.getHitEntity() != null && event.getHitEntity() instanceof LivingEntity target) {
-                if (!(target instanceof Player)) {
-                    double chance = Math.random();
-                    if (chance < 0.10) {
-                        // 10% probability: Kill the player
-                        shooter.setMetadata("superdiamond_death", new FixedMetadataValue(Tezzlar.getInstance(), true));
-                        
-                        // Apply massive damage to ensure death
-                        shooter.damage(500.0, event.getEntity());
-                        
-                        // Clear metadata next tick in case a Totem saved them
-                        Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
-                            if (shooter.isValid() && shooter.hasMetadata("superdiamond_death")) {
-                                shooter.removeMetadata("superdiamond_death", Tezzlar.getInstance());
-                            }
-                        }, 1L);
-                    } else {
-                        // 90% probability: Kill the mob
-                        target.setHealth(0.0);
-                    }
-                }
-            }
-        }
-
         // SuperDiamond Bow Logic
         if (event.getEntity().hasMetadata("superdiamond_bow_arrow")) {
             // 20% lightning
@@ -265,9 +236,12 @@ public class SuperDiamondListener implements Listener {
                                         return;
                                     }
                                     
-                                    Vector dir = target.getEyeLocation().toVector().subtract(homingArrow.getLocation().toVector()).normalize();
+                                    Vector dir = target.getEyeLocation().toVector().subtract(homingArrow.getLocation().toVector());
+                                    if (dir.lengthSquared() > 0.001) {
+                                        dir.normalize();
+                                    }
                                     homingArrow.setVelocity(dir.multiply(1.5));
-                                    homingArrow.getWorld().spawnParticle(Particle.GLOW_SQUID_INK, homingArrow.getLocation(), 2, 0, 0, 0, 0, new ItemStack(Material.DIAMOND));
+                                    homingArrow.getWorld().spawnParticle(Particle.CRIT, homingArrow.getLocation(), 2, 0, 0, 0, 0);
                                 }
                             }.runTaskTimer(Tezzlar.getInstance(), 1L, 1L);
                         }
@@ -285,7 +259,11 @@ public class SuperDiamondListener implements Listener {
 
                     for (Entity e : hitLoc.getWorld().getNearbyEntities(hitLoc, 10, 10, 10)) {
                         if (e instanceof LivingEntity && !e.equals(shooter)) {
-                            Vector pull = hitLoc.toVector().subtract(e.getLocation().toVector()).normalize().multiply(1.5).setY(0.6);
+                            Vector pull = hitLoc.toVector().subtract(e.getLocation().toVector());
+                            if (pull.lengthSquared() > 0.001) {
+                                pull.normalize();
+                            }
+                            pull.multiply(1.5).setY(0.6);
                             e.setVelocity(pull);
                         }
                     }
@@ -296,8 +274,38 @@ public class SuperDiamondListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSuperDiamondArrowDamage(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof AbstractArrow arrow && arrow.hasMetadata("superdiamond_bow_arrow")) {
-            event.setDamage(event.getDamage() * 2.0);
+        if (event.getDamager() instanceof AbstractArrow arrow) {
+            if (arrow.hasMetadata("superdiamond_bow_arrow")) {
+                event.setDamage(event.getDamage() * 2.0);
+            }
+            if (arrow.hasMetadata("superdiamond_arrow")) {
+                if (event.getEntity() instanceof LivingEntity target && !(target instanceof Player)) {
+                    if (arrow.getShooter() instanceof Player shooter) {
+                        boolean isBoss = false;
+                        NamespacedKey mobKey = new NamespacedKey(Tezzlar.getInstance(), "custom_mob_id");
+                        if (target.getPersistentDataContainer().has(mobKey, PersistentDataType.STRING)) {
+                            String customId = target.getPersistentDataContainer().get(mobKey, PersistentDataType.STRING);
+                            if (customId != null && (customId.equals("giga_magma_cube") || customId.equals("glacial_bonebreaker"))) {
+                                isBoss = true;
+                            }
+                        }
+                        
+                        if (!isBoss) {
+                            if (Math.random() < 0.10) {
+                                shooter.setMetadata("superdiamond_death", new FixedMetadataValue(Tezzlar.getInstance(), true));
+                                shooter.damage(500.0, arrow);
+                                Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+                                    if (shooter.isValid() && shooter.hasMetadata("superdiamond_death")) {
+                                        shooter.removeMetadata("superdiamond_death", Tezzlar.getInstance());
+                                    }
+                                }, 1L);
+                            } else {
+                                event.setDamage(500.0);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
