@@ -19,8 +19,11 @@ public class AnimalOneShotMechanic extends DifficultyMechanic {
         if (!isActive()) return;
         
         if (event.getEntity() instanceof Animals animal) {
-            // Let some causes bypass this so they don't get stuck in the void
-            if (event.getCause() == EntityDamageEvent.DamageCause.VOID || event.getCause() == EntityDamageEvent.DamageCause.CUSTOM) {
+            // Only apply the one-shot rule to direct entity attacks and projectiles
+            EntityDamageEvent.DamageCause cause = event.getCause();
+            if (cause != EntityDamageEvent.DamageCause.ENTITY_ATTACK &&
+                cause != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK &&
+                cause != EntityDamageEvent.DamageCause.PROJECTILE) {
                 return;
             }
             

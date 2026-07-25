@@ -42,11 +42,32 @@ public class EncyclopediaDeathListener implements Listener {
         
         if (manager.isMobCompleted(type)) return;
 
-        Player killer = event.getEntity().getKiller();
-        if (killer == null) return;
-
         EntityDamageEvent lastDamage = event.getEntity().getLastDamageCause();
         if (lastDamage == null) return;
+
+        Player killer = event.getEntity().getKiller();
+        
+        // If the player didn't deal the final blow directly, killer is null.
+        // For environmental kills (fire, fall, drowning, etc), we attribute the kill to the nearest player within 15 blocks.
+        if (killer == null) {
+            // If it's direct entity damage (e.g. mob vs mob), we ignore it to prevent false positives.
+            if (lastDamage instanceof EntityDamageByEntityEvent) {
+                return;
+            }
+            
+            double closestDist = Double.MAX_VALUE;
+            Player closest = null;
+            for (Player p : event.getEntity().getWorld().getPlayers()) {
+                double dist = p.getLocation().distanceSquared(event.getEntity().getLocation());
+                if (dist <= 225 && dist < closestDist) { // 15 blocks squared
+                    closestDist = dist;
+                    closest = p;
+                }
+            }
+            killer = closest;
+        }
+
+        if (killer == null) return;
 
         String deathMethod = getDeathMethod(lastDamage, killer);
         if (deathMethod == null) return;
