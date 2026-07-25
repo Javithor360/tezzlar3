@@ -107,7 +107,10 @@ public class MissionBossBarManager implements Listener {
                     int currentProgress = 0;
                     int maxProgress = mission.getObjectiveAmount();
                     
-                    if (mission.getObjectiveTargetsMap() != null && !mission.getObjectiveTargetsMap().isEmpty()) {
+                    if (mission.getObjectiveType().equalsIgnoreCase("ENCYCLOPEDIA")) {
+                        currentProgress = MissionsModule.getEncyclopediaManager().getCompletedCount();
+                        maxProgress = MissionsModule.getEncyclopediaManager().getTotalCount();
+                    } else if (mission.getObjectiveTargetsMap() != null && !mission.getObjectiveTargetsMap().isEmpty()) {
                         maxProgress = 0;
                         for (Map.Entry<String, Integer> entry : mission.getObjectiveTargetsMap().entrySet()) {
                             maxProgress += entry.getValue();

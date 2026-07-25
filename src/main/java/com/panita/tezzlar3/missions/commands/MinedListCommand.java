@@ -10,6 +10,7 @@ import com.panita.tezzlar3.core.config.CustomConfig;
 import com.panita.tezzlar3.missions.MissionsModule;
 import com.panita.tezzlar3.missions.data.Mission;
 import com.panita.tezzlar3.missions.data.PlayerMissionData;
+import com.panita.tezzlar3.missions.encyclopedia.ui.EncyclopediaGUI;
 import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -86,9 +87,25 @@ public class MinedListCommand implements AdvancedCommand, TabSuggestingCommand {
                 }
             }
             if (targetMission == null) {
+                targetMission = MissionsModule.getMissionManager().getMission("mob_encyclopedia");
+                if (targetMission != null && currentDay >= targetMission.getStartDay() && currentDay <= targetMission.getEndDay()) {
+                    // It's active! Open the GUI and return
+                    if (sender instanceof Player p) {
+                        new EncyclopediaGUI(p, MissionsModule.getEncyclopediaManager()).open();
+                        return;
+                    }
+                }
+                
                 Messenger.prefixedSend(sender, "&cNo hay ninguna misión activa con lista de objetivos en este momento.");
                 return;
             }
+        }
+        
+        if (targetMission.getId().equals("mob_encyclopedia")) {
+            if (sender instanceof Player p) {
+                new EncyclopediaGUI(p, MissionsModule.getEncyclopediaManager()).open();
+            }
+            return;
         }
 
         if ((!targetMission.getObjectiveType().equalsIgnoreCase("MINE_BLOCKS") && !targetMission.getObjectiveType().equalsIgnoreCase("KILL_SHULKER_COLORS")) || targetMission.getObjectiveTargetsMap() == null) {
@@ -137,7 +154,7 @@ public class MinedListCommand implements AdvancedCommand, TabSuggestingCommand {
         meta.setArgumentSuggestion(0, context -> {
             List<String> list = new ArrayList<>();
             for (Mission mission : MissionsModule.getMissionManager().getLoadedMissions().values()) {
-                if (mission.getObjectiveType().equalsIgnoreCase("MINE_BLOCKS") || mission.getObjectiveType().equalsIgnoreCase("KILL_SHULKER_COLORS")) {
+                if (mission.getObjectiveType().equalsIgnoreCase("MINE_BLOCKS") || mission.getObjectiveType().equalsIgnoreCase("KILL_SHULKER_COLORS") || mission.getId().equals("mob_encyclopedia")) {
                     list.add(mission.getId());
                 }
             }

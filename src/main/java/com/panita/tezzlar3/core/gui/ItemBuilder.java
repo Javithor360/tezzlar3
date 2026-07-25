@@ -29,7 +29,7 @@ public class ItemBuilder {
 
     public ItemBuilder name(String name) {
         if (meta != null) {
-            meta.displayName(Messenger.mini(name));
+            meta.displayName(Messenger.mini("<!i>" + name));
         }
         return this;
     }
@@ -43,7 +43,7 @@ public class ItemBuilder {
         if (meta != null) {
             List<Component> lore = new ArrayList<>();
             for (String line : lines) {
-                lore.add(Messenger.mini(line));
+                lore.add(Messenger.mini("<!i>" + line));
             }
             meta.lore(lore);
         }
@@ -54,8 +54,20 @@ public class ItemBuilder {
         if (meta != null) {
             List<Component> lore = new ArrayList<>();
             for (String line : lines) {
-                lore.add(Messenger.mini(line));
+                lore.add(Messenger.mini("<!i>" + line));
             }
+            meta.lore(lore);
+        }
+        return this;
+    }
+
+    public ItemBuilder appendLore(String line) {
+        if (meta != null) {
+            List<Component> lore = meta.lore();
+            if (lore == null) {
+                lore = new ArrayList<>();
+            }
+            lore.add(Messenger.mini("<!i>" + line));
             meta.lore(lore);
         }
         return this;

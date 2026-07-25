@@ -9,9 +9,12 @@ import com.panita.tezzlar3.core.commands.identifiers.SubCommandSpec;
 import com.panita.tezzlar3.core.config.CustomConfig;
 import com.panita.tezzlar3.missions.MissionsModule;
 import com.panita.tezzlar3.missions.data.Mission;
+import com.panita.tezzlar3.missions.encyclopedia.ui.EncyclopediaAdminGUI;
 import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
+import com.panita.tezzlar3.core.util.CommandUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,7 +31,7 @@ public class MissionCheckCommand implements AdvancedCommand, TabSuggestingComman
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (!com.panita.tezzlar3.core.util.CommandUtils.checkArgsOrUsage(sender, args, 2, this.getClass())) return;
+        if (!CommandUtils.checkArgsOrUsage(sender, args, 2, this.getClass())) return;
 
         String missionId = args[0];
         String filterType = args[1].toLowerCase();
@@ -41,6 +44,15 @@ public class MissionCheckCommand implements AdvancedCommand, TabSuggestingComman
         Mission mission = MissionsModule.getMissionManager().getMission(missionId);
         if (mission == null) {
             Messenger.prefixedSend(sender, "&cLa misión '" + missionId + "' no existe.");
+            return;
+        }
+        
+        if (missionId.equals("mob_encyclopedia")) {
+            if (sender instanceof Player p) {
+                new EncyclopediaAdminGUI(p, MissionsModule.getEncyclopediaManager()).open();
+            } else {
+                Messenger.prefixedSend(sender, "&cEste comando con esta misión solo puede ser ejecutado por un jugador.");
+            }
             return;
         }
 

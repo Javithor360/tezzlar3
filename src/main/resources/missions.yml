@@ -303,3 +303,26 @@ missions:
       - id: "GIVE_CUSTOM_ITEM"
         args: { custom_id: "life_saver", amount: 1 }
         description: "1x 1UP"
+
+  mob_encyclopedia:
+    name: "Enciclopedia de Mobs"
+    start_day: 25
+    end_day: 27
+    scope: GROUP
+    objective:
+      type: ENCYCLOPEDIA
+    rewards:
+      - id: "MODIFY_ATTRIBUTE"
+        args: { attribute: "GENERIC_MAX_HEALTH", amount: 4.0 }
+        description: "+4 de Vida Máxima"
+      - id: "REMOVE_OVERWORLD_CONTAMINATION"
+        description: "Se quita la contaminación del Overworld"
+    punishments:
+      - id: "GLOBAL_CONTAMINATION"
+        description: "Contaminación en todas las dimensiones"
+      - id: "MODIFY_ATTRIBUTE"
+        args: { attribute: "GENERIC_MAX_HEALTH", amount: -4.0 }
+        description: "-4 de Vida Máxima"
+      - id: "DAMAGE_MULTIPLIER"
+        args: { multiplier: 5.0 }
+        description: "Multiplicador de daño x5"

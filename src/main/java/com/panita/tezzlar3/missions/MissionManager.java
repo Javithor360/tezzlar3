@@ -5,12 +5,10 @@ import com.panita.tezzlar3.missions.data.Mission;
 import com.panita.tezzlar3.missions.handlers.PunishmentHandler;
 import com.panita.tezzlar3.missions.handlers.RewardHandler;
 import com.panita.tezzlar3.missions.handlers.punishments.*;
-import com.panita.tezzlar3.missions.handlers.rewards.CustomItemRewardHandler;
-import com.panita.tezzlar3.missions.handlers.rewards.ExpRewardHandler;
-import com.panita.tezzlar3.missions.handlers.rewards.ItemRewardHandler;
-import com.panita.tezzlar3.missions.handlers.rewards.RemovePunishmentRewardHandler;
+import com.panita.tezzlar3.missions.handlers.rewards.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.panita.tezzlar3.missions.handlers.AttributeBonusHandler;
 
 import java.io.File;
 import java.util.HashMap;
@@ -45,6 +43,10 @@ public class MissionManager {
         registerRewardHandler(new ItemRewardHandler());
         registerRewardHandler(new ExpRewardHandler());
         registerRewardHandler(new RemovePunishmentRewardHandler());
+        
+        AttributeBonusHandler attributeBonus = new AttributeBonusHandler(plugin);
+        registerRewardHandler(attributeBonus);
+        registerPunishmentHandler(attributeBonus);
         
         DiamondBanPunishmentHandler diamondBan = new DiamondBanPunishmentHandler();
         registerPunishmentHandler(diamondBan);
