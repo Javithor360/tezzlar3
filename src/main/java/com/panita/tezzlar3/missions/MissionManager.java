@@ -43,6 +43,7 @@ public class MissionManager {
         registerRewardHandler(new ItemRewardHandler());
         registerRewardHandler(new ExpRewardHandler());
         registerRewardHandler(new RemovePunishmentRewardHandler());
+        registerRewardHandler(new RemoveOverworldContaminationRewardHandler());
         
         AttributeBonusHandler attributeBonus = new AttributeBonusHandler(plugin);
         registerRewardHandler(attributeBonus);
@@ -59,6 +60,9 @@ public class MissionManager {
         RegenerationToWitherPunishmentHandler regenWither = new RegenerationToWitherPunishmentHandler();
         registerPunishmentHandler(regenWither);
         plugin.getServer().getPluginManager().registerEvents(regenWither, plugin);
+        
+        GlobalContaminationPunishmentHandler globalContamination = new GlobalContaminationPunishmentHandler();
+        registerPunishmentHandler(globalContamination);
         
         WitherSkeletonSpawnPunishmentHandler witherSkeleton = new WitherSkeletonSpawnPunishmentHandler(0.10); // 10% chance
         registerPunishmentHandler(witherSkeleton);

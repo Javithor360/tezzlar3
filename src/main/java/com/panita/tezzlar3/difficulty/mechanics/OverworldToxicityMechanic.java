@@ -38,10 +38,19 @@ public class OverworldToxicityMechanic extends DifficultyMechanic implements Act
                 
                 boolean isContaminated = false;
                 World.Environment env = player.getWorld().getEnvironment();
-                if (env == World.Environment.NORMAL) {
+                NamespacedKey globalKey = new NamespacedKey(plugin, "global_contamination");
+                NamespacedKey immuneOverworldKey = new NamespacedKey(plugin, "immune_overworld_contamination");
+
+                if (player.getPersistentDataContainer().getOrDefault(globalKey, PersistentDataType.BYTE, (byte) 0) == 1) {
                     isContaminated = true;
-                } else if (env == World.Environment.THE_END && TimeManager.getCurrentDay() >= 25) {
-                    isContaminated = true;
+                } else {
+                    if (env == World.Environment.NORMAL) {
+                        if (player.getPersistentDataContainer().getOrDefault(immuneOverworldKey, PersistentDataType.BYTE, (byte) 0) != 1) {
+                            isContaminated = true;
+                        }
+                    } else if (env == World.Environment.THE_END && TimeManager.getCurrentDay() >= 25) {
+                        isContaminated = true;
+                    }
                 }
 
                 if (isContaminated) {
@@ -66,8 +75,20 @@ public class OverworldToxicityMechanic extends DifficultyMechanic implements Act
         if (!PlayerUtils.isSurvival(player)) return false;
         
         World.Environment env = player.getWorld().getEnvironment();
-        if (env == World.Environment.NORMAL) return true;
-        if (env == World.Environment.THE_END && TimeManager.getCurrentDay() >= 25) return true;
+        NamespacedKey globalKey = new NamespacedKey(instance.plugin, "global_contamination");
+        NamespacedKey immuneOverworldKey = new NamespacedKey(instance.plugin, "immune_overworld_contamination");
+
+        if (player.getPersistentDataContainer().getOrDefault(globalKey, PersistentDataType.BYTE, (byte) 0) == 1) {
+            return true;
+        } else {
+            if (env == World.Environment.NORMAL) {
+                if (player.getPersistentDataContainer().getOrDefault(immuneOverworldKey, PersistentDataType.BYTE, (byte) 0) != 1) {
+                    return true;
+                }
+            } else if (env == World.Environment.THE_END && TimeManager.getCurrentDay() >= 25) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -91,8 +112,20 @@ public class OverworldToxicityMechanic extends DifficultyMechanic implements Act
         
         boolean isContaminated = false;
         World.Environment env = player.getWorld().getEnvironment();
-        if (env == World.Environment.NORMAL) isContaminated = true;
-        if (env == World.Environment.THE_END && TimeManager.getCurrentDay() >= 25) isContaminated = true;
+        NamespacedKey globalKey = new NamespacedKey(plugin, "global_contamination");
+        NamespacedKey immuneOverworldKey = new NamespacedKey(plugin, "immune_overworld_contamination");
+
+        if (player.getPersistentDataContainer().getOrDefault(globalKey, PersistentDataType.BYTE, (byte) 0) == 1) {
+            isContaminated = true;
+        } else {
+            if (env == World.Environment.NORMAL) {
+                if (player.getPersistentDataContainer().getOrDefault(immuneOverworldKey, PersistentDataType.BYTE, (byte) 0) != 1) {
+                    isContaminated = true;
+                }
+            } else if (env == World.Environment.THE_END && TimeManager.getCurrentDay() >= 25) {
+                isContaminated = true;
+            }
+        }
         
         if (!isContaminated) return null;
 
