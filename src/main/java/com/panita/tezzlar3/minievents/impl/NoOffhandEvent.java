@@ -1,5 +1,6 @@
 package com.panita.tezzlar3.minievents.impl;
 
+import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.minievents.MiniEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -15,13 +16,24 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.event.inventory.ClickType;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 
 import java.util.HashMap;
 
 public class NoOffhandEvent implements MiniEvent, Listener {
 
-    private final ItemStack indicatorItem = new ItemStack(Material.STRUCTURE_VOID);
+    private final ItemStack indicatorItem = createIndicator();
+    private BukkitTask exploitTask;
+
+    private static ItemStack createIndicator() {
+        ItemStack item = new ItemStack(Material.STRUCTURE_VOID);
+        item.editMeta(meta -> {
+            meta.displayName(Messenger.mini("<!i><red>✖️ Slot Indisponible ✖️</red>"));
+        });
+        return item;
+    }
 
     @Override
     public void start(JavaPlugin plugin) {
@@ -32,11 +44,23 @@ public class NoOffhandEvent implements MiniEvent, Listener {
                 applyRestriction(player);
             }
         }
+        
+        exploitTask = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (PlayerUtils.isSurvival(player)) {
+                    applyRestriction(player);
+                }
+            }
+        }, 20L, 20L);
     }
 
     @Override
     public void stop(JavaPlugin plugin) {
         HandlerList.unregisterAll(this);
+        
+        if (exploitTask != null) {
+            exploitTask.cancel();
+        }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             removeRestriction(player);
@@ -54,9 +78,10 @@ public class NoOffhandEvent implements MiniEvent, Listener {
                     player.getWorld().dropItemNaturally(player.getLocation(), item);
                 }
             }
+            inv.setItemInOffHand(indicatorItem.clone());
+        } else if (offhand == null || offhand.getType() == Material.AIR) {
+            inv.setItemInOffHand(indicatorItem.clone());
         }
-        
-        inv.setItemInOffHand(indicatorItem.clone());
     }
 
     private void removeRestriction(Player player) {
@@ -116,6 +141,11 @@ public class NoOffhandEvent implements MiniEvent, Listener {
         if (event.getWhoClicked() instanceof Player player && PlayerUtils.isSurvival(player)) {
             if (event.getSlot() == 40) {
                 event.setCancelled(true);
+                return;
+            }
+            if (event.getClick() == ClickType.SWAP_OFFHAND) {
+                event.setCancelled(true);
+                return;
             }
         }
     }

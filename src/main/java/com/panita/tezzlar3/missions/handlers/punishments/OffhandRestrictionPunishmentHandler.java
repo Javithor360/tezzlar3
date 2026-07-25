@@ -5,6 +5,7 @@ import com.panita.tezzlar3.core.util.PlayerUtils;
 import com.panita.tezzlar3.missions.MissionsModule;
 import com.panita.tezzlar3.missions.data.PlayerMissionData;
 import com.panita.tezzlar3.missions.handlers.PunishmentHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -12,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
@@ -21,10 +23,26 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
 
 public class OffhandRestrictionPunishmentHandler implements PunishmentHandler, Listener {
-    private final ItemStack indicatorItem = new ItemStack(Material.STRUCTURE_VOID);
+    private final ItemStack indicatorItem = createIndicator();
+
+    private static ItemStack createIndicator() {
+        ItemStack item = new ItemStack(Material.STRUCTURE_VOID);
+        item.editMeta(meta -> {
+            meta.displayName(Messenger.mini("<!i><red>✖️ Slot Indisponible ✖️</red>"));
+        });
+        return item;
+    }
     
     public OffhandRestrictionPunishmentHandler(JavaPlugin plugin) {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        
+        plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (isPunished(player) && PlayerUtils.isSurvival(player)) {
+                    applyRestriction(player);
+                }
+            }
+        }, 20L, 20L);
     }
 
     @Override
@@ -49,9 +67,10 @@ public class OffhandRestrictionPunishmentHandler implements PunishmentHandler, L
                     player.getWorld().dropItemNaturally(player.getLocation(), item);
                 }
             }
+            inv.setItemInOffHand(indicatorItem.clone());
+        } else if (offhand == null || offhand.getType() == Material.AIR) {
+            inv.setItemInOffHand(indicatorItem.clone());
         }
-        
-        inv.setItemInOffHand(indicatorItem.clone());
     }
 
     private boolean isPunished(Player player) {
@@ -71,10 +90,16 @@ public class OffhandRestrictionPunishmentHandler implements PunishmentHandler, L
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         
-        if (event.getSlot() == 40 && PlayerUtils.isSurvival(player)) {
-            if (isPunished(player)) {
+        if (isPunished(player) && PlayerUtils.isSurvival(player)) {
+            if (event.getSlot() == 40) {
                 event.setCancelled(true);
                 Messenger.prefixedSend(player, "<red>Tienes prohibido usar la mano secundaria debido a un castigo activo.</red>");
+                return;
+            }
+            if (event.getClick() == ClickType.SWAP_OFFHAND) {
+                event.setCancelled(true);
+                Messenger.prefixedSend(player, "<red>Tienes prohibido usar la mano secundaria debido a un castigo activo.</red>");
+                return;
             }
         }
     }
