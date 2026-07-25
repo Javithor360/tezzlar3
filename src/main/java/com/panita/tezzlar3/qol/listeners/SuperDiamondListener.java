@@ -34,6 +34,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.event.player.PlayerInputEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import com.panita.tezzlar3.core.chat.Messenger;
 public class SuperDiamondListener implements Listener {
     private final NamespacedKey doubleJumpKey = new NamespacedKey(Tezzlar.getInstance(), "double_jump");
@@ -401,9 +402,16 @@ public class SuperDiamondListener implements Listener {
             List<Component> lore = meta.lore() != null ? new ArrayList<>(meta.lore()) : new ArrayList<>();
             Component stateLine = Messenger.mini(activate ? "&a✔ Doble Salto activado" : "&c❌ Doble Salto desactivado");
 
-            if (lore.size() >= 3) {
-                lore.set(2, stateLine);
-            } else {
+            boolean found = false;
+            for (int i = 0; i < lore.size(); i++) {
+                String plainLine = PlainTextComponentSerializer.plainText().serialize(lore.get(i));
+                if (plainLine.contains("Doble Salto")) {
+                    lore.set(i, stateLine);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
                 lore.add(stateLine);
             }
 

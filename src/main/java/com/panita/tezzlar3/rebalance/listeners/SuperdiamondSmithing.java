@@ -87,23 +87,43 @@ public class SuperdiamondSmithing implements Listener {
 
         if (resultId != null) {
             ItemStack nativeResult = event.getResult();
-            if (nativeResult != null && !nativeResult.getType().isAir()) {
+            ItemStack lvl2Template = CustomItemManager.getItem(resultId);
+            
+            if (nativeResult != null && !nativeResult.getType().isAir() && lvl2Template != null) {
                 ItemMeta resultMeta = nativeResult.getItemMeta();
                 ItemMeta baseMeta = base.getItemMeta();
+                ItemMeta templateMeta = lvl2Template.getItemMeta();
                 
-                if (resultMeta != null && baseMeta != null) {
-                    // Update custom item ID to Level 2
-                    NamespacedKey idKey = new NamespacedKey(Tezzlar.getInstance(), "custom_item_id");
-                    resultMeta.getPersistentDataContainer().set(idKey, PersistentDataType.STRING, resultId);
+                if (baseMeta != null && templateMeta != null) {
+                    ItemStack finalResult = lvl2Template.clone();
+                    ItemMeta finalMeta = finalResult.getItemMeta();
                     
-                    // Merge lore: Prepend custom enchant lore from base to the native Level 2 result
-                    if (baseMeta.hasLore()) {
+                    // 1. Transfer Damage
+                    if (baseMeta instanceof Damageable baseDamageable && finalMeta instanceof Damageable finalDamageable) {
+                        finalDamageable.setDamage(baseDamageable.getDamage());
+                    }
+                    
+                    // 2. Transfer Enchantments
+                    for (Map.Entry<Enchantment, Integer> entry : baseMeta.getEnchants().entrySet()) {
+                        finalMeta.addEnchant(entry.getKey(), entry.getValue(), true);
+                    }
+                    
+                    // 3. Transfer Repair Cost
+                    if (baseMeta instanceof org.bukkit.inventory.meta.Repairable baseRepairable && finalMeta instanceof org.bukkit.inventory.meta.Repairable finalRepairable) {
+                        if (baseRepairable.hasRepairCost()) {
+                            finalRepairable.setRepairCost(baseRepairable.getRepairCost());
+                        }
+                    }
+                    
+                    // 4. Append all custom NBT tags from the base item (e.g. UberEnchant)
+                    baseMeta.getPersistentDataContainer().copyTo(finalMeta.getPersistentDataContainer(), false);
+                    
+                    // 5. Manually extract custom enchant lore from base and prepend to the pristine template lore
+                    if (baseMeta.hasLore() && templateMeta.hasLore()) {
                         List<Component> baseLore = baseMeta.lore();
-                        List<Component> resultLore = resultMeta.lore();
-                        if (resultLore == null) resultLore = new ArrayList<>();
+                        List<Component> resultLore = templateMeta.lore();
                         
                         List<Component> customEnchantLore = new ArrayList<>();
-                        
                         for (Component line : baseLore) {
                             String plain = PlainTextComponentSerializer.plainText().serialize(line);
                             if (plain.contains("Nivel de Armadura") || plain.contains("→")) {
@@ -121,14 +141,13 @@ public class SuperdiamondSmithing implements Listener {
                         }
                         
                         if (!customEnchantLore.isEmpty()) {
-                            customEnchantLore.add(Component.empty());
                             customEnchantLore.addAll(resultLore);
-                            resultMeta.lore(customEnchantLore);
+                            finalMeta.lore(customEnchantLore);
                         }
                     }
                     
-                    nativeResult.setItemMeta(resultMeta);
-                    event.setResult(nativeResult);
+                    finalResult.setItemMeta(finalMeta);
+                    event.setResult(finalResult);
                 }
             }
         } else {
