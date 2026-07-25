@@ -96,6 +96,7 @@ public class MissionsModule implements PluginModule {
         }
         if (bossBarManager != null) {
             HandlerList.unregisterAll(bossBarManager);
+            bossBarManager.stop();
         }
     }
 

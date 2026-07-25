@@ -49,16 +49,22 @@ import com.panita.tezzlar3.core.chat.actionbar.ActionBarManager;
 import com.panita.tezzlar3.core.chat.actionbar.ActionBarProvider;
 import com.panita.tezzlar3.core.util.Global;
 import com.panita.tezzlar3.missions.ui.MissionBossBarManager;
+import org.bukkit.scheduler.BukkitTask;
 
 public class MissionTracker implements Listener, ActionBarProvider {
     private final Map<UUID, Map<String, LinkedList<Long>>> timedKills = new HashMap<>();
+
+    private static BukkitTask passiveTask;
 
     public MissionTracker() {
         if (ActionBarManager.getInstance() != null) {
             ActionBarManager.getInstance().registerProvider(this);
         }
+        if (passiveTask != null) {
+            passiveTask.cancel();
+        }
         // Repeated task to check passive state missions (like wearing armor)
-        Bukkit.getScheduler().runTaskTimer(Tezzlar.getInstance(), () -> {
+        passiveTask = Bukkit.getScheduler().runTaskTimer(Tezzlar.getInstance(), () -> {
             int currentDay = TimeManager.getCurrentDay();
             for (Map.Entry<String, Mission> entry : MissionsModule.getMissionManager().getLoadedMissions().entrySet()) {
                 Mission mission = entry.getValue();

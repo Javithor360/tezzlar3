@@ -30,6 +30,8 @@ public class MissionBossBarManager implements Listener {
     private static final Map<UUID, String> forcedMissions = new ConcurrentHashMap<>();
     private static final Map<UUID, Long> forceUntil = new ConcurrentHashMap<>();
 
+    private org.bukkit.scheduler.BukkitTask updateTask;
+
     public static void forceShowMission(Player player, String missionId) {
         if (player == null) {
             for (Player p : Bukkit.getOnlinePlayers()) {
@@ -43,7 +45,7 @@ public class MissionBossBarManager implements Listener {
     }
 
     public MissionBossBarManager(JavaPlugin plugin) {
-        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        updateTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             tickCounter++;
             int currentDay = TimeManager.getCurrentDay();
             
@@ -159,5 +161,11 @@ public class MissionBossBarManager implements Listener {
         Player player = event.getPlayer();
         Messenger.hideBossBar(player, "missions_bar");
         Messenger.hideBossBar(player, "timeline_day_bar");
+    }
+
+    public void stop() {
+        if (updateTask != null) {
+            updateTask.cancel();
+        }
     }
 }
