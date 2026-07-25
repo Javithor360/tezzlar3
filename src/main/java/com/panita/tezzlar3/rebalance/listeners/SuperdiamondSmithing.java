@@ -34,6 +34,7 @@ public class SuperdiamondSmithing implements Listener {
     public void registerRecipes() {
         registerRecipe("superdiamond_helmet_lvl2", "superdiamond_helmet");
         registerRecipe("superdiamond_chestplate_lvl2", "superdiamond_chestplate");
+        registerRecipe("superdiamond_elytra_lvl2", "superdiamond_elytra");
         registerRecipe("superdiamond_leggings_lvl2", "superdiamond_leggings");
         registerRecipe("superdiamond_boots_lvl2", "superdiamond_boots");
     }
@@ -80,6 +81,7 @@ public class SuperdiamondSmithing implements Listener {
         String resultId = null;
         if (CustomItemManager.isCustomItem(base, "superdiamond_helmet")) resultId = "superdiamond_helmet_lvl2";
         else if (CustomItemManager.isCustomItem(base, "superdiamond_chestplate")) resultId = "superdiamond_chestplate_lvl2";
+        else if (CustomItemManager.isCustomItem(base, "superdiamond_elytra")) resultId = "superdiamond_elytra_lvl2";
         else if (CustomItemManager.isCustomItem(base, "superdiamond_leggings")) resultId = "superdiamond_leggings_lvl2";
         else if (CustomItemManager.isCustomItem(base, "superdiamond_boots")) resultId = "superdiamond_boots_lvl2";
 

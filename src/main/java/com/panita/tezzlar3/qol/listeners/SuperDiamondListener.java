@@ -48,7 +48,7 @@ public class SuperDiamondListener implements Listener {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 120, 1, false, false, true));
                     player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 120, 0, false, false, true));
                 }
-                if (CustomItemManager.isCustomItem(player.getInventory().getChestplate(), "superdiamond_chestplate_lvl2")) {
+                if (CustomItemManager.isCustomItem(player.getInventory().getChestplate(), "superdiamond_chestplate_lvl2") || CustomItemManager.isCustomItem(player.getInventory().getChestplate(), "superdiamond_elytra_lvl2")) {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 120, 2, false, false, true));
                     player.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 120, 1, false, false, true));
                 }
@@ -63,7 +63,7 @@ public class SuperDiamondListener implements Listener {
         ItemStack boots = player.getInventory().getBoots();
         
         return (CustomItemManager.isCustomItem(helmet, "superdiamond_helmet") || CustomItemManager.isCustomItem(helmet, "superdiamond_helmet_lvl2")) &&
-               (CustomItemManager.isCustomItem(chest, "superdiamond_chestplate") || CustomItemManager.isCustomItem(chest, "superdiamond_chestplate_lvl2")) &&
+               (CustomItemManager.isCustomItem(chest, "superdiamond_chestplate") || CustomItemManager.isCustomItem(chest, "superdiamond_chestplate_lvl2") || CustomItemManager.isCustomItem(chest, "superdiamond_elytra") || CustomItemManager.isCustomItem(chest, "superdiamond_elytra_lvl2")) &&
                (CustomItemManager.isCustomItem(legs, "superdiamond_leggings") || CustomItemManager.isCustomItem(legs, "superdiamond_leggings_lvl2")) &&
                (CustomItemManager.isCustomItem(boots, "superdiamond_boots") || CustomItemManager.isCustomItem(boots, "superdiamond_boots_lvl2"));
     }
