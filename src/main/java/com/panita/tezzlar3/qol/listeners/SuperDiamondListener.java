@@ -401,10 +401,10 @@ public class SuperDiamondListener implements Listener {
             List<Component> lore = meta.lore() != null ? new ArrayList<>(meta.lore()) : new ArrayList<>();
             Component stateLine = Messenger.mini(activate ? "&a✔ Doble Salto activado" : "&c❌ Doble Salto desactivado");
 
-            if (!lore.isEmpty() && lore.getFirst().toString().contains("Doble Salto")) {
-                lore.set(0, stateLine);
+            if (lore.size() >= 3) {
+                lore.set(2, stateLine);
             } else {
-                lore.addFirst(stateLine);
+                lore.add(stateLine);
             }
 
             meta.lore(lore);
