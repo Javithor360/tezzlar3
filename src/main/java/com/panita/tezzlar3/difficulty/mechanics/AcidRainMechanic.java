@@ -139,6 +139,7 @@ public class AcidRainMechanic extends DifficultyMechanic {
         ItemStack helmet = player.getInventory().getHelmet();
         return CustomItemManager.isCustomItem(main, "fancy_umbrella") 
                 || CustomItemManager.isCustomItem(off, "fancy_umbrella")
-                || CustomItemManager.isCustomItem(helmet, "fancy_umbrella");
+                || CustomItemManager.isCustomItem(helmet, "fancy_umbrella")
+                || CustomItemManager.isCustomItem(helmet, "superdiamond_helmet_lvl2");
     }
 }
