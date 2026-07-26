@@ -2,6 +2,7 @@ package com.panita.tezzlar3.bossfight.util;
 
 import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.chat.Messenger;
+import com.panita.tezzlar3.core.config.ConfigManager;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -15,6 +16,8 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.UUID;
+
 public class BossManager {
 
     private static BossManager instance;
@@ -24,6 +27,7 @@ public class BossManager {
     private boolean fakeDeathState;
     private BossBar globalBossBar;
     private BukkitTask particleTask;
+    private UUID pendingBossUuid; // Used when the boss is offline during load
 
     private BossManager() {
         // Private constructor
@@ -58,6 +62,7 @@ public class BossManager {
         }
 
         setPhase(1);
+        saveState(Tezzlar.getConfigManager());
     }
 
     public void setPhase(int phase) {
@@ -183,8 +188,11 @@ public class BossManager {
         }
 
         this.boss = null;
+        this.pendingBossUuid = null;
         this.currentPhase = 0;
         this.fakeDeathState = false;
+        
+        saveState(Tezzlar.getConfigManager());
     }
 
     public Player getBoss() {
@@ -205,5 +213,90 @@ public class BossManager {
     
     public BossBar getGlobalBossBar() {
         return globalBossBar;
+    }
+
+    // --- Persistence ---
+
+    public void saveState(ConfigManager config) {
+        boolean active = (boss != null || pendingBossUuid != null);
+        config.updateBoolean("bossfight.active", active, null);
+        
+        if (active) {
+            UUID uuid = boss != null ? boss.getUniqueId() : pendingBossUuid;
+            config.updateString("bossfight.boss_uuid", uuid.toString(), null);
+            config.updateInt("bossfight.current_phase", currentPhase, null);
+            config.updateBoolean("bossfight.fake_death", fakeDeathState, null);
+        } else {
+            config.updateString("bossfight.boss_uuid", "", null);
+        }
+    }
+
+    public void loadState(ConfigManager config) {
+        boolean active = config.getBoolean("bossfight.active", false);
+        if (!active) return;
+        
+        String uuidStr = config.getString("bossfight.boss_uuid", "");
+        if (uuidStr.isEmpty()) return;
+        
+        this.pendingBossUuid = UUID.fromString(uuidStr);
+        this.currentPhase = config.getInt("bossfight.current_phase", 1);
+        this.fakeDeathState = config.getBoolean("bossfight.fake_death", false);
+        
+        Player p = Bukkit.getPlayer(pendingBossUuid);
+        if (p != null && p.isOnline()) {
+            resumeFight(p);
+        }
+    }
+
+    public void resumeFight(Player player) {
+        this.boss = player;
+        this.pendingBossUuid = null;
+        
+        if (this.globalBossBar == null) {
+            this.globalBossBar = BossBar.bossBar(
+                    MiniMessage.miniMessage().deserialize("<dark_red><bold>Javithor360 Desatado"),
+                    1.0f,
+                    BossBar.Color.RED,
+                    BossBar.Overlay.NOTCHED_10
+            );
+        }
+        
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.showBossBar(this.globalBossBar);
+        }
+        
+        if (fakeDeathState) {
+            triggerFakeDeath();
+        } else {
+            // Restore colors based on phase
+            switch (currentPhase) {
+                case 1: globalBossBar.color(BossBar.Color.RED); break;
+                case 2: globalBossBar.color(BossBar.Color.PURPLE); break;
+                case 3: globalBossBar.color(BossBar.Color.PINK); break;
+                case 4: globalBossBar.color(BossBar.Color.WHITE); break;
+            }
+        }
+        updateBossBar();
+    }
+
+    public void pauseFight() {
+        if (globalBossBar != null) {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.hideBossBar(globalBossBar);
+            }
+        }
+        if (particleTask != null) {
+            particleTask.cancel();
+            particleTask = null;
+        }
+        
+        if (boss != null) {
+            this.pendingBossUuid = boss.getUniqueId();
+            this.boss = null;
+        }
+    }
+
+    public UUID getPendingBossUuid() {
+        return pendingBossUuid;
     }
 }

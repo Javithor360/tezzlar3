@@ -19,6 +19,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class BossListener implements Listener {
@@ -126,6 +128,28 @@ public class BossListener implements Listener {
                     event.setCancelled(true);
                 }
             }
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        BossManager manager = BossManager.getInstance();
+        
+        if (manager.getPendingBossUuid() != null && manager.getPendingBossUuid().equals(player.getUniqueId())) {
+            manager.resumeFight(player);
+        } else {
+            if (manager.getGlobalBossBar() != null) {
+                player.showBossBar(manager.getGlobalBossBar());
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        BossManager manager = BossManager.getInstance();
+        
+        if (manager.isBoss(player)) {
+            manager.pauseFight();
+            manager.saveState(Tezzlar.getConfigManager());
         }
     }
 }

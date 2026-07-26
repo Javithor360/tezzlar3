@@ -33,6 +33,7 @@ qol:
 # Hardcore Module
 hardcore:
   enabled: true
+  death_bans_disabled: false
   placeSkullOnDeath: true
   messages:
     kickMessage: "<b><gradient:#5FE2C5:#C6DEF1:#5FE2C5><shadow:#0D1E40:1>TEZZLAR</shadow></gradient></b><newline><newline><dark_red>¡Acabas de morir y perder tu <yellow>%tezzlar_totaldeaths%°</yellow> vida en modo Hardcore!<newline>Por lo tanto se te ordena que tomes un descanso.</dark_red><newline><newline><gray>Podrás volver a jugar dentro de <red>%ban_duration%</red>.</gray>"
@@ -81,6 +82,10 @@ inventory:
 #      - BAT
     minionCount: 1
   deathCoordsReminder: "<gray>Parece que tienes una tumba activa en <red><bold>X:</bold> {x}  <bold>Y:</bold> {y}  <bold>Z:</bold> {z} ({dimension})</red>. Se te recomienda pedir ayuda a un compañero para recuperar tus cosas.</gray>"
+
+# Difficulty Module
+difficulty:
+  death_train_disabled: false
 
 # Timeline Module
 timeline:
