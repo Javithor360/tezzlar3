@@ -110,6 +110,8 @@ public class BossManager {
         AttributeInstance moveSpeed = boss.getAttribute(Attribute.MOVEMENT_SPEED);
         AttributeInstance blockRange = boss.getAttribute(Attribute.BLOCK_INTERACTION_RANGE);
         AttributeInstance entityRange = boss.getAttribute(Attribute.ENTITY_INTERACTION_RANGE);
+        AttributeInstance jumpStrength = boss.getAttribute(Attribute.JUMP_STRENGTH);
+        AttributeInstance stepHeight = boss.getAttribute(Attribute.STEP_HEIGHT);
         
         // Clear all potion effects
         for (PotionEffect effect : boss.getActivePotionEffects()) {
@@ -123,6 +125,8 @@ public class BossManager {
                 if (moveSpeed != null) moveSpeed.setBaseValue(0.1); // Default
                 if (blockRange != null) blockRange.setBaseValue(50.0);
                 if (entityRange != null) entityRange.setBaseValue(50.0);
+                if (jumpStrength != null) jumpStrength.setBaseValue(0.42);
+                if (stepHeight != null) stepHeight.setBaseValue(0.6);
                 boss.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, PotionEffect.INFINITE_DURATION, 3, false, false));
                 globalBossBar.color(BossBar.Color.RED);
                 break;
@@ -132,6 +136,8 @@ public class BossManager {
                 if (moveSpeed != null) moveSpeed.setBaseValue(0.15);
                 if (blockRange != null) blockRange.setBaseValue(50.0);
                 if (entityRange != null) entityRange.setBaseValue(50.0);
+                if (jumpStrength != null) jumpStrength.setBaseValue(0.84);
+                if (stepHeight != null) stepHeight.setBaseValue(1.2);
                 globalBossBar.color(BossBar.Color.PURPLE);
                 break;
             case 3:
@@ -140,6 +146,8 @@ public class BossManager {
                 if (moveSpeed != null) moveSpeed.setBaseValue(0.2);
                 if (blockRange != null) blockRange.setBaseValue(50.0);
                 if (entityRange != null) entityRange.setBaseValue(50.0);
+                if (jumpStrength != null) jumpStrength.setBaseValue(1.26);
+                if (stepHeight != null) stepHeight.setBaseValue(1.8);
                 globalBossBar.color(BossBar.Color.PINK);
                 break;
             case 4:
@@ -148,6 +156,8 @@ public class BossManager {
                 if (moveSpeed != null) moveSpeed.setBaseValue(0.25);
                 if (blockRange != null) blockRange.setBaseValue(50.0);
                 if (entityRange != null) entityRange.setBaseValue(50.0);
+                if (jumpStrength != null) jumpStrength.setBaseValue(1.68);
+                if (stepHeight != null) stepHeight.setBaseValue(2.4);
                 globalBossBar.color(BossBar.Color.WHITE);
                 break;
         }
@@ -227,6 +237,12 @@ public class BossManager {
             
             AttributeInstance entityRange = boss.getAttribute(Attribute.ENTITY_INTERACTION_RANGE);
             if (entityRange != null) entityRange.setBaseValue(3.0);
+            
+            AttributeInstance jumpStrength = boss.getAttribute(Attribute.JUMP_STRENGTH);
+            if (jumpStrength != null) jumpStrength.setBaseValue(0.42);
+            
+            AttributeInstance stepHeight = boss.getAttribute(Attribute.STEP_HEIGHT);
+            if (stepHeight != null) stepHeight.setBaseValue(0.6);
             
             boss.setHealth(20.0);
             
