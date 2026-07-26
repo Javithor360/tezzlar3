@@ -57,6 +57,13 @@ public class MissionBossBarManager implements Listener {
             }
 
             for (Player player : Bukkit.getOnlinePlayers()) {
+                if (com.panita.tezzlar3.bossfight.util.BossManager.getInstance() != null && 
+                    com.panita.tezzlar3.bossfight.util.BossManager.getInstance().getGlobalBossBar() != null) {
+                    Messenger.hideBossBar(player, "missions_bar");
+                    Messenger.hideBossBar(player, "timeline_day_bar");
+                    continue; // Skip processing for this player
+                }
+                
                 PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(player);
                 
                 List<Mission> incompleteMissions = new ArrayList<>();

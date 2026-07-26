@@ -14,6 +14,7 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.LargeFireball;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.util.Transformation;
 import org.joml.Vector3f;
 import org.joml.AxisAngle4f;
@@ -57,13 +58,17 @@ public class BossAttacks {
     public static List<Player> getTargets(Player boss) {
         List<Player> targets = new ArrayList<>();
         for (Player p : Bukkit.getOnlinePlayers()) {
-            if (!p.equals(boss) && p.getWorld().equals(boss.getWorld()) && p.getLocation().distance(boss.getLocation()) <= 100.0) {
-                if (p.getGameMode() == GameMode.SURVIVAL || p.getGameMode() == GameMode.ADVENTURE) {
-                    targets.add(p);
-                }
+            if (isValidTarget(p, boss) && p.getLocation().distance(boss.getLocation()) <= 100.0) {
+                targets.add(p);
             }
         }
         return targets;
+    }
+
+    public static boolean isValidTarget(Player p, Player boss) {
+        if (p.equals(boss)) return false;
+        if (!p.getWorld().equals(boss.getWorld())) return false;
+        return p.getGameMode() == GameMode.SURVIVAL || p.getGameMode() == GameMode.ADVENTURE;
     }
 
     public static void executeThorPro(Player boss) {
@@ -174,10 +179,20 @@ public class BossAttacks {
                 LivingEntity mob = EntityUtils.spawnNatural(spawnLoc, type);
                 
                 if (mob != null) {
-                    EntityUtils.setCustomName(mob, "&cVestigios Errantes");
-                    if (mob instanceof Mob) {
-                        ((Mob) mob).setTarget(target);
-                    }
+                    Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+                        if (!mob.isValid()) return;
+                        EntityUtils.setCustomName(mob, "&cVestigios Errantes");
+                        if (mob.getEquipment() != null) {
+                            mob.getEquipment().clear();
+                        }
+                        AttributeInstance scale = mob.getAttribute(Attribute.SCALE);
+                        if (scale != null) {
+                            scale.setBaseValue(2.0);
+                        }
+                        if (mob instanceof Mob) {
+                            ((Mob) mob).setTarget(target);
+                        }
+                    }, 2L);
                 }
             }
         }
@@ -272,46 +287,48 @@ public class BossAttacks {
                 EntityType type = JAVIMOBS[random.nextInt(JAVIMOBS.length)];
                 Location spawnLoc = target.getLocation().add(random.nextInt(11) - 5, 1, random.nextInt(11) - 5);
                 LivingEntity mob = EntityUtils.spawnNatural(spawnLoc, type);
-                
-                if (mob != null) {
-                    EntityUtils.setCustomName(mob, "&cJavimob");
-                    
-                    // Attributes
-                    AttributeInstance maxHealth = mob.getAttribute(Attribute.MAX_HEALTH);
-                    if (maxHealth != null) maxHealth.setBaseValue(80.0);
-                    mob.setHealth(80.0);
-                    
-                    AttributeInstance scale = mob.getAttribute(Attribute.SCALE);
-                    if (scale != null) scale.setBaseValue(2.0);
-                    
-                    AttributeInstance armor = mob.getAttribute(Attribute.ARMOR);
-                    if (armor != null) armor.setBaseValue(50.0);
-                    
-                    AttributeInstance damage = mob.getAttribute(Attribute.ATTACK_DAMAGE);
-                    if (damage != null) damage.setBaseValue(35.0);
+                     if (mob != null) {
+                    Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+                        if (!mob.isValid()) return;
+                        EntityUtils.setCustomName(mob, "&cJavimob");
+                        
+                        // Attributes
+                        AttributeInstance maxHealth = mob.getAttribute(Attribute.MAX_HEALTH);
+                        if (maxHealth != null) maxHealth.setBaseValue(80.0);
+                        mob.setHealth(80.0);
+                        
+                        AttributeInstance scale = mob.getAttribute(Attribute.SCALE);
+                        if (scale != null) scale.setBaseValue(2.0);
+                        
+                        AttributeInstance armor = mob.getAttribute(Attribute.ARMOR);
+                        if (armor != null) armor.setBaseValue(50.0);
+                        
+                        AttributeInstance damage = mob.getAttribute(Attribute.ATTACK_DAMAGE);
+                        if (damage != null) damage.setBaseValue(35.0);
 
-                    // Equipment
-                    if (type != EntityType.WITHER) {
-                        ItemStack weapon;
-                        if (type == EntityType.SKELETON || type == EntityType.STRAY || type == EntityType.BOGGED) {
-                            if (random.nextBoolean()) {
-                                weapon = CustomItemManager.getItem("superdiamond_sword");
+                        // Equipment
+                        if (type != EntityType.WITHER) {
+                            ItemStack weapon;
+                            if (type == EntityType.SKELETON || type == EntityType.STRAY || type == EntityType.BOGGED) {
+                                if (random.nextBoolean()) {
+                                    weapon = CustomItemManager.getItem("superdiamond_sword");
+                                } else {
+                                    weapon = CustomItemManager.getItem("superdiamond_bow");
+                                }
                             } else {
-                                weapon = CustomItemManager.getItem("superdiamond_bow");
+                                weapon = CustomItemManager.getItem("superdiamond_sword");
                             }
-                        } else {
-                            weapon = CustomItemManager.getItem("superdiamond_sword");
+                            
+                            if (weapon != null && mob.getEquipment() != null) {
+                                mob.getEquipment().setItemInMainHand(weapon);
+                                mob.getEquipment().setItemInMainHandDropChance(0.0f);
+                            }
                         }
                         
-                        if (weapon != null && mob.getEquipment() != null) {
-                            mob.getEquipment().setItemInMainHand(weapon);
-                            mob.getEquipment().setItemInMainHandDropChance(0f);
+                        if (mob instanceof Mob) {
+                            ((Mob) mob).setTarget(target);
                         }
-                    }
-                    
-                    if (mob instanceof Mob) {
-                        ((Mob) mob).setTarget(target);
-                    }
+                    }, 2L);
                 }
             }
         }
@@ -478,6 +495,13 @@ public class BossAttacks {
                             Snowball snowball = (Snowball) p.getWorld().spawnEntity(spawnLoc, EntityType.SNOWBALL);
                             snowball.setVelocity(new Vector(0, -2.0, 0)); // Fast fall
                             snowball.setShooter(boss);
+                            
+                            ItemDisplay display = (ItemDisplay) p.getWorld().spawnEntity(spawnLoc, EntityType.ITEM_DISPLAY);
+                            display.setItemStack(new ItemStack(Material.SNOWBALL));
+                            display.setTransformation(new Transformation(
+                                new Vector3f(), new AxisAngle4f(), new Vector3f(4.0f, 4.0f, 4.0f), new AxisAngle4f()
+                            ));
+                            snowball.addPassenger(display);
                         }
                     }
                 }
@@ -573,9 +597,20 @@ public class BossAttacks {
                         }
                     }
 
+                    if (ticks % 4 == 0) {
+                        for (int i = 0; i < 5; i++) {
+                            double ox = (random.nextDouble() - 0.5) * 12; // 12 diameter
+                            double oz = (random.nextDouble() - 0.5) * 12;
+                            if (ox*ox + oz*oz <= 36) { // inside the circle
+                                loc.getWorld().spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE, loc.clone().add(ox, 1, oz), 0, 0, 0.1, 0);
+                                loc.getWorld().spawnParticle(Particle.NAUTILUS, loc.clone().add(ox, 0.2, oz), 0, 0, 0.1, 0);
+                            }
+                        }
+                    }
+
                     if (ticks % 5 == 0) { // Damage 4 times a second
                         for (Player p : loc.getWorld().getPlayers()) {
-                            if (!p.equals(boss) && p.getGameMode() != GameMode.SPECTATOR && p.getGameMode() != GameMode.CREATIVE) {
+                            if (isValidTarget(p, boss)) {
                                 if (p.getLocation().distanceSquared(loc) <= 36.0) { // Radius 6 -> 36 squared
                                     p.damage(5.0, boss);
                                 }

@@ -112,6 +112,7 @@ public class BossManager {
         AttributeInstance entityRange = boss.getAttribute(Attribute.ENTITY_INTERACTION_RANGE);
         AttributeInstance jumpStrength = boss.getAttribute(Attribute.JUMP_STRENGTH);
         AttributeInstance stepHeight = boss.getAttribute(Attribute.STEP_HEIGHT);
+        AttributeInstance safeFall = boss.getAttribute(Attribute.SAFE_FALL_DISTANCE);
         
         // Clear all potion effects
         for (PotionEffect effect : boss.getActivePotionEffects()) {
@@ -127,6 +128,7 @@ public class BossManager {
                 if (entityRange != null) entityRange.setBaseValue(50.0);
                 if (jumpStrength != null) jumpStrength.setBaseValue(0.42);
                 if (stepHeight != null) stepHeight.setBaseValue(0.6);
+                if (safeFall != null) safeFall.setBaseValue(1000.0);
                 boss.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, PotionEffect.INFINITE_DURATION, 3, false, false));
                 globalBossBar.color(BossBar.Color.RED);
                 break;
@@ -138,6 +140,7 @@ public class BossManager {
                 if (entityRange != null) entityRange.setBaseValue(50.0);
                 if (jumpStrength != null) jumpStrength.setBaseValue(0.84);
                 if (stepHeight != null) stepHeight.setBaseValue(1.2);
+                if (safeFall != null) safeFall.setBaseValue(1000.0);
                 globalBossBar.color(BossBar.Color.PURPLE);
                 break;
             case 3:
@@ -148,6 +151,7 @@ public class BossManager {
                 if (entityRange != null) entityRange.setBaseValue(50.0);
                 if (jumpStrength != null) jumpStrength.setBaseValue(1.26);
                 if (stepHeight != null) stepHeight.setBaseValue(1.8);
+                if (safeFall != null) safeFall.setBaseValue(1000.0);
                 globalBossBar.color(BossBar.Color.PINK);
                 break;
             case 4:
@@ -158,6 +162,7 @@ public class BossManager {
                 if (entityRange != null) entityRange.setBaseValue(50.0);
                 if (jumpStrength != null) jumpStrength.setBaseValue(1.68);
                 if (stepHeight != null) stepHeight.setBaseValue(2.4);
+                if (safeFall != null) safeFall.setBaseValue(1000.0);
                 globalBossBar.color(BossBar.Color.WHITE);
                 break;
         }
@@ -243,6 +248,9 @@ public class BossManager {
             
             AttributeInstance stepHeight = boss.getAttribute(Attribute.STEP_HEIGHT);
             if (stepHeight != null) stepHeight.setBaseValue(0.6);
+            
+            AttributeInstance safeFall = boss.getAttribute(Attribute.SAFE_FALL_DISTANCE);
+            if (safeFall != null) safeFall.setBaseValue(3.0);
             
             boss.setHealth(20.0);
             
