@@ -3,7 +3,9 @@ package com.panita.tezzlar3.bossfight.util;
 import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.config.ConfigManager;
+import com.panita.tezzlar3.core.util.EntityUtils;
 import net.kyori.adventure.bossbar.BossBar;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -53,7 +55,7 @@ public class BossManager {
         
         // Create global boss bar
         this.globalBossBar = BossBar.bossBar(
-                MiniMessage.miniMessage().deserialize("<dark_red><bold>" + boss.getName() + " Desatado"),
+                Messenger.mini("<dark_red><bold>" + boss.getName() + " Desatado"),
                 1.0f,
                 BossBar.Color.RED,
                 BossBar.Overlay.NOTCHED_10
@@ -153,6 +155,9 @@ public class BossManager {
                 if (stepHeight != null) stepHeight.setBaseValue(1.8);
                 if (safeFall != null) safeFall.setBaseValue(1000.0);
                 globalBossBar.color(BossBar.Color.PINK);
+                
+                // Yellow glowing effect
+                EntityUtils.setColoredGlowing(boss, NamedTextColor.YELLOW);
                 break;
             case 4:
                 if (maxHealth != null) maxHealth.setBaseValue(1000.0);
@@ -164,6 +169,10 @@ public class BossManager {
                 if (stepHeight != null) stepHeight.setBaseValue(2.4);
                 if (safeFall != null) safeFall.setBaseValue(1000.0);
                 globalBossBar.color(BossBar.Color.WHITE);
+                
+                // Dark Red glowing effect
+                EntityUtils.removeColoredGlowing(boss);
+                EntityUtils.setColoredGlowing(boss, NamedTextColor.DARK_RED);
                 break;
         }
 
