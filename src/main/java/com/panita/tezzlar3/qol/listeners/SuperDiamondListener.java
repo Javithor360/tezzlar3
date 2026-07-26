@@ -88,7 +88,18 @@ public class SuperDiamondListener implements Listener {
         if (!(event.getEntity() instanceof LivingEntity target)) return;
         
         // 1. Instant Kill (1/100)
-        if (Math.random() < 0.01 && target.getHealth() <= 500.0) {
+        boolean isBoss = target.getType() == EntityType.ENDER_DRAGON || target.getType() == EntityType.WITHER;
+        if (!isBoss) {
+            NamespacedKey mobKey = new NamespacedKey(Tezzlar.getInstance(), "custom_mob_id");
+            if (target.getPersistentDataContainer().has(mobKey, PersistentDataType.STRING)) {
+                String customId = target.getPersistentDataContainer().get(mobKey, PersistentDataType.STRING);
+                if (customId != null && (customId.equals("giga_magma_cube") || customId.equals("glacial_bonebreaker"))) {
+                    isBoss = true;
+                }
+            }
+        }
+        
+        if (!isBoss && Math.random() < 0.01 && target.getHealth() <= 500.0) {
             event.setDamage(target.getHealth() + 1000.0);
             player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.5f, 1.5f);
             player.getWorld().spawnParticle(Particle.SOUL, target.getLocation().add(0, 1, 0), 20, 0.5, 0.5, 0.5, 0.1);
@@ -297,6 +308,10 @@ public class SuperDiamondListener implements Listener {
                 if (event.getEntity() instanceof LivingEntity target && !(target instanceof Player)) {
                     if (arrow.getShooter() instanceof Player shooter) {
                         boolean isBoss = false;
+                        if (target.getType() == EntityType.ENDER_DRAGON || target.getType() == EntityType.WITHER) {
+                            isBoss = true;
+                        }
+                        
                         NamespacedKey mobKey = new NamespacedKey(Tezzlar.getInstance(), "custom_mob_id");
                         if (target.getPersistentDataContainer().has(mobKey, PersistentDataType.STRING)) {
                             String customId = target.getPersistentDataContainer().get(mobKey, PersistentDataType.STRING);
