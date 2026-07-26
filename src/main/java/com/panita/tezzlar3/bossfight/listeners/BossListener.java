@@ -7,6 +7,8 @@ import com.panita.tezzlar3.bossfight.gui.BossGeneralMenu;
 import com.panita.tezzlar3.bossfight.util.BossItems;
 import com.panita.tezzlar3.bossfight.util.BossManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -14,16 +16,34 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class BossListener implements Listener {
+    
+    private static final Set<UUID> bossMagmaTrailTargets = new HashSet<>();
+    
+    public static void addMagmaTrailTarget(UUID uuid) {
+        bossMagmaTrailTargets.add(uuid);
+        // Duration: 10 seconds (200 ticks)
+        Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+            bossMagmaTrailTargets.remove(uuid);
+        }, 200L);
+    }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBossDamage(EntityDamageEvent event) {
@@ -111,23 +131,26 @@ public class BossListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        
+
         BossManager manager = BossManager.getInstance();
         if (manager.isBoss(player)) {
             ItemStack clickedItem = event.getCurrentItem();
             ItemStack cursorItem = event.getCursor();
-            
+
             if (BossItems.isBossItem(clickedItem) || BossItems.isBossItem(cursorItem)) {
                 // Prevent moving boss items to other inventories or dropping them
                 if (event.getClickedInventory() != null && event.getClickedInventory().getType() != InventoryType.PLAYER) {
                     event.setCancelled(true);
                 }
-                
+
                 // Prevent dropping via hotkey (Q)
                 if (event.getClick().name().contains("DROP")) {
                     event.setCancelled(true);
                 }
             }
+        }
+    }
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
@@ -151,5 +174,35 @@ public class BossListener implements Listener {
             manager.pauseFight();
             manager.saveState(Tezzlar.getConfigManager());
         }
+    }
+
+    @EventHandler
+    public void onEntityTarget(EntityTargetEvent event) {
+        if (event.getTarget() instanceof Player) {
+            Player p = (Player) event.getTarget();
+            if (BossManager.getInstance().isBoss(p)) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if (!bossMagmaTrailTargets.contains(event.getPlayer().getUniqueId())) return;
+        
+        Location to = event.getTo();
+        if (to == null) return;
+        
+        Block blockUnder = to.clone().subtract(0, 1, 0).getBlock();
+        if (blockUnder.getType().isAir() || !blockUnder.getType().isSolid() || blockUnder.getType() == Material.BEDROCK || blockUnder.getType() == Material.MAGMA_BLOCK) return;
+        if (blockUnder.getState() instanceof org.bukkit.inventory.InventoryHolder) return;
+        
+        BlockData originalData = blockUnder.getBlockData().clone();
+        blockUnder.setType(Material.MAGMA_BLOCK);
+        
+        // Revert after 5 seconds
+        Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+            blockUnder.setBlockData(originalData);
+        }, 100L);
     }
 }

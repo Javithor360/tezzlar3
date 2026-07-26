@@ -81,6 +81,9 @@ public class BossManager {
         
         AttributeInstance maxHealth = boss.getAttribute(Attribute.MAX_HEALTH);
         AttributeInstance scale = boss.getAttribute(Attribute.SCALE);
+        AttributeInstance moveSpeed = boss.getAttribute(Attribute.MOVEMENT_SPEED);
+        AttributeInstance blockRange = boss.getAttribute(Attribute.BLOCK_INTERACTION_RANGE);
+        AttributeInstance entityRange = boss.getAttribute(Attribute.ENTITY_INTERACTION_RANGE);
         
         // Clear all potion effects
         for (PotionEffect effect : boss.getActivePotionEffects()) {
@@ -91,22 +94,34 @@ public class BossManager {
             case 1:
                 if (maxHealth != null) maxHealth.setBaseValue(500.0);
                 if (scale != null) scale.setBaseValue(1.0);
+                if (moveSpeed != null) moveSpeed.setBaseValue(0.1); // Default
+                if (blockRange != null) blockRange.setBaseValue(50.0);
+                if (entityRange != null) entityRange.setBaseValue(50.0);
                 boss.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, PotionEffect.INFINITE_DURATION, 3, false, false));
                 globalBossBar.color(BossBar.Color.RED);
                 break;
             case 2:
                 if (maxHealth != null) maxHealth.setBaseValue(2000.0);
                 if (scale != null) scale.setBaseValue(4.0);
+                if (moveSpeed != null) moveSpeed.setBaseValue(0.15);
+                if (blockRange != null) blockRange.setBaseValue(50.0);
+                if (entityRange != null) entityRange.setBaseValue(50.0);
                 globalBossBar.color(BossBar.Color.PURPLE);
                 break;
             case 3:
                 if (maxHealth != null) maxHealth.setBaseValue(4000.0);
                 if (scale != null) scale.setBaseValue(8.0);
+                if (moveSpeed != null) moveSpeed.setBaseValue(0.2);
+                if (blockRange != null) blockRange.setBaseValue(50.0);
+                if (entityRange != null) entityRange.setBaseValue(50.0);
                 globalBossBar.color(BossBar.Color.PINK);
                 break;
             case 4:
                 if (maxHealth != null) maxHealth.setBaseValue(1000.0);
                 if (scale != null) scale.setBaseValue(16.0);
+                if (moveSpeed != null) moveSpeed.setBaseValue(0.25);
+                if (blockRange != null) blockRange.setBaseValue(50.0);
+                if (entityRange != null) entityRange.setBaseValue(50.0);
                 globalBossBar.color(BossBar.Color.WHITE);
                 break;
         }
@@ -177,6 +192,15 @@ public class BossManager {
             
             AttributeInstance scale = boss.getAttribute(Attribute.SCALE);
             if (scale != null) scale.setBaseValue(1.0);
+            
+            AttributeInstance moveSpeed = boss.getAttribute(Attribute.MOVEMENT_SPEED);
+            if (moveSpeed != null) moveSpeed.setBaseValue(0.1);
+            
+            AttributeInstance blockRange = boss.getAttribute(Attribute.BLOCK_INTERACTION_RANGE);
+            if (blockRange != null) blockRange.setBaseValue(4.5);
+            
+            AttributeInstance entityRange = boss.getAttribute(Attribute.ENTITY_INTERACTION_RANGE);
+            if (entityRange != null) entityRange.setBaseValue(3.0);
             
             boss.setHealth(20.0);
             
