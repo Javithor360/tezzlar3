@@ -13,13 +13,11 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.block.Block;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityRegainHealthEvent;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -36,7 +34,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerAnimationEvent;
 import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -70,8 +67,14 @@ public class BossListener implements Listener {
         BossManager manager = BossManager.getInstance();
         if (!manager.isBoss(player)) return;
         
-        // If fake death or phase 4, cancel damage
-        if (manager.isFakeDeathState() || manager.getCurrentPhase() == 4) {
+        // If fake death, cancel damage
+        if (manager.isFakeDeathState()) {
+            event.setCancelled(true);
+            return;
+        }
+        
+        // Phase 4 Immunity Check
+        if (manager.getCurrentPhase() == 4 && !manager.isVulnerable()) {
             event.setCancelled(true);
             return;
         }
@@ -249,6 +252,11 @@ public class BossListener implements Listener {
                         }
                     }
                 }
+                
+                // Clear passenger ItemDisplays
+                for (Entity passenger : snowball.getPassengers()) {
+                    passenger.remove();
+                }
             }
         }
     }
@@ -316,6 +324,51 @@ public class BossListener implements Listener {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent event) {
+        BossManager manager = BossManager.getInstance();
+        if (manager.getCurrentPhase() == 4 && manager.getActiveStatues().contains(event.getEntity().getUniqueId())) {
+            manager.getActiveStatues().remove(event.getEntity().getUniqueId());
+            
+            // Remove the netherite block underneath
+            Location loc = event.getEntity().getLocation();
+            for (int dy = 0; dy <= 2; dy++) {
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dz = -1; dz <= 1; dz++) {
+                        Block block = loc.clone().subtract(dx, dy, dz).getBlock();
+                        if (block.getType() == Material.NETHERITE_BLOCK) {
+                            block.setType(Material.AIR);
+                        }
+                    }
+                }
+            }
+            
+            // Clear drops just in case
+            event.getDrops().clear();
+            event.setDroppedExp(0);
+            
+            // Clear nearby ItemDisplays that represent the statue
+            for (Entity e : event.getEntity().getNearbyEntities(0.5, 2.0, 0.5)) {
+                if (e instanceof ItemDisplay) {
+                    e.remove();
+                }
+            }
+            
+            if (manager.getActiveStatues().isEmpty()) {
+                manager.triggerVulnerability();
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (event.getBlock().getType() == Material.NETHERITE_BLOCK) {
+            if (BossManager.getInstance().getCurrentPhase() == 4) {
+                event.setCancelled(true);
             }
         }
     }

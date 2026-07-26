@@ -5,12 +5,14 @@ import com.panita.tezzlar3.bossfight.listeners.BossListener;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.util.EntityUtils;
 import com.panita.tezzlar3.qol.util.CustomItemManager;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Zombie;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.LargeFireball;
 import org.bukkit.entity.BlockDisplay;
@@ -22,6 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -286,7 +289,9 @@ public class BossAttacks {
             for (int i = 0; i < amount; i++) {
                 EntityType type = JAVIMOBS[random.nextInt(JAVIMOBS.length)];
                 Location spawnLoc = target.getLocation().add(random.nextInt(11) - 5, 1, random.nextInt(11) - 5);
+                EntityUtils.setForceSpawnReason(SpawnReason.CUSTOM);
                 LivingEntity mob = EntityUtils.spawnNatural(spawnLoc, type);
+                EntityUtils.clearForceSpawnReason();
                      if (mob != null) {
                     Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
                         if (!mob.isValid()) return;
@@ -624,5 +629,103 @@ public class BossAttacks {
                 ticks++;
             }
         }.runTaskTimer(Tezzlar.getInstance(), 0L, 1L);
+    }
+
+    public static void executeDivineAdoration(Player boss) {
+        List<Player> targets = getTargets(boss);
+        if (targets.isEmpty()) return;
+
+        Messenger.prefixedSend(boss, "&aHas activado el ataque: &4Adoración Divina");
+        Messenger.prefixedBroadcast("<#FF5252>¡El Jefe exige <#8B0000>Adoración Divina</#8B0000>!</#FF5252>");
+        boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_WITHER_SPAWN, 2.0f, 0.5f);
+
+        int amount = 3 + random.nextInt(8); // 3 to 10
+        BossManager manager = BossManager.getInstance();
+
+        for (int i = 0; i < amount; i++) {
+            Location loc;
+            if (targets.isEmpty() || random.nextBoolean()) {
+                double offsetX = (random.nextDouble() - 0.5) * 60;
+                double offsetZ = (random.nextDouble() - 0.5) * 60;
+                loc = boss.getLocation().add(offsetX, 0, offsetZ);
+            } else {
+                Player target = targets.get(random.nextInt(targets.size()));
+                double offsetX = (random.nextDouble() - 0.5) * 20;
+                double offsetZ = (random.nextDouble() - 0.5) * 20;
+                loc = target.getLocation().add(offsetX, 0, offsetZ);
+            }
+
+            // Find floor
+            boolean found = false;
+            for (int y = 5; y >= -15; y--) {
+                if (loc.clone().add(0, y, 0).getBlock().getType().isSolid()) {
+                    loc.add(0, y + 1, 0);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) loc.setY(Math.floor(boss.getLocation().getY()));
+            
+            // Snap to block grid to ensure perfectly centered placement
+            Location blockLoc = loc.getBlock().getLocation();
+            
+            // Set 3x3 block to netherite
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    blockLoc.clone().add(dx, 0, dz).getBlock().setType(Material.NETHERITE_BLOCK);
+                }
+            }
+            
+            // Spawn exactly centered on top of the central block
+            Location spawnLoc = blockLoc.clone().add(0.5, 1.0, 0.5);
+            EntityUtils.setForceSpawnReason(SpawnReason.CUSTOM);
+            LivingEntity mob = EntityUtils.spawnNatural(spawnLoc, EntityType.ZOMBIE);
+            EntityUtils.clearForceSpawnReason();
+            
+            if (mob != null) {
+                ((Zombie) mob).setBaby(false);
+                mob.setAI(false);
+                mob.setSilent(true);
+                mob.setInvisible(true);
+                mob.setGravity(false);
+                
+                EntityUtils.setCustomName(mob, "&4Estatua Divina");
+                
+                AttributeInstance maxHealth = mob.getAttribute(Attribute.MAX_HEALTH);
+                if (maxHealth != null) maxHealth.setBaseValue(100.0);
+                mob.setHealth(100.0);
+                
+                if (mob.getEquipment() != null) {
+                    mob.getEquipment().clear();
+                }
+                
+                Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+                    if (!mob.isValid()) return;
+                    
+                    AttributeInstance scale = mob.getAttribute(Attribute.SCALE);
+                    if (scale != null) scale.setBaseValue(2.0f);
+                    
+                    // Force teleport to perfectly aligned location in case spawnNatural shifted it
+                    mob.teleport(spawnLoc);
+                    
+                    Location displayLoc = spawnLoc.clone();
+                    displayLoc.setYaw(random.nextFloat() * 360f);
+                    
+                    ItemDisplay display = (ItemDisplay) blockLoc.getWorld().spawnEntity(displayLoc, EntityType.ITEM_DISPLAY);
+                    display.setItemStack(CustomItemManager.getItem("legend_statue"));
+                    display.setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.FIXED);
+                    display.setTransformation(new Transformation(
+                        new Vector3f(0f, 0f, 0f),
+                        new AxisAngle4f((float) Math.toRadians(-90), 1f, 0f, 0f),
+                        new Vector3f(1f, 1f, 1f),
+                        new AxisAngle4f()
+                    ));
+                    EntityUtils.setColoredGlowing(display, NamedTextColor.DARK_RED);
+                    
+                    manager.getActiveStatues().add(mob.getUniqueId());
+                    
+                }, 2L);
+            }
+        }
     }
 }

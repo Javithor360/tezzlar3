@@ -13,6 +13,11 @@ import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.ItemDisplay;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -20,7 +25,10 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.Sound;
 
 import java.time.Duration;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+import java.util.Random;
 
 public class BossManager {
 
@@ -32,6 +40,11 @@ public class BossManager {
     private BossBar globalBossBar;
     private BukkitTask particleTask;
     private UUID pendingBossUuid; // Used when the boss is offline during load
+    
+    // Phase 4 specific
+    private boolean vulnerable = false;
+    private Set<UUID> activeStatues = new HashSet<>();
+    private BukkitTask vulnerabilityTask;
 
     private BossManager() {
         // Private constructor
@@ -98,6 +111,14 @@ public class BossManager {
         
         this.currentPhase = phase;
         this.fakeDeathState = false;
+        
+        // Reset Phase 4 state
+        this.vulnerable = false;
+        this.activeStatues.clear();
+        if (this.vulnerabilityTask != null) {
+            this.vulnerabilityTask.cancel();
+            this.vulnerabilityTask = null;
+        }
         
         if (particleTask != null) {
             particleTask.cancel();
@@ -180,6 +201,48 @@ public class BossManager {
         updateBossBar();
         BossItems.giveBossItems(boss);
     }
+    public boolean isVulnerable() {
+        return vulnerable;
+    }
+
+    public Set<UUID> getActiveStatues() {
+        return activeStatues;
+    }
+
+    public void triggerVulnerability() {
+        if (boss == null || currentPhase != 4) return;
+        
+        this.vulnerable = true;
+        
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            Messenger.showTitle(
+                    p, 
+                    "<color:#55FF55><bold>¡El Escudo Cayó!</bold></color>", 
+                    "<white>¡Ataquen al jefe ahora!</white>", 
+                    Duration.ofMillis(200), 
+                    Duration.ofSeconds(3), 
+                    Duration.ofMillis(500)
+            );
+            p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1.0f, 0.5f);
+        }
+        
+        int delaySeconds = 8 + new Random().nextInt(13); // 8 to 20
+        
+        this.vulnerabilityTask = Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+            this.vulnerable = false;
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                Messenger.showTitle(
+                        p, 
+                        "<color:#FF5555><bold>El Escudo Regresó</bold></color>", 
+                        "<white>El jefe es inmune nuevamente.</white>", 
+                        Duration.ofMillis(200), 
+                        Duration.ofSeconds(3), 
+                        Duration.ofMillis(500)
+                );
+                p.playSound(p.getLocation(), Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 1.5f);
+            }
+        }, delaySeconds * 20L);
+    }
 
     public void updateBossBar() {
         if (boss == null || globalBossBar == null) return;
@@ -226,6 +289,34 @@ public class BossManager {
                 p.hideBossBar(globalBossBar);
             }
             globalBossBar = null;
+        }
+        
+        if (!activeStatues.isEmpty()) {
+            for (UUID uuid : activeStatues) {
+                Entity entity = Bukkit.getEntity(uuid);
+                if (entity != null) {
+                    Location loc = entity.getLocation();
+                    
+                    for (Entity e : entity.getNearbyEntities(0.5, 2.0, 0.5)) {
+                        if (e instanceof ItemDisplay) {
+                            e.remove();
+                        }
+                    }
+                    
+                    for (int dy = 0; dy <= 2; dy++) {
+                        for (int dx = -1; dx <= 1; dx++) {
+                            for (int dz = -1; dz <= 1; dz++) {
+                                Block block = loc.clone().subtract(dx, dy, dz).getBlock();
+                                if (block.getType() == Material.NETHERITE_BLOCK) {
+                                    block.setType(Material.AIR);
+                                }
+                            }
+                        }
+                    }
+                    entity.remove();
+                }
+            }
+            activeStatues.clear();
         }
 
         if (particleTask != null) {

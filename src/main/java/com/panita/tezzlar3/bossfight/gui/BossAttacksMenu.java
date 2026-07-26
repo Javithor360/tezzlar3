@@ -33,6 +33,7 @@ public class BossAttacksMenu extends Menu {
         int phase = com.panita.tezzlar3.bossfight.util.BossManager.getInstance().getCurrentPhase();
         ItemStack locked2 = new ItemBuilder(Material.BARRIER).name("<red><bold>Bloqueado (Fase 2)").lore("<gray>Requiere Fase 2.").build();
         ItemStack locked3 = new ItemBuilder(Material.BARRIER).name("<red><bold>Bloqueado (Fase 3)").lore("<gray>Requiere Fase 3.").build();
+        ItemStack locked4 = new ItemBuilder(Material.BARRIER).name("<red><bold>Bloqueado (Fase 4)").lore("<gray>Requiere Fase 4.").build();
         
         // --- Phase 2 Attacks ---
         inventory.setItem(10, phase >= 2 ? new ItemBuilder(Material.LIGHTNING_ROD).name("<yellow><bold>Rayos (Thor Pro)").lore("<gray>Golpea con rayos a todos los jugadores cercanos.").build() : locked2);
@@ -57,6 +58,9 @@ public class BossAttacksMenu extends Menu {
         inventory.setItem(32, phase >= 3 ? new ItemBuilder(Material.SNOWBALL).name("<white><bold>Lluvia Atemporal").lore("<gray>Lluvia caótica de fuego y nieve.").build() : locked3);
         inventory.setItem(33, phase >= 3 ? new ItemBuilder(Material.ENDER_PEARL).name("<light_purple><bold>Intercambio de Posiciones").lore("<gray>Teletransporta aleatoriamente a todos", "<gray>los jugadores en el campo de batalla.").build() : locked3);
         inventory.setItem(34, phase >= 3 ? new ItemBuilder(Material.SPIDER_EYE).name("<dark_green><bold>Zonas Tóxicas").lore("<gray>Despliega áreas tóxicas en el suelo", "<gray>que dañan rápidamente a quien las pise.").build() : locked3);
+        
+        // --- Phase 4 Attacks ---
+        inventory.setItem(40, phase >= 4 ? new ItemBuilder(Material.NETHERITE_BLOCK).name("<dark_red><bold>Adoración Divina").lore("<gray>Exige la adoración de estatuas", "<gray>divinas, forzando a los", "<gray>jugadores a destruirlas.").build() : locked4);
                 
         // Return button
         inventory.setItem(49, new ItemBuilder(Material.ARROW)
@@ -128,6 +132,9 @@ public class BossAttacksMenu extends Menu {
                 break;
             case 34:
                 BossAttacks.executeToxicZones(boss);
+                break;
+            case 40:
+                BossAttacks.executeDivineAdoration(boss);
                 break;
             case 49:
                 new BossGeneralMenu(player).open();
