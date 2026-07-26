@@ -83,18 +83,21 @@ public class BossAttributesMenu extends Menu {
                       "", "<green>Click Izquierdo: <gray>+0.005", "<red>Click Derecho: <gray>-0.005")
                 .build());
 
-        inventory.setItem(19, getPotionItem(Material.GHAST_TEAR, "Regeneración I", PotionEffectType.REGENERATION));
-        inventory.setItem(20, getPotionItem(Material.TURTLE_SCUTE, "Resistencia IV", PotionEffectType.RESISTANCE));
-        inventory.setItem(21, getPotionItem(Material.MAGMA_CREAM, "Ignífugo I", PotionEffectType.FIRE_RESISTANCE));
-        inventory.setItem(22, getPotionItem(Material.BLAZE_POWDER, "Fuerza IV", PotionEffectType.STRENGTH));
+        inventory.setItem(19, getPotionItem(Material.GHAST_TEAR, "Regeneración", PotionEffectType.REGENERATION));
+        inventory.setItem(20, getPotionItem(Material.SHIELD, "Resistencia", PotionEffectType.RESISTANCE));
+        inventory.setItem(21, getPotionItem(Material.MAGMA_CREAM, "Ignífugo", PotionEffectType.FIRE_RESISTANCE));
+        inventory.setItem(22, getPotionItem(Material.BLAZE_POWDER, "Fuerza", PotionEffectType.STRENGTH));
     }
 
     private ItemStack getPotionItem(Material material, String name, PotionEffectType type) {
-        boolean hasEffect = player.hasPotionEffect(type);
+        PotionEffect effect = player.getPotionEffect(type);
+        boolean hasEffect = effect != null;
+        int level = hasEffect ? effect.getAmplifier() + 1 : 0;
+        
         ItemStack item = new ItemBuilder(material)
                 .name("<light_purple><bold>" + name)
-                .lore("<gray>Estado: " + (hasEffect ? "<green>Activado" : "<red>Desactivado"),
-                      "", "<yellow>Click para alternar")
+                .lore("<gray>Nivel Actual: " + (hasEffect ? "<green>" + level : "<red>Desactivado"),
+                      "", "<green>Click Izquierdo: <gray>+1 Nivel", "<red>Click Derecho: <gray>-1 Nivel")
                 .build();
 
         if (hasEffect) {
@@ -139,16 +142,16 @@ public class BossAttributesMenu extends Menu {
         
         // Potions
         else if (slot == 19) {
-            togglePotion(PotionEffectType.REGENERATION, 0);
+            modifyPotion(PotionEffectType.REGENERATION, isLeft);
             updated = true;
         } else if (slot == 20) {
-            togglePotion(PotionEffectType.RESISTANCE, 3);
+            modifyPotion(PotionEffectType.RESISTANCE, isLeft);
             updated = true;
         } else if (slot == 21) {
-            togglePotion(PotionEffectType.FIRE_RESISTANCE, 0);
+            modifyPotion(PotionEffectType.FIRE_RESISTANCE, isLeft);
             updated = true;
         } else if (slot == 22) {
-            togglePotion(PotionEffectType.STRENGTH, 3);
+            modifyPotion(PotionEffectType.STRENGTH, isLeft);
             updated = true;
         }
 
@@ -169,11 +172,19 @@ public class BossAttributesMenu extends Menu {
         return false;
     }
 
-    private void togglePotion(PotionEffectType type, int amplifier) {
-        if (player.hasPotionEffect(type)) {
-            player.removePotionEffect(type);
-        } else {
-            player.addPotionEffect(new PotionEffect(type, PotionEffect.INFINITE_DURATION, amplifier, false, false));
+    private void modifyPotion(PotionEffectType type, boolean isLeft) {
+        PotionEffect current = player.getPotionEffect(type);
+        int currentAmplifier = current != null ? current.getAmplifier() : -1;
+        
+        int newAmplifier = currentAmplifier + (isLeft ? 1 : -1);
+        
+        // max level 10 (amplifier 9), min -1 (disabled)
+        if (newAmplifier < -1) newAmplifier = -1;
+        if (newAmplifier > 9) newAmplifier = 9;
+        
+        player.removePotionEffect(type);
+        if (newAmplifier >= 0) {
+            player.addPotionEffect(new PotionEffect(type, PotionEffect.INFINITE_DURATION, newAmplifier, false, false));
         }
     }
 }
