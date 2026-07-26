@@ -180,6 +180,8 @@ missions:
       - id: "GIVE_EXP"
         args: { levels: 30 }
         description: "30 Niveles de Experiencia"
+      - id: "DISABLE_DEATH_BAN"
+        description: "Se deshabilita el sistema de baneo por muerte"
 
   conquer_dungeon:
     name: "Conquistar la Dungeon"

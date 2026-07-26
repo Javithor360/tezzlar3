@@ -133,6 +133,12 @@ public class DeathTrainMechanic extends DifficultyMechanic implements Listener, 
     }
 
     @Override
+    public boolean isActive() {
+        if (Tezzlar.getConfigManager().getBoolean("difficulty.death_train_disabled", false)) return false;
+        return super.isActive();
+    }
+
+    @Override
     public java.util.List<String> getTexts(Player player) {
         if (!isActive() || remainingSeconds <= 0) return null;
         

@@ -67,11 +67,17 @@ public class PlayerDeathListener implements Listener {
         int maxLives = HardcoreDataManager.getMaxLives(player.getUniqueId(), player.getName());
         int currentDeaths = HardcoreDataManager.getDeaths(player.getUniqueId(), player.getName());
         
-        boolean isBanDeath = (lives <= 0);
+        boolean deathBansDisabled = Tezzlar.getConfigManager().getBoolean("hardcore.death_bans_disabled", false);
+        boolean isBanDeath = (lives <= 0) && !deathBansDisabled;
         
         if (!isBanDeath) {
-            lives--;
-            HardcoreDataManager.setLives(player.getUniqueId(), player.getName(), lives);
+            if (lives > 0) {
+                lives--;
+                HardcoreDataManager.setLives(player.getUniqueId(), player.getName(), lives);
+            } else {
+                currentDeaths++;
+                HardcoreDataManager.incrementDeaths(player.getUniqueId(), player.getName());
+            }
         } else {
             currentDeaths++;
             HardcoreDataManager.incrementDeaths(player.getUniqueId(), player.getName());

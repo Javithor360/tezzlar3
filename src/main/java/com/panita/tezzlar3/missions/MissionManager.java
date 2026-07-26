@@ -44,6 +44,7 @@ public class MissionManager {
         registerRewardHandler(new ExpRewardHandler());
         registerRewardHandler(new RemovePunishmentRewardHandler());
         registerRewardHandler(new RemoveOverworldContaminationRewardHandler());
+        registerRewardHandler(new DisableDeathBanRewardHandler());
         
         AttributeBonusHandler attributeBonus = new AttributeBonusHandler(plugin);
         registerRewardHandler(attributeBonus);
