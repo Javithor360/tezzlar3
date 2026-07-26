@@ -90,6 +90,37 @@ public class BossAttacksMenu extends Menu {
                 .lore("<gray>Drena vida de todos los jugadores tras 8 segundos.")
                 .build());
                 
+        // --- Phase 3 Attacks ---
+        inventory.setItem(29, new ItemBuilder(Material.ZOMBIE_HEAD)
+                .name("<dark_red><bold>Invocación de Javimobs")
+                .lore("<gray>Invoca 1-4 Javimobs de élite sobre cada jugador.")
+                .build());
+                
+        inventory.setItem(30, new ItemBuilder(Material.END_CRYSTAL)
+                .name("<dark_purple><bold>Vórtice de la Traición")
+                .lore("<gray>Atrae y daña a todos los jugadores cercanos.")
+                .build());
+                
+        inventory.setItem(31, new ItemBuilder(Material.BEDROCK)
+                .name("<dark_gray><bold>Picos Rocosos")
+                .lore("<gray>Hace emerger picos de bedrock que", "<gray>lanzan a los jugadores por los aires.")
+                .build());
+                
+        inventory.setItem(32, new ItemBuilder(Material.SNOWBALL)
+                .name("<white><bold>Lluvia Atemporal")
+                .lore("<gray>Lluvia caótica de fuego y nieve.")
+                .build());
+                
+        inventory.setItem(33, new ItemBuilder(Material.ENDER_PEARL)
+                .name("<light_purple><bold>Intercambio de Posiciones")
+                .lore("<gray>Teletransporta aleatoriamente a todos", "<gray>los jugadores en el campo de batalla.")
+                .build());
+                
+        inventory.setItem(34, new ItemBuilder(Material.SPIDER_EYE)
+                .name("<dark_green><bold>Zonas Tóxicas")
+                .lore("<gray>Despliega áreas tóxicas en el suelo", "<gray>que dañan rápidamente a quien las pise.")
+                .build());
+                
         // Return button
         inventory.setItem(49, new ItemBuilder(Material.ARROW)
                 .name("<red><bold>Volver al Menú General")
@@ -138,6 +169,24 @@ public class BossAttacksMenu extends Menu {
                 break;
             case 23:
                 BossAttacks.executeChargedBeam(boss);
+                break;
+            case 29:
+                BossAttacks.spawnJavimobs(boss);
+                break;
+            case 30:
+                BossAttacks.executeBetrayalVortex(boss);
+                break;
+            case 31:
+                BossAttacks.executeRockySpikes(boss);
+                break;
+            case 32:
+                BossAttacks.executeTimelessRain(boss);
+                break;
+            case 33:
+                BossAttacks.executePositionSwap(boss);
+                break;
+            case 34:
+                BossAttacks.executeToxicZones(boss);
                 break;
             case 49:
                 new BossGeneralMenu(player).open();

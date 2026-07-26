@@ -64,6 +64,12 @@ public class BossGeneralMenu extends Menu {
             inventory.setItem(22, nextPhaseItem);
         }
 
+        // Abrir menú de ataques
+        inventory.setItem(14, new ItemBuilder(Material.BLAZE_POWDER)
+                .name("<gold><bold>Abrir Arsenal de Ataques")
+                .lore("<gray>Haz clic para ver y usar los", "<gray>ataques disponibles.")
+                .build());
+
         // Full Heal
         inventory.setItem(15, new ItemBuilder(Material.ENCHANTED_GOLDEN_APPLE)
                 .name("<light_purple><bold>Curar Completamente")
@@ -126,6 +132,9 @@ public class BossGeneralMenu extends Menu {
                 manager.setPhase(4);
                 Messenger.prefixedSend(player, "&aCambiado a Fase 4.");
                 setMenuItems();
+                break;
+            case 14:
+                new BossAttacksMenu(player).open();
                 break;
             case 15:
                 if (player.getAttribute(Attribute.MAX_HEALTH) != null) {

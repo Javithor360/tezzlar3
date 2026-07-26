@@ -15,9 +15,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -25,9 +27,14 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LargeFireball;
+import org.bukkit.entity.Snowball;
+import org.bukkit.util.Vector;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -195,7 +202,7 @@ public class BossListener implements Listener {
         
         Block blockUnder = to.clone().subtract(0, 1, 0).getBlock();
         if (blockUnder.getType().isAir() || !blockUnder.getType().isSolid() || blockUnder.getType() == Material.BEDROCK || blockUnder.getType() == Material.MAGMA_BLOCK) return;
-        if (blockUnder.getState() instanceof org.bukkit.inventory.InventoryHolder) return;
+        if (blockUnder.getState() instanceof InventoryHolder) return;
         
         BlockData originalData = blockUnder.getBlockData().clone();
         blockUnder.setType(Material.MAGMA_BLOCK);
@@ -204,5 +211,34 @@ public class BossListener implements Listener {
         Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
             blockUnder.setBlockData(originalData);
         }, 100L);
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event) {
+        if (event.getEntity() instanceof LargeFireball fireball) {
+            if (fireball.getShooter() instanceof Player p && BossManager.getInstance().isBoss(p)) {
+                event.blockList().clear(); // Prevent block damage from boss fireballs
+            }
+        }
+    }
+
+    @EventHandler
+    public void onProjectileHit(ProjectileHitEvent event) {
+        if (event.getEntity() instanceof Snowball snowball) {
+            if (snowball.getShooter() instanceof Player p && BossManager.getInstance().isBoss(p)) {
+                if (event.getHitEntity() instanceof Player hit) {
+                    hit.setVelocity(hit.getLocation().getDirection().multiply(-2.0).setY(1.5)); // Aggressive knockback
+                    hit.damage(5.0, p);
+                } else if (event.getHitBlock() != null) {
+                    for (Entity e : event.getEntity().getNearbyEntities(2, 2, 2)) {
+                        if (e instanceof Player hit && !hit.equals(p)) {
+                            Vector push = hit.getLocation().toVector().subtract(snowball.getLocation().toVector()).normalize().multiply(1.5).setY(1.0);
+                            hit.setVelocity(push);
+                            hit.damage(5.0, p);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

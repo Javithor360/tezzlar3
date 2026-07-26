@@ -15,7 +15,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.Sound;
 
+import java.time.Duration;
 import java.util.UUID;
 
 public class BossManager {
@@ -51,7 +53,7 @@ public class BossManager {
         
         // Create global boss bar
         this.globalBossBar = BossBar.bossBar(
-                MiniMessage.miniMessage().deserialize("<dark_red><bold>Javithor360 Desatado"),
+                MiniMessage.miniMessage().deserialize("<dark_red><bold>" + boss.getName() + " Desatado"),
                 1.0f,
                 BossBar.Color.RED,
                 BossBar.Overlay.NOTCHED_10
@@ -59,6 +61,15 @@ public class BossManager {
         
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.showBossBar(this.globalBossBar);
+            Messenger.showTitle(
+                    p, 
+                    "<color:#FF0055><bold>El Momento Ha Llegado</bold></color>", 
+                    "<white>¡La batalla final ha comenzado!</white>", 
+                    Duration.ofMillis(500), 
+                    Duration.ofSeconds(4), 
+                    Duration.ofMillis(1000)
+            );
+            p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 0.5f);
         }
 
         setPhase(1);
@@ -67,6 +78,21 @@ public class BossManager {
 
     public void setPhase(int phase) {
         if (this.boss == null) return;
+        
+        if (this.currentPhase != 0 && this.currentPhase != phase) {
+            String roman = phase == 1 ? "I" : phase == 2 ? "II" : phase == 3 ? "III" : "IV";
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                Messenger.showTitle(
+                        p, 
+                        "<color:#FF0055><bold>Fase " + roman + "</bold></color>", 
+                        "<white>" + boss.getName() + " se ha levantado nuevamente.</white>", 
+                        Duration.ofMillis(500), 
+                        Duration.ofSeconds(4), 
+                        Duration.ofMillis(1000)
+                );
+                p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 1.0f, 0.5f);
+            }
+        }
         
         this.currentPhase = phase;
         this.fakeDeathState = false;
@@ -278,7 +304,7 @@ public class BossManager {
         
         if (this.globalBossBar == null) {
             this.globalBossBar = BossBar.bossBar(
-                    MiniMessage.miniMessage().deserialize("<dark_red><bold>Javithor360 Desatado"),
+                    MiniMessage.miniMessage().deserialize("<dark_red><bold>" + boss.getName() + " Desatado"),
                     1.0f,
                     BossBar.Color.RED,
                     BossBar.Overlay.NOTCHED_10
