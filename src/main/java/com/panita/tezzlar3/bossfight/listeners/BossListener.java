@@ -352,16 +352,24 @@ public class BossListener implements Listener {
                 boss.getWorld().spawnParticle(Particle.SWEEP_ATTACK, hitLoc, 20, 5, 0.1, 5, 0);
                 boss.getWorld().playSound(hitLoc, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 2.0f, 0.5f);
                 
-                for (Player p : boss.getWorld().getPlayers()) {
-                    if (BossAttacks.isValidTarget(p, boss)) {
-                        double distSq = Math.pow(p.getLocation().getX() - hitLoc.getX(), 2) + Math.pow(p.getLocation().getZ() - hitLoc.getZ(), 2);
-                        double dy = Math.abs(p.getLocation().getY() - hitLoc.getY());
+                for (LivingEntity ent : hitLoc.getWorld().getNearbyLivingEntities(hitLoc, 15, 5, 15)) {
+                    if (ent.equals(boss)) continue;
+                    
+                    boolean shouldHit = false;
+                    if (ent instanceof Player p) {
+                        shouldHit = BossAttacks.isValidTarget(p, boss);
+                    } else if (!(ent instanceof ArmorStand)) {
+                        shouldHit = true;
+                    }
+                    
+                    if (shouldHit) {
+                        double distSq = Math.pow(ent.getLocation().getX() - hitLoc.getX(), 2) + Math.pow(ent.getLocation().getZ() - hitLoc.getZ(), 2);
                         
-                        if (distSq <= 225.0 && dy <= 5.0) { // Radius 15, Height 5
-                            p.damage(damage, boss);
-                            Vector knockback = p.getLocation().toVector().subtract(hitLoc.toVector());
+                        if (distSq <= 225.0) { // Radius 15 cylinder
+                            ent.damage(damage, boss);
+                            Vector knockback = ent.getLocation().toVector().subtract(hitLoc.toVector());
                             if (knockback.lengthSquared() > 0) {
-                                p.setVelocity(knockback.normalize().multiply(0.5).setY(0.3));
+                                ent.setVelocity(knockback.normalize().multiply(0.5).setY(0.3));
                             }
                         }
                     }
