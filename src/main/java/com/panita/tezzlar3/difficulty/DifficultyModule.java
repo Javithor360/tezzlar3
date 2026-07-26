@@ -189,6 +189,9 @@ public class DifficultyModule implements PluginModule {
             mechanics.add(new com.panita.tezzlar3.difficulty.mechanics.CopperAppleDropMechanic(plugin));
             mechanics.add(new com.panita.tezzlar3.difficulty.mechanics.TotemRavagerMechanic(plugin));
             
+            // Day 30
+            mechanics.add(new NoNaturalSpawnsMechanic(plugin));
+            
             initialized = true;
         }
         
