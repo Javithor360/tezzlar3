@@ -60,7 +60,7 @@ public class BossListener implements Listener {
         }, 200L);
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBossDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         
@@ -82,8 +82,26 @@ public class BossListener implements Listener {
         double finalDamage = event.getFinalDamage();
         if (player.getHealth() - finalDamage <= 0.0) {
             if (manager.getCurrentPhase() == 4) {
-                // Do not cancel, let the boss die for real
-                return;
+                // Check if damager is a player or player projectile
+                boolean isPlayerDamage = false;
+                if (event instanceof EntityDamageByEntityEvent entityEvent) {
+                    Entity damager = entityEvent.getDamager();
+                    if (damager instanceof Player) {
+                        isPlayerDamage = true;
+                    } else if (damager instanceof Projectile proj && proj.getShooter() instanceof Player) {
+                        isPlayerDamage = true;
+                    }
+                }
+                
+                if (isPlayerDamage) {
+                    // Do not cancel, let the boss die for real
+                    return;
+                } else {
+                    // Environmental or non-player damage cannot kill the boss for real. Leave at 1 HP.
+                    event.setCancelled(true);
+                    player.setHealth(1.0);
+                    return;
+                }
             } else {
                 event.setCancelled(true);
                 manager.triggerFakeDeath();

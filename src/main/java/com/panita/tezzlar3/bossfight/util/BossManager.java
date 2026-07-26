@@ -325,6 +325,11 @@ public class BossManager {
             particleTask.cancel();
             particleTask = null;
         }
+        
+        if (vulnerabilityTask != null) {
+            vulnerabilityTask.cancel();
+            vulnerabilityTask = null;
+        }
 
         if (boss != null) {
             boss.setGameMode(GameMode.SURVIVAL);
@@ -354,7 +359,9 @@ public class BossManager {
             AttributeInstance safeFall = boss.getAttribute(Attribute.SAFE_FALL_DISTANCE);
             if (safeFall != null) safeFall.setBaseValue(3.0);
             
-            boss.setHealth(20.0);
+            if (!boss.isDead()) {
+                boss.setHealth(20.0);
+            }
             
             for (PotionEffect effect : boss.getActivePotionEffects()) {
                 boss.removePotionEffect(effect.getType());
