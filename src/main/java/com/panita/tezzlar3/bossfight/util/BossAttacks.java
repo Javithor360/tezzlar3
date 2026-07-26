@@ -290,12 +290,15 @@ public class BossAttacks {
                      if (mob != null) {
                     Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
                         if (!mob.isValid()) return;
-                        EntityUtils.setCustomName(mob, "&cJavimob");
+                        String nameStr = type.name().toLowerCase();
+                        nameStr = nameStr.substring(0, 1).toUpperCase() + nameStr.substring(1).replace("_", "");
+                        EntityUtils.setCustomName(mob, "&cJavi" + nameStr);
                         
                         // Attributes
+                        double hp = (type == EntityType.WITHER) ? 40.0 : 80.0;
                         AttributeInstance maxHealth = mob.getAttribute(Attribute.MAX_HEALTH);
-                        if (maxHealth != null) maxHealth.setBaseValue(80.0);
-                        mob.setHealth(80.0);
+                        if (maxHealth != null) maxHealth.setBaseValue(hp);
+                        mob.setHealth(hp);
                         
                         AttributeInstance scale = mob.getAttribute(Attribute.SCALE);
                         if (scale != null) scale.setBaseValue(2.0);

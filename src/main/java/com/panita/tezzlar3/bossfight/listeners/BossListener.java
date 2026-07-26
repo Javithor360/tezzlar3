@@ -9,7 +9,7 @@ import com.panita.tezzlar3.bossfight.util.BossManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -31,18 +31,29 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LargeFireball;
-import org.bukkit.entity.Snowball;
 import org.bukkit.util.Vector;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.event.player.PlayerAnimationType;
+import org.bukkit.scheduler.BukkitRunnable;
+import com.panita.tezzlar3.bossfight.util.BossAttacks;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Random;
 
 public class BossListener implements Listener {
     
     private static final Set<UUID> bossMagmaTrailTargets = new HashSet<>();
+    private static final Map<UUID, Long> bossSwordCooldown = new HashMap<>();
     
     public static void addMagmaTrailTarget(UUID uuid) {
         bossMagmaTrailTargets.add(uuid);
@@ -235,6 +246,73 @@ public class BossListener implements Listener {
                             Vector push = hit.getLocation().toVector().subtract(snowball.getLocation().toVector()).normalize().multiply(1.5).setY(1.0);
                             hit.setVelocity(push);
                             hit.damage(5.0, p);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onBossShootBow(EntityShootBowEvent event) {
+        if (event.getEntity() instanceof Player boss && BossManager.getInstance().isBoss(boss)) {
+            List<Player> targets = BossAttacks.getTargets(boss);
+            if (!targets.isEmpty()) {
+                event.setCancelled(true); // Cancel original arrow to fire multiple
+                
+                int onlinePlayers = Bukkit.getOnlinePlayers().size();
+                int arrowCount = 1 + new Random().nextInt(onlinePlayers);
+                
+                for (int i = 0; i < arrowCount; i++) {
+                    Player target = targets.get(new Random().nextInt(targets.size()));
+                    
+                    // Spawn a new arrow
+                    Entity projectile = boss.launchProjectile(Arrow.class);
+                    // Add slight variance so they don't stack perfectly on spawn
+                    projectile.setVelocity(boss.getLocation().getDirection().multiply(1.5).add(Vector.getRandom().subtract(new Vector(0.5,0.5,0.5)).multiply(0.5)));
+                    
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            if (!projectile.isValid() || !target.isOnline() || projectile.isOnGround()) {
+                                this.cancel();
+                                return;
+                            }
+                            Vector dir = target.getLocation().add(0, 1, 0).toVector().subtract(projectile.getLocation().toVector());
+                            if (dir.lengthSquared() > 0) {
+                                projectile.setVelocity(dir.normalize().multiply(1.5));
+                            }
+                        }
+                    }.runTaskTimer(Tezzlar.getInstance(), 1L, 1L);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onBossSwing(PlayerAnimationEvent event) {
+        if (event.getAnimationType() != PlayerAnimationType.ARM_SWING) return;
+        Player boss = event.getPlayer();
+        if (!BossManager.getInstance().isBoss(boss)) return;
+        
+        if (boss.getInventory().getItemInMainHand().getType().name().endsWith("_SWORD")) {
+            long now = System.currentTimeMillis();
+            if (now - bossSwordCooldown.getOrDefault(boss.getUniqueId(), 0L) >= 500) { // 0.5 seconds cooldown
+                bossSwordCooldown.put(boss.getUniqueId(), now);
+                
+                double damage = 10.0;
+                AttributeInstance attr = boss.getAttribute(Attribute.ATTACK_DAMAGE);
+                if (attr != null) damage = attr.getValue();
+                
+                boss.getWorld().spawnParticle(Particle.SWEEP_ATTACK, boss.getLocation().add(0, 1, 0), 10, 3, 0.1, 3, 0);
+                boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 2.0f, 0.5f);
+                
+                for (Player p : boss.getWorld().getPlayers()) {
+                    if (BossAttacks.isValidTarget(p, boss) && p.getLocation().distanceSquared(boss.getLocation()) <= 100.0) { // 10 blocks
+                        p.damage(damage, boss);
+                        Vector knockback = p.getLocation().toVector().subtract(boss.getLocation().toVector());
+                        if (knockback.lengthSquared() > 0) {
+                            p.setVelocity(knockback.normalize().multiply(0.5).setY(0.3));
                         }
                     }
                 }
