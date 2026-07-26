@@ -127,6 +127,8 @@ public class BossManager {
 
         boss.setGameMode(GameMode.SURVIVAL);
         boss.setInvisible(false);
+        boss.setFoodLevel(20);
+        boss.setSaturation(0f);
         
         AttributeInstance maxHealth = boss.getAttribute(Attribute.MAX_HEALTH);
         AttributeInstance scale = boss.getAttribute(Attribute.SCALE);

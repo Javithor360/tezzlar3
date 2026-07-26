@@ -81,9 +81,14 @@ public class BossListener implements Listener {
         
         double finalDamage = event.getFinalDamage();
         if (player.getHealth() - finalDamage <= 0.0) {
-            event.setCancelled(true);
-            manager.triggerFakeDeath();
-            return;
+            if (manager.getCurrentPhase() == 4) {
+                // Do not cancel, let the boss die for real
+                return;
+            } else {
+                event.setCancelled(true);
+                manager.triggerFakeDeath();
+                return;
+            }
         }
         
         // Update BossBar after damage is applied (delay 1 tick to let health update, or update manually)
@@ -108,6 +113,17 @@ public class BossListener implements Listener {
         if (manager.isBoss(player)) {
             // Remove boss items from drops
             event.getDrops().removeIf(BossItems::isBossItem);
+            
+            if (manager.getCurrentPhase() == 4) {
+                manager.stopFight();
+                
+                Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        p.sendTitle("§6¡Felicidades!", "§eHan librado a Tezzlar de su maldición", 10, 100, 20);
+                        p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+                    }
+                }, 100L); // 5 seconds delay to let the hardcore death message play first
+            }
         }
     }
 
@@ -312,15 +328,23 @@ public class BossListener implements Listener {
                 AttributeInstance attr = boss.getAttribute(Attribute.ATTACK_DAMAGE);
                 if (attr != null) damage = attr.getValue();
                 
-                boss.getWorld().spawnParticle(Particle.SWEEP_ATTACK, boss.getLocation().add(0, 1, 0), 10, 3, 0.1, 3, 0);
-                boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 2.0f, 0.5f);
+                Block targetBlock = boss.getTargetBlockExact(100);
+                Location hitLoc = targetBlock != null ? targetBlock.getLocation().add(0.5, 1.0, 0.5) : boss.getLocation();
+                
+                boss.getWorld().spawnParticle(Particle.SWEEP_ATTACK, hitLoc, 20, 5, 0.1, 5, 0);
+                boss.getWorld().playSound(hitLoc, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 2.0f, 0.5f);
                 
                 for (Player p : boss.getWorld().getPlayers()) {
-                    if (BossAttacks.isValidTarget(p, boss) && p.getLocation().distanceSquared(boss.getLocation()) <= 100.0) { // 10 blocks
-                        p.damage(damage, boss);
-                        Vector knockback = p.getLocation().toVector().subtract(boss.getLocation().toVector());
-                        if (knockback.lengthSquared() > 0) {
-                            p.setVelocity(knockback.normalize().multiply(0.5).setY(0.3));
+                    if (BossAttacks.isValidTarget(p, boss)) {
+                        double distSq = Math.pow(p.getLocation().getX() - hitLoc.getX(), 2) + Math.pow(p.getLocation().getZ() - hitLoc.getZ(), 2);
+                        double dy = Math.abs(p.getLocation().getY() - hitLoc.getY());
+                        
+                        if (distSq <= 225.0 && dy <= 5.0) { // Radius 15, Height 5
+                            p.damage(damage, boss);
+                            Vector knockback = p.getLocation().toVector().subtract(hitLoc.toVector());
+                            if (knockback.lengthSquared() > 0) {
+                                p.setVelocity(knockback.normalize().multiply(0.5).setY(0.3));
+                            }
                         }
                     }
                 }
@@ -369,6 +393,17 @@ public class BossListener implements Listener {
         if (event.getBlock().getType() == Material.NETHERITE_BLOCK) {
             if (BossManager.getInstance().getCurrentPhase() == 4) {
                 event.setCancelled(true);
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onFoodLevelChange(FoodLevelChangeEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            if (BossManager.getInstance().isBoss(player)) {
+                event.setCancelled(true);
+                player.setFoodLevel(20);
+                player.setSaturation(0f);
             }
         }
     }
