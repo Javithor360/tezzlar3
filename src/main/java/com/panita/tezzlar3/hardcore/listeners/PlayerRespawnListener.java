@@ -33,7 +33,12 @@ public class PlayerRespawnListener implements Listener {
             }, 40L);
         } else {
             // Always force survival mode to override hardcore spectator for normal respawns
-            player.setGameMode(GameMode.SURVIVAL);
+            // Added 1-tick delay because Native Hardcore with immediate respawn overwrites gamemode initially
+            Bukkit.getScheduler().runTaskLater(Tezzlar.getInstance(), () -> {
+                if (player.isOnline()) {
+                    player.setGameMode(GameMode.SURVIVAL);
+                }
+            }, 1L);
         }
     }
 }

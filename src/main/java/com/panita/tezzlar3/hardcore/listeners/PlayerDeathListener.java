@@ -41,6 +41,8 @@ public class PlayerDeathListener implements Listener {
         Player player = event.getEntity();
         NamespacedKey KARMA_KEY = new NamespacedKey(Tezzlar.getInstance(), "pvp_karma_doomed");
         
+        boolean deathBansDisabled = Tezzlar.getConfigManager().getBoolean("hardcore.death_bans_disabled", false);
+        
         // If the player dies, the karma debt is considered paid
         if (player.getPersistentDataContainer().has(KARMA_KEY, PersistentDataType.BYTE)) {
             player.getPersistentDataContainer().remove(KARMA_KEY);
@@ -48,7 +50,7 @@ public class PlayerDeathListener implements Listener {
         
         Player killer = player.getKiller();
         
-        if (killer != null && TimeManager.getCurrentDay() >= 2) {
+        if (!deathBansDisabled && killer != null && TimeManager.getCurrentDay() >= 2) {
             killer.getPersistentDataContainer().set(KARMA_KEY, PersistentDataType.BYTE, (byte) 1);
             killer.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 1));
             killer.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 100, 1));
@@ -67,20 +69,24 @@ public class PlayerDeathListener implements Listener {
         int maxLives = HardcoreDataManager.getMaxLives(player.getUniqueId(), player.getName());
         int currentDeaths = HardcoreDataManager.getDeaths(player.getUniqueId(), player.getName());
         
-        boolean deathBansDisabled = Tezzlar.getConfigManager().getBoolean("hardcore.death_bans_disabled", false);
         boolean isBanDeath = (lives <= 0) && !deathBansDisabled;
         
-        if (!isBanDeath) {
-            if (lives > 0) {
-                lives--;
-                HardcoreDataManager.setLives(player.getUniqueId(), player.getName(), lives);
+        if (deathBansDisabled) {
+            currentDeaths++;
+            HardcoreDataManager.incrementDeaths(player.getUniqueId(), player.getName());
+        } else {
+            if (!isBanDeath) {
+                if (lives > 0) {
+                    lives--;
+                    HardcoreDataManager.setLives(player.getUniqueId(), player.getName(), lives);
+                } else {
+                    currentDeaths++;
+                    HardcoreDataManager.incrementDeaths(player.getUniqueId(), player.getName());
+                }
             } else {
                 currentDeaths++;
                 HardcoreDataManager.incrementDeaths(player.getUniqueId(), player.getName());
             }
-        } else {
-            currentDeaths++;
-            HardcoreDataManager.incrementDeaths(player.getUniqueId(), player.getName());
         }
         
         DeathTracker.logDeath(player, currentDeaths, player.getLocation(), event.getDeathMessage());
@@ -121,41 +127,43 @@ public class PlayerDeathListener implements Listener {
         }
 
         // 4. Process penalty
-        if (!isBanDeath) {
-            // Kick without ban (lives lost)
-            String rawWarnMsg = Tezzlar.getConfigManager().getString(
-                    "hardcore.messages.warnKickMessage", 
-                    HardcoreConfigDefaults.HARDCORE_WARNKICKMESSAGE
-            );
-            String kickMsg = HardcoreMessageFormatter.processPlaceholders(rawWarnMsg, player, null);
-            HardcoreModule.getPendingKicks().put(player.getUniqueId(), kickMsg);
-        } else {
-            // Ban for deaths when lives are 0
-            int banNumber = currentDeaths;
-            int hoursToBan = (banNumber - 1) * 12;
-            if (banNumber == 1) {
-                hoursToBan = 8;
-            }
-            
-            long durationMillis = hoursToBan * 3600000L;
-            Instant expirationInstant = Instant.now().plusMillis(durationMillis);
-            
-            // Format duration
-            String formattedTime = Global.formatDuration(durationMillis);
-            
-            // Fetch message from config
-            String rawKickReason = Tezzlar.getConfigManager().getString(
-                    "hardcore.messages.kickMessage", 
-                    HardcoreConfigDefaults.HARDCORE_KICKMESSAGE
-            );
-            
-            String kickReason = HardcoreMessageFormatter.processPlaceholders(rawKickReason, player, formattedTime);
+        if (!deathBansDisabled) {
+            if (!isBanDeath) {
+                // Kick without ban (lives lost)
+                String rawWarnMsg = Tezzlar.getConfigManager().getString(
+                        "hardcore.messages.warnKickMessage", 
+                        HardcoreConfigDefaults.HARDCORE_WARNKICKMESSAGE
+                );
+                String kickMsg = HardcoreMessageFormatter.processPlaceholders(rawWarnMsg, player, null);
+                HardcoreModule.getPendingKicks().put(player.getUniqueId(), kickMsg);
+            } else {
+                // Ban for deaths when lives are 0
+                int banNumber = currentDeaths;
+                int hoursToBan = (banNumber - 1) * 12;
+                if (banNumber == 1) {
+                    hoursToBan = 8;
+                }
+                
+                long durationMillis = hoursToBan * 3600000L;
+                Instant expirationInstant = Instant.now().plusMillis(durationMillis);
+                
+                // Format duration
+                String formattedTime = Global.formatDuration(durationMillis);
+                
+                // Fetch message from config
+                String rawKickReason = Tezzlar.getConfigManager().getString(
+                        "hardcore.messages.kickMessage", 
+                        HardcoreConfigDefaults.HARDCORE_KICKMESSAGE
+                );
+                
+                String kickReason = HardcoreMessageFormatter.processPlaceholders(rawKickReason, player, formattedTime);
 
-            // Store the ban in our custom data manager using UUID to completely bypass the Vanilla ban UI
-            HardcoreDataManager.setBanExpiration(player.getUniqueId(), player.getName(), expirationInstant.toEpochMilli());
-            
-            // Queue for kick on immediate respawn with the full static text
-            HardcoreModule.getPendingKicks().put(player.getUniqueId(), kickReason);
+                // Store the ban in our custom data manager using UUID to completely bypass the Vanilla ban UI
+                HardcoreDataManager.setBanExpiration(player.getUniqueId(), player.getName(), expirationInstant.toEpochMilli());
+                
+                // Queue for kick on immediate respawn with the full static text
+                HardcoreModule.getPendingKicks().put(player.getUniqueId(), kickReason);
+            }
         }
         
         // 1. The Vanilla death message is already broadcasted automatically by Bukkit (event.deathMessage())
