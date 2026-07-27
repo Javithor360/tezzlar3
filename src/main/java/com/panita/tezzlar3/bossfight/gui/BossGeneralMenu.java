@@ -170,10 +170,10 @@ public class BossGeneralMenu extends Menu {
 
     private void equipPhase1Kit() {
         // Armadura (guardada en inventario)
-        ItemStack helmet = getEnchantedSuperdiamond("superdiamond_helmet_lvl2", true);
-        ItemStack chestplate = getEnchantedSuperdiamond("superdiamond_chestplate_lvl2", true);
-        ItemStack leggings = getEnchantedSuperdiamond("superdiamond_leggings_lvl2", true);
-        ItemStack boots = getEnchantedSuperdiamond("superdiamond_boots_lvl2", true);
+        ItemStack helmet = getEnchantedSuperdiamond("white_superdiamond_helmet_lvl2", true);
+        ItemStack chestplate = getEnchantedSuperdiamond("white_superdiamond_chestplate_lvl2", true);
+        ItemStack leggings = getEnchantedSuperdiamond("white_superdiamond_leggings_lvl2", true);
+        ItemStack boots = getEnchantedSuperdiamond("white_superdiamond_boots_lvl2", true);
 
         if (helmet != null) player.getInventory().addItem(helmet);
         if (chestplate != null) player.getInventory().addItem(chestplate);
