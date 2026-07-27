@@ -35,6 +35,7 @@ import java.util.*;
 
 import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.hardcore.util.HardcoreDataManager;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 import org.bukkit.entity.EntityType;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -327,8 +328,11 @@ public class QolItemsListener implements Listener {
             event.setCancelled(true);
             Player player = event.getPlayer();
             
-            if (player.getWorld().getEnvironment() != World.Environment.NORMAL) {
-                Messenger.prefixedSend(player, "<red>El repelente solo funciona en el Overworld, donde hay contaminación.</red>");
+            World.Environment env = player.getWorld().getEnvironment();
+            boolean canUse = (env == World.Environment.NORMAL) || (env == World.Environment.THE_END && TimeManager.getCurrentDay() >= 25);
+            
+            if (!canUse) {
+                Messenger.prefixedSend(player, "<red>El repelente solo funciona donde hay contaminación (Overworld o en el End a partir del día 25).</red>");
                 return;
             }
             
