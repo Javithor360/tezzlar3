@@ -92,8 +92,13 @@ public class KitCommand implements AdvancedCommand {
                 "minecraft:punch", 3,
                 "minecraft:power", 12,
                 "minecraft:flame", 1,
-                "minecraft:unbreaking", 5
+                "minecraft:unbreaking", 5,
+                "minecraft:infinity", 1
         )));
+        // arrows
+        itemsToGive.add(getVanillaItem("minecraft:arrow", 64));
+        // superdiamond_shield
+        itemsToGive.add(getCustomItem("superdiamond_shield", 1));
         // amethyst_horn
         itemsToGive.add(getCustomItem("amethyst_horn", 1));
         // axolotl_totem x 4
@@ -150,7 +155,7 @@ public class KitCommand implements AdvancedCommand {
         ItemStack item = CustomItemManager.getItem(id);
         if (item != null) {
             ItemMeta meta = item.getItemMeta();
-            if (meta != null && amount > meta.getMaxStackSize()) {
+            if (meta != null && amount > item.getMaxStackSize()) {
                 meta.setMaxStackSize(amount > 99 ? amount : 99);
                 item.setItemMeta(meta);
             }
@@ -186,7 +191,7 @@ public class KitCommand implements AdvancedCommand {
             if (material != null) {
                 ItemStack item = new ItemStack(material);
                 ItemMeta meta = item.getItemMeta();
-                if (meta != null && amount > meta.getMaxStackSize()) {
+                if (meta != null && amount > item.getMaxStackSize()) {
                     meta.setMaxStackSize(amount > 99 ? amount : 99);
                     item.setItemMeta(meta);
                 }
