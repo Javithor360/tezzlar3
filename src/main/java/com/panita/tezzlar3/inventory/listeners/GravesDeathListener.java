@@ -14,6 +14,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.qol.util.CustomItemManager;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 
 public class GravesDeathListener implements Listener {
 
@@ -52,22 +53,24 @@ public class GravesDeathListener implements Listener {
         }
         
         // We capture the drops and save them (if soulbound, drops are empty, so we just save an empty string to mark the grave)
-        if (!event.getDrops().isEmpty() || isSoulbound) {
-            String base64 = "";
-            if (!isSoulbound) {
-                ItemStack[] drops = event.getDrops().toArray(new ItemStack[0]);
-                base64 = InventorySerializer.toBase64(drops);
-                event.getDrops().clear();
+        if (TimeManager.getCurrentDay() != 31) {
+            if (!event.getDrops().isEmpty() || isSoulbound) {
+                String base64 = "";
+                if (!isSoulbound) {
+                    ItemStack[] drops = event.getDrops().toArray(new ItemStack[0]);
+                    base64 = InventorySerializer.toBase64(drops);
+                    event.getDrops().clear();
+                }
+                
+                Location deathLoc = player.getLocation().getBlock().getLocation();
+                
+                String deathCause = "Causa desconocida";
+                if (player.getLastDamageCause() != null) {
+                    deathCause = player.getLastDamageCause().getCause().name();
+                }
+                
+                GravesDataManager.addGrave(deathLoc, player.getUniqueId(), player.getName(), base64, deathCause, isSoulbound);
             }
-            
-            Location deathLoc = player.getLocation().getBlock().getLocation();
-            
-            String deathCause = "Causa desconocida";
-            if (player.getLastDamageCause() != null) {
-                deathCause = player.getLastDamageCause().getCause().name();
-            }
-            
-            GravesDataManager.addGrave(deathLoc, player.getUniqueId(), player.getName(), base64, deathCause, isSoulbound);
         }
     }
 }
