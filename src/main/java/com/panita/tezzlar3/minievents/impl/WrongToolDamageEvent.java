@@ -82,8 +82,8 @@ public class WrongToolDamageEvent implements MiniEvent, Listener, ActionBarProvi
         if (BlockUtils.isInstaBreak(block.getType())) return; // Ignore flowers, tall grass, torches...
         
         if (!BlockUtils.isOptimalTool(block.getType(), tool.getType())) {
-            // Wrong tool! Apply Instant Damage IV (amplifier 3)
-            player.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_DAMAGE, 1, 3));
+            // Wrong tool! Apply Instant Damage V (amplifier 4)
+            player.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_DAMAGE, 1, 4));
             messageExpiry.put(player.getUniqueId(), System.currentTimeMillis() + 3000L);
         }
     }
