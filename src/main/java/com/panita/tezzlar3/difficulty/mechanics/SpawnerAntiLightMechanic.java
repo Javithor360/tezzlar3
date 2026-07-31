@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import com.panita.tezzlar3.core.util.PlayerUtils;
 import com.panita.tezzlar3.core.util.SoundUtils;
+import com.panita.tezzlar3.timeline.util.TimeManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,6 +85,11 @@ public class SpawnerAntiLightMechanic extends DifficultyMechanic {
             }.runTaskTimer(plugin, 1L, 1L);
 
         }, 100L, 100L);
+    }
+
+    @Override
+    public boolean isActive() {
+        return super.isActive() && TimeManager.getCurrentDay() < 20;
     }
 
     private boolean isLightBlock(Material mat) {

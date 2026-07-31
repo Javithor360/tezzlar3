@@ -1,5 +1,6 @@
 package com.panita.tezzlar3.troll.commands;
 
+import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.commands.dynamic.AdvancedCommand;
 import com.panita.tezzlar3.core.commands.dynamic.TabSuggestingCommand;
