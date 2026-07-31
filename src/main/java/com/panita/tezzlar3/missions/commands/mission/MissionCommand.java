@@ -1,4 +1,4 @@
-package com.panita.tezzlar3.missions.commands;
+package com.panita.tezzlar3.missions.commands.mission;
 
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.commands.dynamic.AdvancedCommand;

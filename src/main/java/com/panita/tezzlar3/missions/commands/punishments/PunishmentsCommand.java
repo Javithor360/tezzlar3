@@ -1,26 +1,19 @@
-package com.panita.tezzlar3.missions.commands;
+package com.panita.tezzlar3.missions.commands.punishments;
 
 import com.panita.tezzlar3.core.chat.Messenger;
 import com.panita.tezzlar3.core.commands.dynamic.AdvancedCommand;
 import com.panita.tezzlar3.core.commands.dynamic.TabSuggestingCommand;
 import com.panita.tezzlar3.core.commands.identifiers.CommandMeta;
 import com.panita.tezzlar3.core.commands.identifiers.CommandSpec;
-import com.panita.tezzlar3.core.config.CustomConfig;
 import com.panita.tezzlar3.missions.MissionsModule;
 import com.panita.tezzlar3.missions.data.PlayerMissionData;
 import com.panita.tezzlar3.missions.util.MissionsConfigDefaults;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import com.panita.tezzlar3.Tezzlar;
-import org.bukkit.configuration.file.FileConfiguration;
 
-import org.bukkit.configuration.file.FileConfiguration;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @CommandSpec(
         name = "punishments",

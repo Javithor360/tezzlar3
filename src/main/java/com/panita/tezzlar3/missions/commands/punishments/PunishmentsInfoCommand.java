@@ -1,4 +1,4 @@
-package com.panita.tezzlar3.missions.commands;
+package com.panita.tezzlar3.missions.commands.punishments;
 
 import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.chat.Messenger;

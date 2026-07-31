@@ -1,4 +1,4 @@
-package com.panita.tezzlar3.missions.commands;
+package com.panita.tezzlar3.missions.commands.punishments;
 
 import com.panita.tezzlar3.Tezzlar;
 import com.panita.tezzlar3.core.chat.Messenger;
@@ -23,12 +23,12 @@ import java.util.stream.Collectors;
 
 @SubCommandSpec(
         parent = "punishments",
-        name = "add",
-        description = "Adds a punishment to a player.",
-        syntax = "/punishments add <player> <punishment>",
+        name = "revoke",
+        description = "Revokes a punishment from a player.",
+        syntax = "/punishments revoke <player> <punishment>",
         permission = "tezzlar3.admin"
 )
-public class PunishmentsAddCommand implements AdvancedCommand, TabSuggestingCommand {
+public class PunishmentsRevokeCommand implements AdvancedCommand, TabSuggestingCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (!CommandUtils.checkArgsOrUsage(sender, args, 2, this.getClass())) return;
@@ -40,11 +40,11 @@ public class PunishmentsAddCommand implements AdvancedCommand, TabSuggestingComm
         if (onlineTarget != null) {
             PlayerMissionData data = MissionsModule.getDataManager().getPlayerData(onlineTarget);
             if (data != null) {
-                if (data.hasPunishment(punishment)) {
-                    Messenger.prefixedSend(sender, "&cEl jugador &e" + target + " &cya tiene el castigo &e" + punishment + " &cactivo.");
+                if (!data.hasPunishment(punishment)) {
+                    Messenger.prefixedSend(sender, "&cEl jugador &e" + target + " &cno tiene el castigo &e" + punishment + " &cactivo.");
                 } else {
-                    data.addPunishment(punishment);
-                    Messenger.prefixedSend(sender, "&aSe ha añadido el castigo &e" + punishment + " &aal jugador &e" + target);
+                    data.removePunishment(punishment);
+                    Messenger.prefixedSend(sender, "&aSe ha removido el castigo &e" + punishment + " &aal jugador &e" + target);
                 }
             }
         } else {
@@ -56,13 +56,13 @@ public class PunishmentsAddCommand implements AdvancedCommand, TabSuggestingComm
                 FileConfiguration config = customConfig.getConfig();
                 List<String> activePunishments = config.getStringList("active_punishments");
                 
-                if (activePunishments.contains(punishment)) {
-                    Messenger.prefixedSend(sender, "&cEl jugador &e" + target + " &cya tiene el castigo &e" + punishment + " &cactivo (Offline).");
+                if (!activePunishments.contains(punishment)) {
+                    Messenger.prefixedSend(sender, "&cEl jugador &e" + target + " &cno tiene el castigo &e" + punishment + " &cactivo (Offline).");
                 } else {
-                    activePunishments.add(punishment);
+                    activePunishments.remove(punishment);
                     config.set("active_punishments", activePunishments);
                     customConfig.save();
-                    Messenger.prefixedSend(sender, "&aSe ha añadido el castigo &e" + punishment + " &aal jugador &e" + target + " &7(Offline)");
+                    Messenger.prefixedSend(sender, "&aSe ha removido el castigo &e" + punishment + " &aal jugador &e" + target + " &7(Offline)");
                 }
             } else {
                 Messenger.prefixedSend(sender, "&cNo se encontraron datos para el jugador &e" + target);
