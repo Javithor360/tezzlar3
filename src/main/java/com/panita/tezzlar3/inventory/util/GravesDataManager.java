@@ -39,7 +39,14 @@ public class GravesDataManager {
         
         gravesConfig.save();
 
-        // Save permanent history immediately upon death
+        saveBackup(id, location, playerUUID, playerName, inventoryBase64, deathCause, isSoulbound);
+    }
+
+    public static void addGraveBackupOnly(Location location, UUID playerUUID, String playerName, String inventoryBase64, String deathCause, boolean isSoulbound) {
+        saveBackup(UUID.randomUUID().toString(), location, playerUUID, playerName, inventoryBase64, deathCause, isSoulbound);
+    }
+
+    private static void saveBackup(String id, Location location, UUID playerUUID, String playerName, String inventoryBase64, String deathCause, boolean isSoulbound) {
         String historyPath = "archived_graves." + id;
         gravesBackupConfig.getConfig().set(historyPath + ".world", location.getWorld().getName());
         gravesBackupConfig.getConfig().set(historyPath + ".x", location.getBlockX());

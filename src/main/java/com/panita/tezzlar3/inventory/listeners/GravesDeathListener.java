@@ -52,24 +52,31 @@ public class GravesDeathListener implements Listener {
             Messenger.prefixedSend(player, "<green>¡Tu Reliquia de Vinculación se ha consumido, pero ha protegido tus pertenencias!</green>");
         }
         
-        // We capture the drops and save them (if soulbound, drops are empty, so we just save an empty string to mark the grave)
+        // Always capture drops for backup
+        String base64 = "";
+        if (!isSoulbound && !event.getDrops().isEmpty()) {
+            ItemStack[] drops = event.getDrops().toArray(new ItemStack[0]);
+            base64 = InventorySerializer.toBase64(drops);
+        }
+        
+        Location deathLoc = player.getLocation().getBlock().getLocation();
+        String deathCause = "Causa desconocida";
+        if (player.getLastDamageCause() != null) {
+            deathCause = player.getLastDamageCause().getCause().name();
+        }
+
         if (TimeManager.getCurrentDay() != 31) {
-            if (!event.getDrops().isEmpty() || isSoulbound) {
-                String base64 = "";
-                if (!isSoulbound) {
-                    ItemStack[] drops = event.getDrops().toArray(new ItemStack[0]);
-                    base64 = InventorySerializer.toBase64(drops);
-                    event.getDrops().clear();
-                }
-                
-                Location deathLoc = player.getLocation().getBlock().getLocation();
-                
-                String deathCause = "Causa desconocida";
-                if (player.getLastDamageCause() != null) {
-                    deathCause = player.getLastDamageCause().getCause().name();
-                }
-                
+            // We clear drops only if not soulbound and not day 31
+            if (!isSoulbound && !event.getDrops().isEmpty()) {
+                event.getDrops().clear();
+            }
+            if (!base64.isEmpty() || isSoulbound) {
                 GravesDataManager.addGrave(deathLoc, player.getUniqueId(), player.getName(), base64, deathCause, isSoulbound);
+            }
+        } else {
+            // Day 31: items drop normally (or are kept via soulbound), but we STILL save a backup
+            if (!base64.isEmpty() || isSoulbound) {
+                GravesDataManager.addGraveBackupOnly(deathLoc, player.getUniqueId(), player.getName(), base64, deathCause, isSoulbound);
             }
         }
     }
