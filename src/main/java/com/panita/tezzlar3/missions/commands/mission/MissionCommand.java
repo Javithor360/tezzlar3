@@ -14,6 +14,6 @@ import org.bukkit.command.CommandSender;
 public class MissionCommand implements AdvancedCommand {
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Messenger.prefixedSend(sender, "&7Uso: &b/mission <check>");
+        Messenger.prefixedSend(sender, "&7Uso: &b/mission <check|completionist>");
     }
 }
